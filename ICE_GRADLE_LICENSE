@@ -1,0 +1,21 @@
+Copyright (c) 2003-2015 ZeroC, Inc. All rights reserved.
+
+This copy of the Ice Gradle Plugin is free software; you can redistribute
+it and/or modify it under the terms of the GNU General Public License
+version 2 as published by the Free Software Foundation.
+
+The Ice Gradle Plugin is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+General Public License for more details.
+
+The GNU General Public License is often shipped with GNU software, and
+is generally kept in a file called COPYING or LICENSE. If you do not
+have a copy of the license, write to the Free Software Foundation, 51
+Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+You must obey the GNU General Public License version 2 in all respects
+for all of the code used other than these libraries. If you modify
+this copy of the Ice Gradle Plugin, you may extend this exception to your
+version of the Ice Gradle Plugin, but you are not obligated to do so. If
+you do not wish to do so, delete this exception statement from your version.
