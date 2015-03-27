@@ -1,3 +1,5 @@
+[![Build Status](https://magnum.travis-ci.com/ZeroC-Inc/ice-gradle-plugin.svg?token=icxd1yE9Nf6WLivZz2vF&branch=master)](https://magnum.travis-ci.com/ZeroC-Inc/ice-gradle-plugin)
+
 This repository contains the source code a gradle plugin to manage compilation
 of [Slice](https://doc.zeroc.com/display/Ice/The+Slice+Language) files for
 Java.
