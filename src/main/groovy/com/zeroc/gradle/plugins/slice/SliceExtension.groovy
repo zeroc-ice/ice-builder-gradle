@@ -14,6 +14,7 @@ import org.gradle.api.NamedDomainObjectContainer
 class SliceExtension {
     final NamedDomainObjectContainer<Java> java;
     def iceHome = null
+    def iceVersion = "3.6.0"
     def srcDist = false
     def output
 

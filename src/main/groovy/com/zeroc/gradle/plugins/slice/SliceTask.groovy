@@ -749,7 +749,7 @@ class SliceTask extends DefaultTask {
                 } else {
                     programFiles = System.getenv('ProgramFiles')
                 }
-                iceHome = programFiles + File.separator + "ZeroC" + File.separator + "Ice-3.6.0"
+                iceHome = programFiles + File.separator + "ZeroC" + File.separator + "Ice-" + project.slice.iceVersion
             } else {
                 iceHome = "/usr"
             }
@@ -776,7 +776,7 @@ class SliceTask extends DefaultTask {
                 return "/usr/local/share/slice"
             }
         } else if (iceHome == "/usr") {
-            return "/usr/share/Ice-3.6.0/slice"
+            return "/usr/share/Ice-" + project.slice.iceVersion + "/slice"
         }
         return iceHome + File.separator + "slice"
     }
