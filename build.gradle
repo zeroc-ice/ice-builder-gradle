@@ -56,7 +56,7 @@ task jarSources(type:Jar, dependsOn: jar){
     from sourceSets.main.allSource
     classifier = "${pluginVersion}-source"
 }
-build.dependsOn(jarSources)
+assemble.dependsOn(jarSources)
 
 //
 // Used to build the gradle wrapper to automatically download and install
