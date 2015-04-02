@@ -1,12 +1,268 @@
-[![Build Status](https://magnum.travis-ci.com/ZeroC-Inc/ice-gradle-plugin.svg?token=icxd1yE9Nf6WLivZz2vF&branch=master)](https://magnum.travis-ci.com/ZeroC-Inc/ice-gradle-plugin)
+[![Build Status](https://magnum.travis-ci.com/ZeroC-Inc/ice-builder-gradle.svg?token=icxd1yE9Nf6WLivZz2vF&branch=master)](https://magnum.travis-ci.com/ZeroC-Inc/ice-builder-gradle)
 
-This repository contains the source code a gradle plugin to manage compilation
+# Ice Builder for Gradle
+
+The Ice Builder for Gradle provides a gradle plugin to manage compilation
 of [Slice](https://doc.zeroc.com/display/Ice/The+Slice+Language) files for
 Java.
 
+## Build Instructions
+
 To build the plugin run:
 
+```
   $ ./gradlew build
+```
 
-For infomation on how to use the plugin, please see the [Ice Gradle Plugin]
-(https://doc.zeroc.com/display/Ice36/Gradle+Slice+Plug-in) documentation.
+## Using the Gradle Plug-in
+
+To use the plug-in, include the following in your build script:
+
+```
+buildscript {
+    repositories {
+        maven {
+            url 'https://repo.zeroc.com/nexus/content/repositories/releases'
+        }
+    }
+    dependencies {
+        classpath group: 'com.zeroc.gradle.plugins', name: 'ice-gradle-plugin', version: '1.0'
+    }
+}
+apply plugin: 'slice'
+```
+
+## Gradle Tasks
+
+The Slice plug-in adds a task to your project, as shown below:
+
+| Task name         | Type      | Description                             |
+| ----------------- | --------- | --------------------------------------- |
+| generateSliceTask | SliceTask | Generates Java source from Slice files. |
+
+The Slice plug-in adds the following dependency to tasks added by the Java
+plug-in:
+
+| Task name   | Depends On        |
+| ----------- | ----------------- |
+| compileJava | generateSliceTask |
+
+In addition, the Slice plug-in adds the following dependency to tasks added by
+the Android plug-in:
+
+| Task name | Depends On        |
+| --------- | ----------------- |
+| preBuild  | generateSliceTask |
+
+## Project Layout
+
+| Directory      | Meaning                 |
+| -------------- | ----------------------- |
+| src/main/slice | Production Slice files. |
+
+## Convention Properties
+
+The Slice plug-in defines the following convention properties:
+
+| Property name | Type   | Default value                        | Description                                  |
+| ------------- | ------ | ------------------------------------ | -------------------------------------------- |
+| iceHome       | String | null                                 | The location of the Ice installation         |
+| iceVersion    | String | Latest Ice version at plugin release | The Ice version                              |
+| output        | File   | buildDir/generated-src               | The location to place generated source files |
+
+If _iceHome_ is not set, the plugin will check the _ICE_HOME_ environment
+variable to determine the location of the Ice installation. If _ICE_HOME_ is not
+set, it will look in the default install location of the Ice binary
+distribution. If Ice is installed in a non-standard location, then either
+_iceHome_ or _ICE_HOME_ must be set.
+
+## Configuring Slice-to-Java Projects
+
+The sub-section java is used to configure files compiled with slice2java.
+Contained within the java sub-section are a number of source sets, each
+representing a set of common flags for Slice files. If there is only a single
+source set, the source set can be omitted.
+
+### Java Properties
+
+Each source set defines the following convention properties:
+
+| Property name | Type | Default value | Description |
+| ------------- | ---- | ------------- | ----------- |
+| args | String | -  | The arguments to slice2java |
+| files  | FileCollection | -  | The Slice files in this source set. Contains only .ice files found in the source directories, and excludes all other files. |
+| include | Set<File>  | null | Locations to be included. |
+| name | String (read-only) | Not null | The name of the set. |
+| output.classesDir | File | _buildDir_/classes/main | The directory in which to generate the classes of this source set. |
+| srcDir | File | src/main/slice | The Slice file source directory. |
+
+### Java Examples
+
+Build all the Slice files contained in src/main/slice with the --tie argument:
+
+```
+slice {
+  java {
+     args = "--tie"
+  }
+}
+```
+
+Build a.ice with the argument --stream, and all Slice files in b with all given
+include directories:
+
+```
+slice {
+  java {
+     set1 {
+       include = ["${projectDir}", "${sliceDir}"]
+       args = "--stream"
+       files = [file("a.ice")]
+     }
+     set2 {
+       include = ["${projectDir}", "${sliceDir}"]
+       files = filetree(dir: "b", includes: ['**.ice'])
+     }
+  }
+}
+```
+
+## Configuring Slice-to-Freeze Projects
+
+The sub-section freezej is used to configure files compiled with slice2freezej.
+Contained within the freezej sub-section is a source-set for dictionaries and a
+source-set for indices.
+
+### Freeze Properties
+
+Each source set defines the following convention properties:
+
+| Property name | Type | Default value | Description |
+| ------------- | ---- | ------------- | ----------- |
+|name | String (read-only) | Not null | The name of the set. |
+| args | String | -  | The arguments to slice2freezej |
+| files  | FileCollection | -  | The Slice files in this source set. Contains only .ice files found in the source directories, and excludes all other files. |
+| include | Set<File>  | null | Locations to be included. |
+| name | String (read-only) | Not null | The name of the set. |
+| output.classesDir | File | _buildDir_/classes/main | The directory in which to generate the classes of this source set. |
+| srcDir | File | src/main/slice | The Slice file source directory. |
+
+### Dictionary Source Set
+
+The dict source-set specifies the set of Freeze dictionary data types to
+generate.
+
+#### Dictionary Properties
+
+Each dictionary defines the following convention properties:
+
+| Property name | Type | Default value | Description |
+| ------------- | ---- | ------------- | ----------- |
+| index | List\<Map\<String, String>> | Not null | A list of dictionary values used for keys. |
+| javaType | String | - | The name of the generated Java type. |
+| key | String | - | The Slice type of the key. |
+| name | String (read-only) | Not null | The name of the dictionary. |
+| value | String | - | The Slice type of the value. |
+
+#### Dictionary Examples
+
+Given the following Slice definitions in Test.ice:
+
+```
+// Slice
+module Test {
+struct Foo
+{
+    string s;
+    Struct1 s1;
+};
+};
+```
+
+Generate a dictionary mapping a string to the slice type Foo:
+
+```
+slice {
+  freezej {
+     files = [file("Test.ice")]
+     dict {
+       StringFooMap {
+          javaType = "Test.StringFooMap"
+          key = "string"
+          value = "Test::Foo"
+       }
+     }
+  }
+}
+```
+
+Generate the same dictionary, but this time with an index on the members:
+
+```
+slice {
+  freezej {
+     files = [file("Test.ice")]
+     dict {
+       IntIntDict {
+          javaType = "Test.StringFooMap"
+          key = "string"
+          value = "Test::Foo"
+          index = [["member" : "s"]]
+          // Example: case insensitive
+          // index = [["member" : "s", case: 'false']]
+          // Example: two indices.
+          // index = [["member" : "s"], ['member': 's1']
+       }
+     }
+  }
+}
+```
+
+More examples are embedded in the gradle definitions.
+
+### Index Source Set
+
+The index source-set specifies the set of Freeze evictor index types to
+generate.
+
+#### Index Properties
+
+Each index defines the following convention properties:
+
+| Property name | Type | Default value | Description |
+| ------------- | ---- | ------------- | ----------- |
+| name | String (read-only) | Not null | The name of the index. |
+| javaType | String | - | The name of the generated Java type. |
+| type | String | - | The Slice type of the type to be indexed. |
+| member | String | - | The name of the data member in the type to index. |
+| casesensitive | boolean | true | If the member is a string, this specifies whether the comparison is case sensitive. |
+
+#### Index Example
+
+Given the following Slice types in Test.ice:
+
+```
+// Slice
+module Test {
+struct Foo
+{
+    string s;
+    Struct1 s1;
+};
+};
+```
+
+This generates an index called Test.SIndex on the member s:
+
+```
+freezej {
+  files = [file("Test.ice")]
+  index {
+   NameIndex {
+    javaType = "Test.SIndex"
+    type = "Test::Foo"
+    member = "s"
+    casesensitive = false
+  }
+}
+```
