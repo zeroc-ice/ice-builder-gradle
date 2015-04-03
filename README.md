@@ -3,7 +3,7 @@
 # Ice Builder for Gradle
 
 The Ice Builder for Gradle provides a gradle plugin to manage compilation
-of [Slice](https://doc.zeroc.com/display/Ice/The+Slice+Language) files for
+of [Slice](https://doc.zeroc.com/display/Ice/The+Slice+Language) files to
 Java.
 
 ## Build Instructions
@@ -14,9 +14,9 @@ To build the plugin run:
   $ ./gradlew build
 ```
 
-## Using the Gradle Plug-in
+## Using the Gradle Plugin
 
-To use the plug-in, include the following in your build script:
+To use the plugin, include the following in your build script:
 
 ```
 buildscript {
@@ -34,21 +34,21 @@ apply plugin: 'slice'
 
 ## Gradle Tasks
 
-The Slice plug-in adds a task to your project, as shown below:
+The Ice Builder plugin adds a task to your project, as shown below:
 
 | Task name         | Type      | Description                             |
 | ----------------- | --------- | --------------------------------------- |
 | generateSliceTask | SliceTask | Generates Java source from Slice files. |
 
-The Slice plug-in adds the following dependency to tasks added by the Java
-plug-in:
+The Ice Builder plugin adds the following dependency to tasks added by the Java
+plugin:
 
 | Task name   | Depends On        |
 | ----------- | ----------------- |
 | compileJava | generateSliceTask |
 
-In addition, the Slice plug-in adds the following dependency to tasks added by
-the Android plug-in:
+In addition, the it adds the following dependency to tasks added by
+the Android plugin:
 
 | Task name | Depends On        |
 | --------- | ----------------- |
@@ -62,7 +62,7 @@ the Android plug-in:
 
 ## Convention Properties
 
-The Slice plug-in defines the following convention properties:
+The Ice Builder plugin defines the following convention properties:
 
 | Property name | Type   | Default value                        | Description                                  |
 | ------------- | ------ | ------------------------------------ | -------------------------------------------- |
@@ -70,11 +70,11 @@ The Slice plug-in defines the following convention properties:
 | iceVersion    | String | Latest Ice version at plugin release | The Ice version                              |
 | output        | File   | buildDir/generated-src               | The location to place generated source files |
 
-If _iceHome_ is not set, the plugin will check the _ICE_HOME_ environment
-variable to determine the location of the Ice installation. If _ICE_HOME_ is not
+If `iceHome` is not set, the plugin will check the `ICE_HOME` environment
+variable to determine the location of the Ice installation. If `ICE_HOME` is not
 set, it will look in the default install location of the Ice binary
 distribution. If Ice is installed in a non-standard location, then either
-_iceHome_ or _ICE_HOME_ must be set.
+`iceHome` or `ICE_HOME` must be set.
 
 ## Configuring Slice-to-Java Projects
 
