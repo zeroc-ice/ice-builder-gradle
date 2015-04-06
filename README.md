@@ -1,4 +1,4 @@
-[![Build Status](https://magnum.travis-ci.com/ZeroC-Inc/ice-builder-gradle.svg?token=icxd1yE9Nf6WLivZz2vF&branch=master)](https://magnum.travis-ci.com/ZeroC-Inc/ice-builder-gradle)
+[![Build Status](https://magnum.travis-ci.com/zeroc-ice/ice-builder-gradle.svg?token=icxd1yE9Nf6WLivZz2vF&branch=master)](https://magnum.travis-ci.com/zeroc-ice/ice-builder-gradle)
 
 # Ice Builder for Gradle
 
