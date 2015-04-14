@@ -32,6 +32,9 @@ buildscript {
 apply plugin: 'slice'
 ```
 
+It is important that the `slice` plugin is applied after the `java` plugin in
+order for task dependencies to be properly setup.
+
 ## Gradle Tasks
 
 The Ice Builder plugin adds a task to your project, as shown below:
