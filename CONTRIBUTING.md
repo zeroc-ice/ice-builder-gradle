@@ -1,5 +1,5 @@
 Contributing to the Ice Builder for Gradle
-=========================================
+==========================================
 
 Thank you for your interest in contributing to the Ice Builder for Gradle!
 
