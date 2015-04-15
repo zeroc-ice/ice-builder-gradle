@@ -50,7 +50,7 @@ plugin:
 | ----------- | ----------------- |
 | compileJava | generateSliceTask |
 
-In addition, the it adds the following dependency to tasks added by
+In addition, it adds the following dependency to tasks added by
 the Android plugin:
 
 | Task name | Depends On        |
@@ -142,7 +142,7 @@ Each source set defines the following convention properties:
 
 | Property name | Type | Default value | Description |
 | ------------- | ---- | ------------- | ----------- |
-|name | String (read-only) | Not null | The name of the set. |
+| name | String (read-only) | Not null | The name of the set. |
 | args | String | -  | The arguments to slice2freezej |
 | files  | FileCollection | -  | The Slice files in this source set. Contains only .ice files found in the source directories, and excludes all other files. |
 | include | Set<File>  | null | Locations to be included. |
