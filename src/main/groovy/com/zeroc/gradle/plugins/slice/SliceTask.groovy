@@ -554,6 +554,27 @@ class SliceTask extends DefaultTask {
         return parseSliceDependencyXML(new XmlSlurper().parseText(sout.toString()))
     }
 
+    // Executes slice2java to determine the Ice version.
+    def getIceVersion() {
+        def slice2java = getSlice2Java()
+        def command = []
+        command.add(slice2java);
+        command.add("--version")
+
+        def sout = new StringBuffer()
+        def serr = new StringBuffer()
+
+        def env = addLdLibraryPath()
+        def p = command.execute(env, null)
+        p.waitForProcessOutput(sout, serr)
+        if (p.exitValue() != 0) {
+            println serr.toString()
+            throw new GradleException("${slice2java} command failed: " + p.exitValue())
+        }
+
+        return serr.toString()
+    }
+
     // Given a map of A->B,C,D where A depends on B, C, D produce a map
     // of B->A, C->A, D->A meaning that if B is touched A must be rebuilt.
     //
@@ -746,7 +767,7 @@ class SliceTask extends DefaultTask {
                 } else {
                     programFiles = System.getenv('ProgramFiles')
                 }
-                iceHome = programFiles + File.separator + "ZeroC" + File.separator + "Ice-" + project.slice.iceVersion
+                iceHome = programFiles + File.separator + "ZeroC" + File.separator + "Ice-3.6.0"
             } else {
                 iceHome = "/usr"
             }
@@ -773,7 +794,7 @@ class SliceTask extends DefaultTask {
                 return "/usr/local/share/slice"
             }
         } else if (iceHome == "/usr") {
-            return "/usr/share/Ice-" + project.slice.iceVersion + "/slice"
+            return "/usr/share/Ice-" + getIceVersion() + "/slice"
         }
         return iceHome + File.separator + "slice"
     }

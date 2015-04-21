@@ -67,17 +67,25 @@ the Android plugin:
 
 The Ice Builder plugin defines the following convention properties:
 
-| Property name | Type   | Default value                        | Description                                  |
-| ------------- | ------ | ------------------------------------ | -------------------------------------------- |
-| iceHome       | String | null                                 | The location of the Ice installation         |
-| iceVersion    | String | Latest Ice version at plugin release | The Ice version                              |
-| output        | File   | buildDir/generated-src               | The location to place generated source files |
+| Property name | Type   | Default value          | Description                                  |
+| ------------- | ------ | ---------------------- | -------------------------------------------- |
+| iceHome       | String | (see table below)      | The location of the Ice installation         |
+| output        | File   | buildDir/generated-src | The location to place generated source files |
 
 If `iceHome` is not set, the plugin will check the `ICE_HOME` environment
-variable to determine the location of the Ice installation. If `ICE_HOME` is not
-set, it will look in the default install location of the Ice binary
-distribution. If Ice is installed in a non-standard location, then either
-`iceHome` or `ICE_HOME` must be set.
+variable to determine the location of the Ice installation. If `ICE_HOME` is
+also not set, it will look in the default install location of the Ice binary
+distribution.
+
+| OS         | Default Ice Install Directory
+| ---------- | -------------------------------------- |
+| Linux      | /usr                                   |
+| OS X       | /usr/local                             |
+| Windows 32 | C:\Program Files\ZeroC\Ice-3.6.0       |
+| Windows 64 | C:\Program Files (x86)\ZeroC\Ice-3.6.0 |
+
+If Ice is installed in a non-standard location, then either `iceHome` or
+`ICE_HOME` must be set.
 
 ## Configuring Slice-to-Java Projects
 
