@@ -4,6 +4,19 @@
 //
 // **********************************************************************
 
+buildscript {
+    repositories {
+        maven {
+            url 'https://plugins.gradle.org/m2/'
+        }
+    }
+    dependencies {
+        classpath 'com.gradle.publish:plugin-publish-plugin:0.9.0'
+    }
+}
+
+apply plugin: "com.gradle.plugin-publish"
+
 apply plugin: 'groovy'
 apply plugin: 'maven'
 
@@ -26,9 +39,9 @@ sourceSets {
     }
 }
 
-def pluginVersion  = "1.0"
+version  = "1.0"
 
-def pomName = "build/libs/ice-gradle-plugin-${pluginVersion}.pom"
+def pomName = "build/libs/ice-gradle-plugin-${project.version}.pom"
 task writeNewPom {
     outputs.file file(pomName)
 } << {
@@ -38,7 +51,7 @@ task writeNewPom {
             packaging 'jar'
             groupId 'com.zeroc.gradle.plugins'
             artifactId 'ice-gradle-plugin'
-            version pluginVersion
+            version project.version
             // TODO: Extend with licensing information.
         }
     }.writeTo(pomName)
@@ -46,14 +59,22 @@ task writeNewPom {
 jar.dependsOn(writeNewPom)
 
 jar {
-    archiveName = "ice-gradle-plugin-${pluginVersion}.jar"
+    archiveName = "ice-gradle-plugin-${project.version}.jar"
 }
 
-task jarSources(type:Jar, dependsOn: jar){
-    from sourceSets.main.allSource
-    classifier = "${pluginVersion}-source"
+pluginBundle {
+    website = 'https://zeroc.com/'
+    vcsUrl = 'https://github.com/zeroc-ice/ice-builder-gradle'
+    description = 'Plugin for compiling ZeroC Ice Slice files'
+    tags = ['zeroc', 'ice', 'slice']
+
+    plugins {
+        slicePlugin {
+            id = 'com.zeroc.gradle.plugins.slice'
+            displayName = 'Ice Builder for Gradle'
+        }
+    }
 }
-assemble.dependsOn(jarSources)
 
 //
 // Used to build the gradle wrapper to automatically download and install
