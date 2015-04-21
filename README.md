@@ -29,7 +29,7 @@ buildscript {
         classpath group: 'com.zeroc.gradle.plugins', name: 'ice-gradle-plugin', version: '1.0'
     }
 }
-apply plugin: 'slice'
+apply plugin: 'ice-gradle-plugin'
 ```
 
 It is important that the `slice` plugin is applied after the `java` plugin in

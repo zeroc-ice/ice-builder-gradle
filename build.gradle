@@ -70,7 +70,7 @@ pluginBundle {
 
     plugins {
         slicePlugin {
-            id = 'com.zeroc.gradle.plugins.slice'
+            id = 'com.zeroc.gradle.plugins.ice-gradle-plugin'
             displayName = 'Ice Builder for Gradle'
         }
     }
