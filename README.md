@@ -10,15 +10,15 @@ Java.
 
 To build the plugin run:
 
-```
-  $ ./gradlew build
+```shell
+$ ./gradlew build
 ```
 
 ## Using the Gradle Plugin
 
 To use the plugin, include the following in your build script:
 
-```
+```gradle
 buildscript {
     repositories {
         maven {
@@ -111,7 +111,7 @@ Each source set defines the following convention properties:
 
 Build all the Slice files contained in src/main/slice with the --tie argument:
 
-```
+```gradle
 slice {
   java {
      args = "--tie"
@@ -122,7 +122,7 @@ slice {
 Build a.ice with the argument --stream, and all Slice files in b with all given
 include directories:
 
-```
+```gradle
 slice {
   java {
      set1 {
@@ -192,7 +192,7 @@ struct Foo
 
 Generate a dictionary mapping a string to the slice type Foo:
 
-```
+```gradle
 slice {
   freezej {
      files = [file("Test.ice")]
@@ -209,7 +209,7 @@ slice {
 
 Generate the same dictionary, but this time with an index on the members:
 
-```
+```gradle
 slice {
   freezej {
      files = [file("Test.ice")]
@@ -265,7 +265,7 @@ struct Foo
 
 This generates an index called Test.SIndex on the member s:
 
-```
+```gradle
 freezej {
   files = [file("Test.ice")]
   index {
