@@ -32,7 +32,7 @@ buildscript {
 apply plugin: 'ice-gradle-plugin'
 ```
 
-It is important that the `slice` plugin is applied after the `java` plugin in
+It is important that the `ice-gradle-plugin` plugin is applied after the `java` plugin in
 order for task dependencies to be properly setup.
 
 ## Gradle Tasks
