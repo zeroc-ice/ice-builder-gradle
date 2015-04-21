@@ -26,13 +26,13 @@ buildscript {
         }
     }
     dependencies {
-        classpath group: 'com.zeroc.gradle.plugins', name: 'ice-gradle-plugin', version: '1.0'
+        classpath group: 'com.zeroc.gradle', name: 'ice-builder', version: '1.0.0'
     }
 }
-apply plugin: 'ice-gradle-plugin'
+apply plugin: 'ice-builder'
 ```
 
-It is important that the `ice-gradle-plugin` plugin is applied after the `java` plugin in
+It is important that the `ice-builder` plugin is applied after the `java` plugin in
 order for task dependencies to be properly setup.
 
 ## Gradle Tasks

@@ -39,9 +39,9 @@ sourceSets {
     }
 }
 
-version  = "1.0"
+version  = "1.0.0"
 
-def pomName = "build/libs/ice-gradle-plugin-${project.version}.pom"
+def pomName = "build/libs/ice-builder-${project.version}.pom"
 task writeNewPom {
     outputs.file file(pomName)
 } << {
@@ -49,8 +49,8 @@ task writeNewPom {
         project {
             url 'https://zeroc.com'
             packaging 'jar'
-            groupId 'com.zeroc.gradle.plugins'
-            artifactId 'ice-gradle-plugin'
+            groupId 'com.zeroc.gradle'
+            artifactId 'ice-builder'
             version project.version
             // TODO: Extend with licensing information.
         }
@@ -59,18 +59,18 @@ task writeNewPom {
 jar.dependsOn(writeNewPom)
 
 jar {
-    archiveName = "ice-gradle-plugin-${project.version}.jar"
+    archiveName = "ice-builder-${project.version}.jar"
 }
 
 pluginBundle {
     website = 'https://github.com/zeroc-ice/ice-builder-gradle'
     vcsUrl = 'https://github.com/zeroc-ice/ice-builder-gradle.git'
-    description = 'Plugin for compiling ZeroC Ice Slice files'
+    description = 'Plugin to automate the compilation of Slice files to Java'
     tags = ['zeroc', 'ice', 'slice']
 
     plugins {
         slicePlugin {
-            id = 'com.zeroc.gradle.plugins.ice-gradle-plugin'
+            id = 'com.zeroc.gradle.ice-builder'
             displayName = 'Ice Builder for Gradle'
         }
     }

@@ -4,4 +4,4 @@
 //
 // **********************************************************************
 
-rootProject.name = "ice-gradle-plugin"
+rootProject.name = "ice-builder"
