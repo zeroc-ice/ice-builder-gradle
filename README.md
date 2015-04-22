@@ -1,8 +1,5 @@
 [![Build Status](https://magnum.travis-ci.com/zeroc-ice/ice-builder-gradle.svg?token=icxd1yE9Nf6WLivZz2vF&branch=master)](https://magnum.travis-ci.com/zeroc-ice/ice-builder-gradle)
 
-- [Ice Builder for Gradle](#ice-builder-for-gradle)
-
-
 # Ice Builder for Gradle
 
 The Ice Builder for Gradle provides a gradle plugin to manage the compilation
