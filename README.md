@@ -78,14 +78,13 @@ the Android plugin:
 
 ### Project Layout
 
-The Ice Builder plugin assumes the project layout shown below.
+The Ice Builder plugin assumes the following project layout:
 
 | Directory      | Meaning                                     |
 | -------------- | ------------------------------------------- |
 | src/main/slice | Location of your project's Slice files.     |
 
-The default layout can be changed using the source set `srcDir` property
-described below.
+This default layout can be changed with the property `srcDir`, described below.
 
 ### Convention Properties
 
@@ -98,17 +97,17 @@ The Ice Builder plugin defines the following convention properties:
 
 If `iceHome` is not set, the builder will check the `ICE_HOME` environment
 variable to determine the location of the Ice installation. If `ICE_HOME` is
-also not set, the builder will use the following defaults on Linux or OS X:
+not set either, the builder uses the following defaults on Linux and OS X:
 
 | OS         | Default Ice Installation Directory     |
 | ---------- | -------------------------------------- |
 | Linux      | /usr                                   |
 | OS X       | /usr/local                             |
 
-On Windows or if Ice is installed in a non-standard location, you need to set
+On Windows, or when Ice is installed in a non-standard location, you need to set
 `iceHome` or `ICE_HOME`.
 
-You can set `iceHome` in your build script as:
+You can set `iceHome` in your build script as shown below:
 
 ```gradle
 slice.iceHome = '/opt/Ice'
@@ -116,10 +115,9 @@ slice.iceHome = '/opt/Ice'
 
 ### Configuring Slice-to-Java Projects
 
-The sub-section `java` is used to configure files compiled with `slice2java`.
-The `java` sub-section can contain one or more source sets, each
-with its own set of flags for compiling Slice files. You can omit the source set 
-name when you have a single set:
+Use the `java` sub-section to configure the compilation of Slice files with `slice2java`.
+The `java` sub-section can contain one or more source sets, each with its own set of flags 
+for compiling Slice files. You can omit the source set name when you have a single set:
 
 ```gradle
 slice {
@@ -193,8 +191,8 @@ slice {
 
 ### Configuring Slice-to-FreezeJ Projects
 
-The sub-section `freezej` is used to configure files compiled with `slice2freezej`.
-A `freezej` sub-section contains source sets for dictionaries and indices.
+Use the `freezej` sub-section to compile Slice files with `slice2freezej`. 
+`freezej` contains source sets for dictionaries and indices.
 
 #### `freezej` Properties
 
