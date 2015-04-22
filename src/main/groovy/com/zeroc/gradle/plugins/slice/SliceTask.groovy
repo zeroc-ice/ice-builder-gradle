@@ -270,9 +270,9 @@ class SliceTask extends DefaultTask {
 					buf << ','
 					buf << it['member']
 				}
-				if(it.containsKey('casesensitive')) {
+				if(it.containsKey('caseSensitive')) {
 					buf << ','
-					if(it['casesensitive']) {
+					if(it['caseSensitive']) {
 						buf << "case-sensitive"
 					}else {
 						buf << "case-insensitive"
@@ -291,7 +291,7 @@ class SliceTask extends DefaultTask {
 			buf << ','
 			buf << it.member
 			buf << ','
-			if(it.casesensitive) {
+			if(it.caseSensitive) {
 				buf << "case-sensitive"
 			}else {
 				buf << "case-insensitive"
@@ -760,14 +760,7 @@ class SliceTask extends DefaultTask {
             if(os == "Mac OS X") {
                 iceHome = "/usr/local"
             } else if(os.contains("Windows")) {
-                def arch1 = env['PROCESSOR_ARCHITECTURE']
-                def arch2 = env['PROCESSOR_ARCHITEW6432']
-                if (arch1 == "AMD64" || arch1 == "IA64" || arch2 == "AMD64" || arch2 == "IA64") {
-                    programFiles = System.getenv('ProgramFiles(x86)')
-                } else {
-                    programFiles = System.getenv('ProgramFiles')
-                }
-                iceHome = programFiles + File.separator + "ZeroC" + File.separator + "Ice-3.6.0"
+                throw new GradleException("Could not find Ice installation, please set iceHome");
             } else {
                 iceHome = "/usr"
             }
@@ -776,7 +769,7 @@ class SliceTask extends DefaultTask {
         if (!File(iceHome + File.separator + "bin" + File.separator + "slice2java").exists() ||
             !File(iceHome + File.separator + "bin" + File.separator + "slice2java.exe").exists())
         {
-            throw new GradleException("Could not find Ice installation");
+            throw new GradleException("Could not find Ice installation in " + iceHome);
         }
 
         return iceHome

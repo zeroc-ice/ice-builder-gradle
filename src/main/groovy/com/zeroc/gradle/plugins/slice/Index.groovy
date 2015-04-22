@@ -11,7 +11,7 @@ class Index {
 	def javaType
     def type
     def member
-    def casesensitive = true
+    def caseSensitive = true
 
     Index(String n) {
         name = n

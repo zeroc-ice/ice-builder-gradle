@@ -13,7 +13,7 @@ import org.gradle.api.UnknownTaskException
 
 class SlicePlugin implements Plugin<Project> {
 	void apply(Project project) {
-        project.task('generateSliceTask', type: SliceTask) {
+        project.task('compileSlice', type: SliceTask) {
                 group = "Slice"
         }
 
@@ -26,7 +26,7 @@ class SlicePlugin implements Plugin<Project> {
         project.slice.output = project.file("${project.buildDir}/generated-src")
 
         try {
-                project.getTasks().getByName("compileJava").dependsOn('generateSliceTask');
+                project.getTasks().getByName("compileJava").dependsOn('compileSlice');
                 project.sourceSets.main.java.srcDir project.slice.output
         } catch(UnknownTaskException ex)  {
             // Using an exception to add android support isn't very nice
@@ -43,7 +43,7 @@ class SlicePlugin implements Plugin<Project> {
             // compileDebugJava/compileReleaseJava task doesn't work in android studio as of
             // 0.8.9.
             try {
-                project.getTasks().getByName("preBuild").dependsOn('generateSliceTask');
+                project.getTasks().getByName("preBuild").dependsOn('compileSlice');
                 // This doesn't work either.
                 //project.sourceSets.main.java.srcDir project.slice.output
             } catch(UnknownTaskException ex2)  {

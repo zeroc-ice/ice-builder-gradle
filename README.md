@@ -200,12 +200,12 @@ source-set for indices.
 
 Each source set defines the following convention properties:
 
-| Property name | Type           | Default value  | Description                         |
-| ------------- | -------------- | :------------: | ----------------------------------- |
-| srcDir        | File           | src/main/slice | The Slice file source directory.    |
-| args          | String         | -              | The arguments to slice2freezej.     |
-| files         | FileCollection | -              | The Slice files in this source set. |
-| include       | Set<File>      | -              | Slice include file search path.     |
+| Property name | Type           | Default value  | Description                                             |
+| ------------- | -------------- | :------------: | ------------------------------------------------------- |
+| srcDir        | File           | src/main/slice | The Slice file source directory.                        |
+| args          | String         | -              | The arguments to slice2freezej.                         |
+| files         | FileCollection | -              | The Slice files in this source set. Overrides `srcDir`. |
+| include       | Set<File>      | -              | Slice include file search path.                         |
 
 For more information on the `args` that can be set see the [slice2freezej Command-Line Options](https://doc.zeroc.com/display/Ice36/slice2freezej+Command-Line+Options) documentation.
 
