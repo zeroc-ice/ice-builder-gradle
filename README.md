@@ -79,9 +79,9 @@ the Android plugin:
 
 The Ice Builder plugin assumes the project layout shown below.
 
-| Directory      | Meaning                             |
-| -------------- | ----------------------------------- |
-| src/main/slice | Location of production Slice files. |
+| Directory      | Meaning                                     |
+| -------------- | ------------------------------------------- |
+| src/main/slice | Location of your project's Slice files.     |
 
 The default layout can be changed using the source set `srcDir` property
 documented in proceeding sections.
@@ -148,12 +148,12 @@ slice {
 
 Each source set defines the following convention properties:
 
-| Property name | Type           | Default value  | Description                         |
-| ------------- | -------------- | -------------- | ----------------------------------- |
-| srcDir        | File           | src/main/slice | The Slice file source directory.    |
-| args          | String         | -              | The arguments to slice2java         |
-| files         | FileCollection | -              | The Slice files in this source set. |
-| include       | Set<File>      | -              | Slice include file search path.     |
+| Property name | Type           | Default value  | Description                                             |
+| ------------- | -------------- | :------------: | ------------------------------------------------------- |
+| srcDir        | File           | src/main/slice | The Slice file source directory.                        |
+| args          | String         | -              | The arguments to slice2java                             |
+| files         | FileCollection | -              | The Slice files in this source set. Overrides `srcDir`. |
+| include       | Set<File>      | -              | Slice include file search path.                         |
 
 For more information on the `args` that can be set see the [slice2java Command-Line Options](https://doc.zeroc.com/display/Ice/slice2java+Command-Line+Options) documentation.
 
@@ -201,7 +201,7 @@ source-set for indices.
 Each source set defines the following convention properties:
 
 | Property name | Type           | Default value  | Description                         |
-| ------------- | -------------- | -------------- | ----------------------------------- |
+| ------------- | -------------- | :------------: | ----------------------------------- |
 | srcDir        | File           | src/main/slice | The Slice file source directory.    |
 | args          | String         | -              | The arguments to slice2freezej.     |
 | files         | FileCollection | -              | The Slice files in this source set. |
@@ -213,8 +213,7 @@ Also note that the location of the Ice Slice files is automatically added to `in
 
 ### dict Source Set
 
-The dict source-set specifies the set of Freeze dictionary data types to
-generate.
+The dict source-set specifies the set of Freeze dictionary data types to generate.
 
 Each dictionary defined within the source set must have a unique name.
 
@@ -238,11 +237,11 @@ slice {
 Each dictionary defines the following convention properties:
 
 | Property name | Type                        | Default value | Description                                |
-| ------------- | --------------------------- | ------------- | ------------------------------------------ |
+| ------------- | --------------------------- | :-----------: | ------------------------------------------ |
 | javaType      | String                      | -             | The name of the generated Java type.       |
 | key           | String                      | -             | The Slice type of the key.                 |
 | value         | String                      | -             | The Slice type of the value.               |
-| index         | List\<Map\<String, String>> | -             | A list of dictionary values used for keys. |
+| index         | List\<Map\<String,String>>  | -             | A list of dictionary values used for keys. |
 
 #### dict Examples
 
@@ -291,7 +290,7 @@ slice {
           // Example: case insensitive
           // index = [["member" : "s", case: 'false']]
           // Example: two indices.
-          // index = [["member" : "s"], ['member': 's1']
+          // indx = [["member" : "s"], ['member': 's1']
        }
      }
   }
@@ -324,11 +323,11 @@ slice {
 
 Each index defines the following convention properties:
 
-| Property name | Type    | Default value | Description |
-| ------------- | ------- | ------------- | ----------- |
-| javaType      | String  | -             | The name of the generated Java type. |
-| type          | String  | -             | The Slice type of the type to be indexed. |
-| member        | String  | -             | The name of the data member in the type to index. |
+| Property name | Type    | Default value | Description                                                                         |
+| ------------- | ------- | :-----------: | ----------------------------------------------------------------------------------- |
+| javaType      | String  | -             | The name of the generated Java type.                                                |
+| type          | String  | -             | The Slice type of the type to be indexed.                                           |
+| member        | String  | -             | The name of the data member in the type to index.                                   |
 | caseSensitive | boolean | true          | If the member is a string, this specifies whether the comparison is case sensitive. |
 
 #### index Example
@@ -356,7 +355,7 @@ freezej {
       javaType = "Test.SIndex"
       type = "Test::Foo"
       member = "s"
-      casesensitive = false
+      caseSensitive = false
     }
   }
 }
