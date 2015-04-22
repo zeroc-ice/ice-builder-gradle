@@ -1,9 +1,19 @@
 [![Build Status](https://magnum.travis-ci.com/zeroc-ice/ice-builder-gradle.svg?token=icxd1yE9Nf6WLivZz2vF&branch=master)](https://magnum.travis-ci.com/zeroc-ice/ice-builder-gradle)
 
 - [Ice Builder for Gradle](#ice-builder-for-gradle)
+
+
+# Ice Builder for Gradle
+
+The Ice Builder for Gradle provides a gradle plugin to manage the compilation
+of [Slice](https://doc.zeroc.com/display/Ice/The+Slice+Language) files to
+Java. You can configure the builder to compile your Slice files with [`slice2java`](https://doc.zeroc.com/display/Ice/slice2java+Command-Line+Options) and/or [`slice2freezej`](https://doc.zeroc.com/display/Ice/Using+a+Freeze+Map+in+Java).
+
+## Contents
+
 - [Build Instructions](#build-instructions)
 - [Using the Gradle Plugin](#using-the-gradle-plugin)
-  - [Gradle Task](#Gradle Task)
+  - [Gradle Task](#gradle-task)
   - [Project Layout](#project-layout)
   - [Convention Properties](#convention-properties)
   - [Configuring Slice-to-Java Projects](#configuring-slice-to-java-projects)
@@ -18,13 +28,7 @@
       - [index Properties](#index-properties)
       - [index Example](#index-example)
 
-# Ice Builder for Gradle
-
-The Ice Builder for Gradle provides a gradle plugin to manage compilation
-of [Slice](https://doc.zeroc.com/display/Ice/The+Slice+Language) files to
-Java.
-
-# Build Instructions
+## Build Instructions
 
 To build the plugin run:
 
@@ -32,7 +36,7 @@ To build the plugin run:
 $ ./gradlew build
 ```
 
-# Using the Gradle Plugin
+## Using the Gradle Plugin
 
 To use the plugin, include the following in your build script:
 
@@ -53,7 +57,7 @@ apply plugin: 'ice-builder'
 It is important that the `ice-builder` plugin is applied after the `java` plugin in
 order for task dependencies to be properly setup.
 
-## Gradle Task
+### Gradle Task
 
 The Ice Builder plugin adds a task to your project, as shown below:
 
@@ -75,7 +79,7 @@ the Android plugin:
 | --------- | ------------ |
 | preBuild  | compileSlice |
 
-## Project Layout
+### Project Layout
 
 The Ice Builder plugin assumes the project layout shown below.
 
@@ -84,9 +88,9 @@ The Ice Builder plugin assumes the project layout shown below.
 | src/main/slice | Location of your project's Slice files.     |
 
 The default layout can be changed using the source set `srcDir` property
-documented in proceeding sections.
+described below.
 
-## Convention Properties
+### Convention Properties
 
 The Ice Builder plugin defines the following convention properties:
 
@@ -95,31 +99,30 @@ The Ice Builder plugin defines the following convention properties:
 | iceHome       | String | (see below)            | The location of the Ice installation.         |
 | output        | File   | buildDir/generated-src | The location to place generated source files. |
 
-If `iceHome` is not set, the plugin will check the `ICE_HOME` environment
+If `iceHome` is not set, the builder will check the `ICE_HOME` environment
 variable to determine the location of the Ice installation. If `ICE_HOME` is
-also not set, on Linux or OS X it will look in the default install location of
-the Ice binary distribution.
+also not set, the builder will use the following defaults on Linux or OS X:
 
-| OS         | Default Ice Install Directory          |
+| OS         | Default Ice Installation Directory     |
 | ---------- | -------------------------------------- |
 | Linux      | /usr                                   |
 | OS X       | /usr/local                             |
 
-On Windows or if Ice is installed in a non-standard location, then either
-`iceHome` or `ICE_HOME` must be set.
+On Windows or if Ice is installed in a non-standard location, you need to set
+`iceHome` or `ICE_HOME`.
 
-To set `iceHome` in your build script you would do the following:
+You can set `iceHome` in your build script as:
 
 ```gradle
 slice.iceHome = '/opt/Ice'
 ```
 
-## Configuring Slice-to-Java Projects
+### Configuring Slice-to-Java Projects
 
-The sub-section java is used to configure files compiled with slice2java.
-Contained within the java sub-section are a number of source sets, each
-representing a set of common flags for Slice files. If there is only a single
-source set, the source set name can be omitted.
+The sub-section `java` is used to configure files compiled with `slice2java`.
+The `java` sub-section can contain one or more source sets, each
+with its own set of flags for compiling Slice files. You can omit the source set 
+name when you have a single set:
 
 ```gradle
 slice {
@@ -129,7 +132,7 @@ slice {
 }
 ```
 
-Otherwise the source sets must have unique names.
+Otherwise, the source sets must have unique names, for example:
 
 ```gradle
 slice {
@@ -144,9 +147,9 @@ slice {
 }
 ```
 
-### java Properties
+#### `java` Properties
 
-Each source set defines the following convention properties:
+Each source set in the `java` sub-section defines the following convention properties:
 
 | Property name | Type           | Default value  | Description                                             |
 | ------------- | -------------- | :------------: | ------------------------------------------------------- |
@@ -155,13 +158,14 @@ Each source set defines the following convention properties:
 | files         | FileCollection | -              | The Slice files in this source set. Overrides `srcDir`. |
 | include       | Set<File>      | -              | Slice include file search path.                         |
 
-For more information on the `args` that can be set see the [slice2java Command-Line Options](https://doc.zeroc.com/display/Ice/slice2java+Command-Line+Options) documentation.
+Refer to [slice2java Command-Line Options](https://doc.zeroc.com/display/Ice/slice2java+Command-Line+Options)
+for a description of the options you can provide through the `args` property.
 
-Also note that the location of the Ice Slice files is automatically added to `include` by the plugin.
+Note: the location of the Ice Slice files is automatically added to `include` by the Ice Builder.
 
-### java Examples
+#### `java` Examples
 
-Build all the Slice files contained in src/main/slice with the --tie argument:
+Build all the Slice files in `src/main/slice` with the --tie argument:
 
 ```gradle
 slice {
@@ -171,7 +175,7 @@ slice {
 }
 ```
 
-Build a.ice with the argument --stream, and all Slice files in b with all given
+Build `a.ice` with the argument --stream, and all Slice files in `b` with all given
 include directories:
 
 ```gradle
@@ -190,13 +194,12 @@ slice {
 }
 ```
 
-## Configuring Slice-to-FreezeJ Projects
+### Configuring Slice-to-FreezeJ Projects
 
-The sub-section freezej is used to configure files compiled with slice2freezej.
-Contained within the freezej sub-section is a source-set for dictionaries and a
-source-set for indices.
+The sub-section `freezej` is used to configure files compiled with `slice2freezej`.
+A `freezej` sub-section contains source sets for dictionaries and indices.
 
-### freezej Properties
+#### `freezej` Properties
 
 Each source set defines the following convention properties:
 
@@ -207,15 +210,16 @@ Each source set defines the following convention properties:
 | files         | FileCollection | -              | The Slice files in this source set. Overrides `srcDir`. |
 | include       | Set<File>      | -              | Slice include file search path.                         |
 
-For more information on the `args` that can be set see the [slice2freezej Command-Line Options](https://doc.zeroc.com/display/Ice36/slice2freezej+Command-Line+Options) documentation.
+Refer to [slice2freezej Command-Line Options](https://doc.zeroc.com/display/Ice/slice2freezej+Command-Line+Options)
+for a description of the options you can provide through the `args` property.
 
-Also note that the location of the Ice Slice files is automatically added to `include` by the plugin.
+Also note that the location of the Ice Slice files is automatically added to `include` by the Ice Builder plugin.
 
-### dict Source Set
+#### `dict` Source Set
 
-The dict source-set specifies the set of Freeze dictionary data types to generate.
+A `dict` source set describes a Freeze dictionary generated by `slice2freezej`.
 
-Each dictionary defined within the source set must have a unique name.
+Each dictionary must have a unique name.
 
 ```gradle
 slice {
@@ -232,7 +236,7 @@ slice {
 }
 ```
 
-#### dict Properties
+##### `dict` Properties
 
 Each dictionary defines the following convention properties:
 
@@ -243,7 +247,7 @@ Each dictionary defines the following convention properties:
 | value         | String                      | -             | The Slice type of the value.               |
 | index         | List\<Map\<String,String>>  | -             | A list of dictionary values used for keys. |
 
-#### dict Examples
+##### dict Examples
 
 Given the following Slice definitions in Test.ice:
 
@@ -258,7 +262,7 @@ struct Foo
 };
 ```
 
-Generate a dictionary mapping a string to the slice type Foo:
+Generate a Freeze dictionary that maps a `string` to the Slice type `Test::Foo`:
 
 ```gradle
 slice {
@@ -275,7 +279,7 @@ slice {
 }
 ```
 
-Generate the same dictionary, but this time with an index on the members:
+Generate the same dictionary, but this time with an index on the data member(s) of the `Foo` structure:
 
 ```gradle
 slice {
@@ -290,19 +294,18 @@ slice {
           // Example: case insensitive
           // index = [["member" : "s", case: 'false']]
           // Example: two indices.
-          // indx = [["member" : "s"], ['member': 's1']
+          // index = [["member" : "s"], ['member': 's1']
        }
      }
   }
 }
 ```
 
-### index Source Set
+#### `index` Source Set
 
-The index source-set specifies the set of Freeze evictor index types to
-generate.
+An `index` source set describes a Freeze Evictor index generated by `slice2freezej`.
 
-Each index defined within the source set must have a unique name.
+Each index must have a unique name.
 
 ```gradle
 slice {
@@ -319,9 +322,9 @@ slice {
 }
 ```
 
-#### index Properties
+##### `index` Properties
 
-Each index defines the following convention properties:
+Each `index` defines the following convention properties:
 
 | Property name | Type    | Default value | Description                                                                         |
 | ------------- | ------- | :-----------: | ----------------------------------------------------------------------------------- |
@@ -330,9 +333,9 @@ Each index defines the following convention properties:
 | member        | String  | -             | The name of the data member in the type to index.                                   |
 | caseSensitive | boolean | true          | If the member is a string, this specifies whether the comparison is case sensitive. |
 
-#### index Example
+##### index Example
 
-Given the following Slice types in Test.ice:
+Given the following Slice type defined in `Test.ice`:
 
 ```
 // Slice
@@ -345,7 +348,7 @@ struct Foo
 };
 ```
 
-This generates an index called Test.SIndex on the member s:
+This generates a Freeze Evictor index `Test.SIndex` for the member `s`:
 
 ```gradle
 freezej {
