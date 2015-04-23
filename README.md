@@ -2,14 +2,13 @@
 
 # Ice Builder for Gradle
 
-The Ice Builder for Gradle provides a gradle plugin to manage the compilation
-of [Slice](https://doc.zeroc.com/display/Ice/The+Slice+Language) files to
-Java. You can configure the builder to compile your Slice files with [`slice2java`](https://doc.zeroc.com/display/Ice/slice2java+Command-Line+Options) and/or [`slice2freezej`](https://doc.zeroc.com/display/Ice/Using+a+Freeze+Map+in+Java).
+The Ice Builder for Gradle provides a gradle plug-in named `slice`. This plug-in manages the compilation
+of [Slice](https://doc.zeroc.com/display/Ice/The+Slice+Language) files to Java. It compiles your Slice files with [`slice2java`](https://doc.zeroc.com/display/Ice/slice2java+Command-Line+Options), and it is also capable of generating Freeze dictionaries and indices with [`slice2freezej`](https://doc.zeroc.com/display/Ice/Using+a+Freeze+Map+in+Java).
 
 ## Contents
 
 - [Build Instructions](#build-instructions)
-- [Using the Gradle Plugin](#using-the-gradle-plugin)
+- [Using the `slice` Plug-In](#using-the-slice-plug-in)
   - [Gradle Task](#gradle-task)
   - [Project Layout](#project-layout)
   - [Convention Properties](#convention-properties)
@@ -21,22 +20,21 @@ Java. You can configure the builder to compile your Slice files with [`slice2jav
     - [dict Source Set](#dict-source-set)
       - [dict Properties](#dict-properties)
       - [dict Examples](#dict-examples)
-    - [dict Source Set](#dict-source-set)
+    - [index Source Set](#index-source-set)
       - [index Properties](#index-properties)
       - [index Example](#index-example)
 
 ## Build Instructions
 
-To build the plugin run:
+To build the `slice` plug-in run:
 
 ```shell
 $ ./gradlew build
 ```
 
-## Using the Gradle Plugin
+## Using the `slice` Plug-In
 
-The Ice Builder for Gradle provides the `slice` gradle plugin. To use the `slice`
-plugin include the following in your build script:
+Include the following in your build script:
 
 ```gradle
 buildscript {
@@ -52,26 +50,25 @@ buildscript {
 apply plugin: 'slice'
 ```
 
-It is important that the `slice` plugin is applied after the `java` plugin in
+It is important that the `slice` plug-in is applied after the `java` plug-in in
 order for task dependencies to be properly setup.
 
 ### Gradle Task
 
-The Ice Builder plugin adds a task to your project, as shown below:
+The `slice` plug-in adds a task to your project, as shown below:
 
 | Task name    | Type      | Description                             |
 | ------------ | --------- | --------------------------------------- |
 | compileSlice | SliceTask | Generates Java source from Slice files. |
 
-The Ice Builder plugin adds the following dependency to tasks added by the Java
-plugin:
+The plug-in adds the following dependency to tasks added by the `java` plug-in:
 
 | Task name   | Depends On   |
 | ----------- | ------------ |
 | compileJava | compileSlice |
 
 In addition, it adds the following dependency to tasks added by
-the Android plugin:
+the Android plug-in:
 
 | Task name | Depends On   |
 | --------- | ------------ |
@@ -79,7 +76,7 @@ the Android plugin:
 
 ### Project Layout
 
-The Ice Builder plugin assumes the following project layout:
+The plug-in assumes the following project layout:
 
 | Directory      | Meaning                                     |
 | -------------- | ------------------------------------------- |
@@ -89,16 +86,16 @@ This default layout can be changed with the property `srcDir`, described below.
 
 ### Convention Properties
 
-The Ice Builder plugin defines the following convention properties:
+The plug-in defines the following convention properties:
 
 | Property name | Type   | Default value            | Description                                   |
 | ------------- | ------ | ------------------------ | --------------------------------------------- |
 | iceHome       | String | (see below)              | The location of the Ice installation.         |
 | output        | File   | _buildDir_/generated-src | The location to place generated source files. |
 
-If `iceHome` is not set, the builder will check the `ICE_HOME` environment
+If `iceHome` is not set, the plug-in will check the `ICE_HOME` environment
 variable to determine the location of the Ice installation. If `ICE_HOME` is
-not set either, the builder uses the following defaults on Linux and OS X:
+not set either, the plug-in uses the following defaults on Linux and OS X:
 
 | OS         | Default Ice Installation Directory     |
 | ---------- | -------------------------------------- |
@@ -154,14 +151,14 @@ Each source set in the `java` sub-section defines the following convention prope
 | files         | FileCollection | -              | The Slice files in this source set. Overrides `srcDir`. |
 | include       | Set<File>      | -              | Slice include file search path.                         |
 
-Refer to [slice2java Command-Line Options](https://doc.zeroc.com/display/Ice/slice2java+Command-Line+Options)
+Refer to the [slice2java Command-Line Options](https://doc.zeroc.com/display/Ice/slice2java+Command-Line+Options)
 for a description of the options you can provide through the `args` property.
 
-Note: the location of the Ice Slice files is automatically added to `include` by the Ice Builder.
+Note: the location of the Ice Slice files is automatically added to `include` by the plug-in.
 
 #### `java` Examples
 
-Build all the Slice files in `src/main/slice` with the `--tie` argument:
+Compile all Slice files in `src/main/slice` with the `--tie` argument:
 
 ```gradle
 slice {
@@ -171,8 +168,7 @@ slice {
 }
 ```
 
-Build `a.ice` with the argument `--stream`, and all Slice files in `b` with all given
-include directories:
+Compile `a.ice` with the argument `--stream`, and compile all Slice files in `b` without `--stream`. Both compilations add `${projectDir}` to the Slice include search path:
 
 ```gradle
 slice {
@@ -192,24 +188,23 @@ slice {
 
 ### Configuring Slice-to-FreezeJ Projects
 
-Use the `freezej` sub-section to compile Slice files with `slice2freezej`.
-`freezej` contains source sets for dictionaries and indices.
+Use the `freezej` sub-section to generate Freeze dictionaries and indices with `slice2freezej`.
 
 #### `freezej` Properties
 
-Each source set defines the following convention properties:
+Each `freezej` source set defines the following convention properties:
 
 | Property name | Type           | Default value  | Description                                             |
 | ------------- | -------------- | :------------: | ------------------------------------------------------- |
 | srcDir        | File           | src/main/slice | The Slice file source directory.                        |
-| args          | String         | -              | The arguments to slice2freezej.                         |
+| args          | String         | -              | The arguments to `slice2freezej`.                         |
 | files         | FileCollection | -              | The Slice files in this source set. Overrides `srcDir`. |
 | include       | Set<File>      | -              | Slice include file search path.                         |
 
-Refer to [slice2freezej Command-Line Options](https://doc.zeroc.com/display/Ice/slice2freezej+Command-Line+Options)
+Refer to the [slice2freezej Command-Line Options](https://doc.zeroc.com/display/Ice/slice2freezej+Command-Line+Options)
 for a description of the options you can provide through the `args` property.
 
-Note: the location of the Ice Slice files is automatically added to `include` by the Ice Builder.
+Note: the location of the Ice Slice files is automatically added to `include` by the plug-in.
 
 #### `dict` Source Set
 
@@ -251,7 +246,7 @@ The `index` is a list of maps. Valid entries in each map are as follows:
 
 ##### dict Examples
 
-Given the following Slice definitions in Test.ice:
+Given the following Slice definitions in `Test.ice`:
 
 ```
 // Slice
@@ -350,19 +345,19 @@ class Contact
 };
 ```
 
-This generates a Freeze Evictor index `NameIndex` for the data member `name`:
+Generate a Freeze Evictor index `NameIndex` for the data member `name`:
 
 ```gradle
 freezej {
-  files = [file("PhoneBook.ice")]
-    index {
-      NameIndex {
-        javaType = "NameIndex"
-        type = "Demo::Contact"
-        member = "name"
-        caseSensitive = false
-      }
-    }
+ files = [file("PhoneBook.ice")]
+ index {
+     NameIndex {
+       javaType = "NameIndex"
+       type = "Demo::Contact"
+       member = "name"
+       caseSensitive = false
+     }
   }
 }
 ```
+
