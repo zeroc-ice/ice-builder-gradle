@@ -4,7 +4,7 @@
 //
 // **********************************************************************
 
-package com.zeroc.gradle.plugins.slice;
+package com.zeroc.gradle.icebuilder.slice;
 
 import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.Plugin

@@ -40,27 +40,7 @@ sourceSets {
 }
 
 version  = "1.0.0"
-
-def pomName = "build/libs/ice-builder-${project.version}.pom"
-task writeNewPom {
-    outputs.file file(pomName)
-} << {
-    pom {
-        project {
-            url 'https://zeroc.com'
-            packaging 'jar'
-            groupId 'com.zeroc.gradle'
-            artifactId 'ice-builder'
-            version project.version
-            // TODO: Extend with licensing information.
-        }
-    }.writeTo(pomName)
-}
-jar.dependsOn(writeNewPom)
-
-jar {
-    archiveName = "ice-builder-${project.version}.jar"
-}
+group = "com.zeroc.gradle.ice-builder"
 
 pluginBundle {
     website = 'https://github.com/zeroc-ice/ice-builder-gradle'
@@ -70,7 +50,7 @@ pluginBundle {
 
     plugins {
         slicePlugin {
-            id = 'com.zeroc.gradle.ice-builder'
+            id = 'com.zeroc.gradle.ice-builder.slice'
             displayName = 'Ice Builder for Gradle'
         }
     }

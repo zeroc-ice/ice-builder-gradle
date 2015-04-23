@@ -4,7 +4,7 @@
 //
 // **********************************************************************
 
-package com.zeroc.gradle.plugins.slice;
+package com.zeroc.gradle.icebuilder.slice;
 
 class Java {
     def name
