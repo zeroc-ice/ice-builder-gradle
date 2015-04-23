@@ -242,7 +242,7 @@ slice {
 | value         | String         | -             | The Slice type of the value.               |
 | index         | List\<Map\<>>  | -             | A list of dictionary values used for keys. |
 
-The `index` map is a list of maps. Valid entries in each map are as follows:
+The `index` is a list of maps. Valid entries in each map are as follows:
 
 | Key (String)  | Value Type    | Default value | Description                                                                         |
 | ------------- | ------------- | :-----------: | ----------------------------------------------------------------------------------- |
