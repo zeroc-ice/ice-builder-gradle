@@ -23,6 +23,7 @@ of [Slice](https://doc.zeroc.com/display/Ice/The+Slice+Language) files to Java. 
     - [index Source Set](#index-source-set)
       - [index Properties](#index-properties)
       - [index Example](#index-example)
+  - [Dependencies](#dependencies)
 
 ## Build Instructions
 
@@ -361,3 +362,13 @@ freezej {
 }
 ```
 
+### Dependenicies
+
+The plugin minimizes recompilation by maintaining dependencies between Slice files. The task stores this information in
+the `build` directory and updates these dependencies after each invocation.
+
+The plugin compiles a Slice file when any of the following conditions are true:
+
+- no dependency information is found for the Slice file
+- the modification time of the Slice file is later than the modification time of the dependency file
+- the Slice file includes another Slice file that is eligible for compilation
