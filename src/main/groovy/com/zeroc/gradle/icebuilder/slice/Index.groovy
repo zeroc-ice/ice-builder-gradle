@@ -7,8 +7,8 @@
 package com.zeroc.gradle.icebuilder.slice;
 
 class Index {
-	def name
-	def javaType
+    def name
+    def javaType
     def type
     def member
     def caseSensitive = true

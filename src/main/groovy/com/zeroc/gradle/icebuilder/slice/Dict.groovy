@@ -7,8 +7,8 @@
 package com.zeroc.gradle.icebuilder.slice;
 
 class Dict {
-	def name
-	def javaType
+    def name
+    def javaType
     def key
     def value
     // list of dictionary values

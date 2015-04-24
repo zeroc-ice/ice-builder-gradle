@@ -10,7 +10,7 @@ import org.gradle.api.NamedDomainObjectContainer
 
 class FreezejExtension {
     final NamedDomainObjectContainer<Dict> dict;
-	final NamedDomainObjectContainer<Index> index;
+    final NamedDomainObjectContainer<Index> index;
 
     def name
     def args = ""
@@ -24,9 +24,9 @@ class FreezejExtension {
     }
 
     def dict(Closure closure) {
-		dict.configure(closure)
+        dict.configure(closure)
     }
     def index(Closure closure) {
-		index.configure(closure)
+        index.configure(closure)
     }
 }

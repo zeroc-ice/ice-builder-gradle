@@ -12,9 +12,9 @@ import org.gradle.api.Project
 import org.gradle.api.UnknownTaskException
 
 class SlicePlugin implements Plugin<Project> {
-	void apply(Project project) {
+    void apply(Project project) {
         project.task('compileSlice', type: SliceTask) {
-                group = "Slice"
+            group = "Slice"
         }
 
         // Create and install the extension object.
@@ -26,8 +26,8 @@ class SlicePlugin implements Plugin<Project> {
         project.slice.output = project.file("${project.buildDir}/generated-src")
 
         try {
-                project.getTasks().getByName("compileJava").dependsOn('compileSlice');
-                project.sourceSets.main.java.srcDir project.slice.output
+            project.getTasks().getByName("compileJava").dependsOn('compileSlice');
+            project.sourceSets.main.java.srcDir project.slice.output
         } catch(UnknownTaskException ex)  {
             // Using an exception to add android support isn't very nice
             // but I couldn't find another way to find out whether a task
@@ -49,5 +49,5 @@ class SlicePlugin implements Plugin<Project> {
             } catch(UnknownTaskException ex2)  {
             }
         }
-	}
+    }
 }

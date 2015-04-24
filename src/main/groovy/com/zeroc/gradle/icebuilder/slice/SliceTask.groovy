@@ -59,7 +59,7 @@ class SliceTask extends DefaultTask {
         }
 
         if(project.slice.freezej.files) {
-        	files.addAll(project.slice.freezej.files)
+            files.addAll(project.slice.freezej.files)
         }
 
         return files
@@ -70,20 +70,20 @@ class SliceTask extends DefaultTask {
         return project.slice.output
     }
 
-	class FreezeJBuildState {
-    	// Dictionary of file -> timestamp.
-    	def slice = [:]
+    class FreezeJBuildState {
+        // Dictionary of file -> timestamp.
+        def slice = [:]
 
-    	// List of generated source files.
-    	def generated = []
+        // List of generated source files.
+        def generated = []
     };
 
     def processFreezeJ(freezej) {
-    	if((freezej.dict == null || freezej.dict.isEmpty()) && (freezej.index == null || freezej.index.isEmpty())) {
-    		return;
-    	}
+        if((freezej.dict == null || freezej.dict.isEmpty()) && (freezej.index == null || freezej.index.isEmpty())) {
+            return;
+        }
 
-    	def sourceFiles = freezej.files
+        def sourceFiles = freezej.files
 
         // Dictionary of A  -> [B] where A depends on B.
         def sliceDependencies = getFreezejDependencies(freezej, sourceFiles)
@@ -92,10 +92,10 @@ class SliceTask extends DefaultTask {
         def allSourceFiles = new HashSet<>()
         allSourceFiles.addAll(sourceFiles)
         sliceDependencies.each {
-        	allSourceFiles.addAll(it.value)
+            allSourceFiles.addAll(it.value)
         }
 
-		// Dictionary to A -> timestamp, where A is a slice file
+        // Dictionary to A -> timestamp, where A is a slice file
         // we want to process.
         def timestamps = getTimestamps(allSourceFiles)
 
@@ -121,7 +121,7 @@ class SliceTask extends DefaultTask {
             // is older than the current timestamp then we need
             // to build the source file.
             if(timestamp == null || timestamp < it.value) {
-            	++count
+                ++count
             }
         }
         // Bail out if there is nothing to do (in theory this should not occur).
@@ -146,7 +146,7 @@ class SliceTask extends DefaultTask {
         // Remove all source files that we have generated from the list of
         // sources file that we previously have built.
         generated.each {
-			oldfiles.remove(it)
+            oldfiles.remove(it)
         }
 
         LOGGER.info("The following generated java source files will be removed")
@@ -170,34 +170,34 @@ class SliceTask extends DefaultTask {
 
         // Write the new dependencies file.
         writeFreezeJBuildState(stateFile, state)
-	}
+    }
 
-	def getFreezejGenerated(freezej) {
-		def files = []
+    def getFreezejGenerated(freezej) {
+        def files = []
         freezej.dict.each {
-        	files.add(it.javaType)
+            files.add(it.javaType)
         }
 
-		freezej.index.each {
-			files.add(it.javaType)
+        freezej.index.each {
+            files.add(it.javaType)
         }
 
         // Convert each file name from java package convention to file name.
         files = files.collect {
-        	it.tr('.', '/') + ".java"
+            it.tr('.', '/') + ".java"
         }
         // Convert to a file with the generated path.
         files = files.collect {
-        	new File(project.slice.output, it)
+            new File(project.slice.output, it)
         }
 
         return files
-	}
+    }
 
     // Executes slice2java to determine the slice file dependencies.
     // Returns a dictionary of A  -> [B] where A depends on B.
     def getFreezejDependencies(freezej, files) {
-		def command = buildFreezeJCommandLine(freezej)
+        def command = buildFreezeJCommandLine(freezej)
         command.add("--depend-xml")
 
         files.each {
@@ -221,7 +221,7 @@ class SliceTask extends DefaultTask {
         return parseSliceDependencyXML(new XmlSlurper().parseText(sout.toString()))
     }
 
-	// Run slice2java. Returns a dictionary of A -> [B] where A is a slice file,
+    // Run slice2java. Returns a dictionary of A -> [B] where A is a slice file,
     // and B is the list of produced java source files.
     def executeSlice2Freezej(freezej, files) {
         def command = buildFreezeJCommandLine(freezej)
@@ -248,60 +248,60 @@ class SliceTask extends DefaultTask {
     def buildFreezeJCommandLine(freezej) {
         def command = []
         command.add(getSlice2FreezeJ());
-    	command.add("--output-dir=" + project.slice.output.getAbsolutePath())
+        command.add("--output-dir=" + project.slice.output.getAbsolutePath())
         command.add('-I' + getIceSliceDir())
         freezej.include.each {
             command.add('-I' + it)
         }
 
-		freezej.args.split().each {
+        freezej.args.split().each {
             command.add(it)
         }
 
         freezej.dict.each {
-        	def javaType = it.javaType
-        	command.add("--dict")
+            def javaType = it.javaType
+            command.add("--dict")
             command.add(javaType + "," + it.key + "," + it.value)
-        	it.index.each {
+            it.index.each {
                 command.add("--dict-index")
-				def buf = new StringBuffer()
-				buf << javaType
-				if(it.containsKey('member')) {
-					buf << ','
-					buf << it['member']
-				}
-				if(it.containsKey('caseSensitive')) {
-					buf << ','
-					if(it['caseSensitive']) {
-						buf << "case-sensitive"
-					}else {
-						buf << "case-insensitive"
-					}
-				}
-				command.add(buf.toString())
-        	}
+                def buf = new StringBuffer()
+                buf << javaType
+                if(it.containsKey('member')) {
+                    buf << ','
+                    buf << it['member']
+                }
+                if(it.containsKey('caseSensitive')) {
+                    buf << ','
+                    if(it['caseSensitive']) {
+                        buf << "case-sensitive"
+                    }else {
+                        buf << "case-insensitive"
+                    }
+                }
+                command.add(buf.toString())
+            }
         }
 
-		freezej.index.each {
+        freezej.index.each {
             command.add("--index")
-			def buf = new StringBuffer()
-			buf << it.javaType
-			buf << ','
-			buf << it.type
-			buf << ','
-			buf << it.member
-			buf << ','
-			if(it.caseSensitive) {
-				buf << "case-sensitive"
-			}else {
-				buf << "case-insensitive"
-			}
-        	command.add(buf.toString())
+            def buf = new StringBuffer()
+            buf << it.javaType
+            buf << ','
+            buf << it.type
+            buf << ','
+            buf << it.member
+            buf << ','
+            if(it.caseSensitive) {
+                buf << "case-sensitive"
+            }else {
+                buf << "case-insensitive"
+            }
+            command.add(buf.toString())
         }
         return command
     }
 
-	def writeFreezeJBuildState(dependencyFile, state) {
+    def writeFreezeJBuildState(dependencyFile, state) {
         def writer = new StringWriter()
         def xml = new MarkupBuilder(writer)
         xml.build {
@@ -331,7 +331,7 @@ class SliceTask extends DefaultTask {
             throw new GradleException("malformed XML: expected `dependencies'");
         }
 
-		def state = new FreezeJBuildState()
+        def state = new FreezeJBuildState()
         xml.children().each {
             if(it.name() == "source") {
                 def source = it.attributes().get("name")
@@ -351,7 +351,7 @@ class SliceTask extends DefaultTask {
     };
 
     def processJavaSet(Java java) {
-    	java.args = java.args.stripIndent()
+        java.args = java.args.stripIndent()
         def sourceFiles
         if (java.files == null) {
             sourceFiles = project.fileTree(dir: java.srcDir).include('**/*.ice')
@@ -496,7 +496,7 @@ class SliceTask extends DefaultTask {
             command.add('-I' + it)
         }
 
-		java.args.split().each {
+        java.args.split().each {
             command.add(it)
         }
 
@@ -530,9 +530,9 @@ class SliceTask extends DefaultTask {
         java.include.each {
             command.add('-I' + it)
         }
-    	java.args.split().each {
+        java.args.split().each {
             command.add(it)
-    	}
+        }
 
         files.each {
             command.add(it.getAbsolutePath() )
