@@ -198,7 +198,7 @@ Each `freezej` source set defines the following convention properties:
 | Property name | Type           | Default value  | Description                                             |
 | ------------- | -------------- | :------------: | ------------------------------------------------------- |
 | srcDir        | File           | src/main/slice | The Slice file source directory.                        |
-| args          | String         | -              | The arguments to `slice2freezej`.                         |
+| args          | String         | -              | The arguments to `slice2freezej`.                       |
 | files         | FileCollection | -              | The Slice files in this source set. Overrides `srcDir`. |
 | include       | Set<File>      | -              | Slice include file search path.                         |
 
@@ -240,9 +240,9 @@ slice {
 
 The `index` is a list of maps. Valid entries in each map are as follows:
 
-| Key (String)  | Value Type    | Default value | Description                                                                         |
-| ------------- | ------------- | :-----------: | ----------------------------------------------------------------------------------- |
-| member        | String        |  -            | The name of a data member in the Freeze map value type.                              |
+| Key (String)  | Value Type    | Default value | Description                                                                     |
+| ------------- | ------------- | :-----------: | ------------------------------------------------------------------------------- |
+| member        | String        | -             | The name of a data member in the Freeze map value type.                         |
 | caseSensitive | boolean       | true          | If member is a string, this specifies whether the comparison is case sensitive. |
 
 ##### dict Examples
