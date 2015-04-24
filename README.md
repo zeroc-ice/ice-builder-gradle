@@ -362,7 +362,7 @@ freezej {
 }
 ```
 
-### Dependenicies
+### Dependencies
 
 The plugin minimizes recompilation by maintaining dependencies between Slice files. The task stores this information in
 the `build` directory and updates these dependencies after each invocation.
