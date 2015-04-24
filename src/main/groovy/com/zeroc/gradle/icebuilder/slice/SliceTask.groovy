@@ -366,7 +366,7 @@ class SliceTask extends DefaultTask {
         // Dictionary of A  -> [B] where A depends on B.
         def sliceDependencies = [:]
         if(!sourceFiles.isEmpty()) {
-            getDependencies(java, sourceFiles)
+            sliceDependencies = getDependencies(java, sourceFiles)
         }
 
         // Dictionary of A -> timestamp, [B] where A is a slice file,
