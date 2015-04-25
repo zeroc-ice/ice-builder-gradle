@@ -156,7 +156,7 @@ Each source set in the `java` block defines the following convention properties:
 Refer to the [slice2java Command-Line Options](https://doc.zeroc.com/display/Ice/slice2java+Command-Line+Options)
 for a description of the options you can provide through the `args` property.
 
-Note: the location of the Ice Slice files is automatically added to `include` by the plug-in.
+Note: the `slice` directory of your Ice installation (`${slice.iceHome}/slice`) automatically added to `include` by the plug-in.
 
 #### `java` Examples
 
@@ -216,7 +216,7 @@ Each `freezej` block defines the following convention properties:
 Refer to the [slice2freezej Command-Line Options](https://doc.zeroc.com/display/Ice/slice2freezej+Command-Line+Options)
 for a description of the options you can provide through the `args` property.
 
-Note: the location of the Ice Slice files is automatically added to `include` by the plug-in.
+Note: the `slice` directory of your Ice installation (`${slice.iceHome}/slice`) automatically added to `include` by the plug-in.
 
 #### `dict` Block
 
