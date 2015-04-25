@@ -23,7 +23,7 @@ of [Slice](https://doc.zeroc.com/display/Ice/The+Slice+Language) files to Java. 
     - [index Block](#index-block)
       - [index Properties](#index-properties)
       - [index Example](#index-example)
-- [When does the Plug-In Recompile Slice Files?](#when-does-the-plug-in-recompile-slice-files?)
+- [When does the Plug-In Recompile Slice Files?](#when-does-the-plug-in-recompile-slice-files)
 
 ## Build Instructions
 
