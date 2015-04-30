@@ -20,7 +20,7 @@ class SlicePlugin implements Plugin<Project> {
         // Create and install the extension object.
         project.extensions.create("slice", SliceExtension, project.container(Java))
 
-        project.extensions.slice.extensions.create("freezej", FreezejExtension,
+        project.extensions.slice.extensions.create("freezej", Freezej,
              project.container(Dict), project.container(Index))
 
         project.slice.output = project.file("${project.buildDir}/generated-src")

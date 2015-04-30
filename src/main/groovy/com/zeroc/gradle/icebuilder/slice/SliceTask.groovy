@@ -4,7 +4,7 @@
 //
 // **********************************************************************
 
-package com.zeroc.gradle.icebuilder.slice;
+package com.zeroc.gradle.icebuilder.slice
 
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
@@ -21,11 +21,17 @@ import groovy.xml.MarkupBuilder
 class SliceTask extends DefaultTask {
     private static final Logger LOGGER = LoggerFactory.getLogger(SliceTask)
 
+    SliceTask() {
+        // This forces the task to run on each build rather than relying on a hash
+        // of the input files.
+        outputs.upToDateWhen { false }
+    }
+
     @TaskAction
     def action() {
         if (!project.slice.output.isDirectory()) {
             if (!project.slice.output.mkdirs()) {
-                throw new GradleException("Could not create slice output directory: " + project.slice.output);
+                throw new GradleException("could not create slice output directory: ${project.slice.output}")
             }
         }
 
@@ -34,35 +40,14 @@ class SliceTask extends DefaultTask {
             project.slice.java.create("default")
         }
 
-        project.slice.java.each {
-            processJavaSet(it)
-        }
+        processJava()
 
         processFreezeJ(project.slice.freezej)
     }
 
     @InputFiles
     def getInputFiles() {
-        def files = []
-
-        // Make sure default source set is present
-        if (project.slice.java.isEmpty()) {
-            project.slice.java.create("default")
-        }
-
-        project.slice.java.each {
-            if (it.files == null) {
-                files.addAll(project.fileTree(dir: it.srcDir).include('**/*.ice'))
-            } else {
-                files.addAll(it.files)
-            }
-        }
-
-        if(project.slice.freezej.files) {
-            files.addAll(project.slice.freezej.files)
-        }
-
-        return files
+        return []
     }
 
     @OutputDirectory
@@ -70,109 +55,79 @@ class SliceTask extends DefaultTask {
         return project.slice.output
     }
 
-    class FreezeJBuildState {
-        // Dictionary of file -> timestamp.
-        def slice = [:]
-
-        // List of generated source files.
-        def generated = []
-    };
-
     def processFreezeJ(freezej) {
-        if((freezej.dict == null || freezej.dict.isEmpty()) && (freezej.index == null || freezej.index.isEmpty())) {
-            return;
-        }
-
-        def sourceFiles = freezej.files
-
-        // Dictionary of A  -> [B] where A depends on B.
-        def sliceDependencies = getFreezejDependencies(freezej, sourceFiles)
-
         // Set of source files and all dependencies.
-        def allSourceFiles = new HashSet<>()
-        allSourceFiles.addAll(sourceFiles)
-        sliceDependencies.each {
-            allSourceFiles.addAll(it.value)
+        Set files = []
+        if(project.slice.freezej.files) {
+            files.addAll(project.slice.freezej.files)
+            getS2FDependencies(project.slice.freezej).values().each {
+                files.addAll(it)
+            }
         }
 
-        // Dictionary to A -> timestamp, where A is a slice file
-        // we want to process.
-        def timestamps = getTimestamps(allSourceFiles)
-
-        // Dictionary of A -> timestamp, [B] where A is a slice file,
-        // timestamp is the  modified time for A at last build and B is the
-        // list of produced java source files.
         def state = new FreezeJBuildState()
         def stateFile = new File(project.buildDir, "slice2freezej.df.xml")
-        if(stateFile.isFile()) {
-            try {
-                state = parseFreezeJBuildState(new XmlSlurper().parse(stateFile));
-            }
-            catch(Exception ex) {
-                LOGGER.info("State file {} not found, or invalid", stateFile);
-                println ex
-            }
+        state.read(stateFile)
+
+        def rebuild = false
+
+        def args = buildS2FCommandLine(freezej)
+        // If the command line changes rebuild.
+        if(args != state.args) {
+            rebuild = true
         }
 
-        def count = 0
-        timestamps.each {
-            def timestamp = state.slice[it.key]
-            // If the dependency doesn't exist, or the timestamp
-            // is older than the current timestamp then we need
-            // to build the source file.
-            if(timestamp == null || timestamp < it.value) {
-                ++count
-            }
+        // Rebuild if the set of slice files has changed, or if one of the slice files has a timestamp newer
+        // than the last build.
+        if(!rebuild && state.slice.size() != files.size()) {
+            rebuild = true
         }
+
+        // If the build timestamp is older than the slice file timestamp then we need to build the source file.
+        if(!rebuild) {
+            rebuild = files.any { getTimestamp(it) > state.timestamp }
+        }
+
+        // Check if the prior set of slice files has changed.
+        if(!rebuild) {
+            rebuild = state.slice.any { !files.contains(it) }
+        }
+
         // Bail out if there is nothing to do (in theory this should not occur).
-        if(count == 0) {
-            LOGGER.info("Nothing to do");
-            return;
+        if(!rebuild) {
+            LOGGER.info("nothing to do")
+            return
         }
 
-        LOGGER.info("Running slice2freezej on the following slice files")
-        sourceFiles.each {
-            LOGGER.info("    {}", it)
+        LOGGER.info("running slice2freezej on the following slice files")
+        freezej.files.each {
+            LOGGER.info("    ${it}")
         }
+
 
         // List of generated java source files.
-        def generated = executeSlice2Freezej(freezej, sourceFiles)
+        def generated = executeS2F(freezej)
 
-        // Gather up the list of source files that we previously built for those
-        // files which are building.
-        def oldfiles = new HashSet<>()
-        oldfiles.addAll(state.generated)
+        // Gather up the list of source files that we previously built for those files which are building.
+        Set oldGenerated = state.generated
 
-        // Remove all source files that we have generated from the list of
-        // sources file that we previously have built.
-        generated.each {
-            oldfiles.remove(it)
-        }
-
-        LOGGER.info("The following generated java source files will be removed")
-        oldfiles.each {
-            LOGGER.info("    {}", it)
-        }
-
-        String buildDirPath = project.slice.output.getPath()
-        oldfiles.each {
-            String parent = it.getParent()
-            if(!parent.startsWith(buildDirPath)) {
-                LOGGER.info("Not removing {} as it is outside the build dir {}", it, buildDirPath)
-            } else {
-                it.delete()
-            }
-        }
+        // Remove all source files that we have generated from the list of previously built sources.
+        oldGenerated.removeAll(generated)
 
         // Update the build state.
-        state.slice = timestamps
-        state.generated = generated
+        def newState = new FreezeJBuildState()
+        newState.timestamp = System.currentTimeMillis()
+        newState.slice = files
+        newState.generated = generated
+        newState.args = args
 
         // Write the new dependencies file.
-        writeFreezeJBuildState(stateFile, state)
+        newState.write(stateFile)
+
+        deleteFiles(oldGenerated)
     }
 
-    def getFreezejGenerated(freezej) {
+    def getS2FGenerated(freezej) {
         def files = []
         freezej.dict.each {
             files.add(it.javaType)
@@ -194,17 +149,22 @@ class SliceTask extends DefaultTask {
         return files
     }
 
-    // Executes slice2java to determine the slice file dependencies.
+    // Executes slice2freezej to determine the slice file dependencies.
     // Returns a dictionary of A  -> [B] where A depends on B.
-    def getFreezejDependencies(freezej, files) {
-        def command = buildFreezeJCommandLine(freezej)
+    def getS2FDependencies(freezej) {
+        if((freezej.dict == null || freezej.dict.isEmpty()) && (freezej.index == null || freezej.index.isEmpty())) {
+            // No build artifacts.
+            return [:]
+        }
+
+        def command = buildS2FCommandLine(freezej)
         command.add("--depend-xml")
 
-        files.each {
+        freezej.files.each {
             command.add(it.getAbsolutePath() )
         }
 
-        LOGGER.info("Processing dependencies:\n{}", command);
+        LOGGER.info("processing dependencies:\n${command}")
 
         def sout = new StringBuffer()
         def serr = new StringBuffer()
@@ -214,22 +174,26 @@ class SliceTask extends DefaultTask {
         p.waitForProcessOutput(sout, serr)
         if (p.exitValue() != 0) {
             println serr.toString()
-            def slice2freezej = getSlice2FreezeJ()
-            throw new GradleException("${slice2freezej} command failed: " + p.exitValue())
+            throw new GradleException("${command[0]} command failed: ${p.exitValue()}")
         }
 
         return parseSliceDependencyXML(new XmlSlurper().parseText(sout.toString()))
     }
 
-    // Run slice2java. Returns a dictionary of A -> [B] where A is a slice file,
-    // and B is the list of produced java source files.
-    def executeSlice2Freezej(freezej, files) {
-        def command = buildFreezeJCommandLine(freezej)
-        files.each {
+    // Run slice2freezej. Returns a dictionary of A -> [B] where A is a slice file, and B is the list of
+    // generated java source files.
+    def executeS2F(freezej) {
+        if((freezej.dict == null || freezej.dict.isEmpty()) && (freezej.index == null || freezej.index.isEmpty())) {
+            // No build artifacts.
+            return [:]
+        }
+
+        def command = buildS2FCommandLine(freezej)
+        freezej.files.each {
             command.add(it.getAbsolutePath() )
         }
 
-        LOGGER.info("Processing slice:\n{}", command);
+        LOGGER.info("processing slice:\n${command}")
 
         def sout = new StringBuffer()
         def serr = new StringBuffer()
@@ -239,15 +203,14 @@ class SliceTask extends DefaultTask {
         p.waitForProcessOutput(sout, serr)
         if (p.exitValue() != 0) {
             println serr.toString()
-            def slice2freezej = getSlice2FreezeJ()
-            throw new GradleException("${slice2freezej} command failed: " + p.exitValue())
+            throw new GradleException("${command[0]} command failed: ${p.exitValue()}")
         }
-        return getFreezejGenerated(freezej)
+        return getS2FGenerated(freezej)
     }
 
-    def buildFreezeJCommandLine(freezej) {
+    def buildS2FCommandLine(freezej) {
         def command = []
-        command.add(getSlice2FreezeJ());
+        command.add(getSlice2FreezeJ())
         command.add("--output-dir=" + project.slice.output.getAbsolutePath())
         command.add('-I' + getIceSliceDir())
         freezej.include.each {
@@ -301,196 +264,224 @@ class SliceTask extends DefaultTask {
         return command
     }
 
-    def writeFreezeJBuildState(dependencyFile, state) {
-        def writer = new StringWriter()
-        def xml = new MarkupBuilder(writer)
-        xml.build {
-            state.slice.each {
-                def key = it.key
-                def value = it.value
-                xml.source("name": key, "timestamp": value)
-            }
-            state.generated.each {
-                xml.generated("name": it)
-            }
-        }
-        dependencyFile.write(writer.toString())
-    }
-
     // Process the written slice file which is of the format:
     //
-    // <dependencies>
-    //   <source name="A.ice" timestamp="XXXX">
-    //     <file name="Demo/Foo.java"/>
-    //   </source>
-    //   <source name="Hello.ice">
-    //   </source>
-    // </dependencies>
-    def parseFreezeJBuildState(xml) {
-        if(xml.name() != "build") {
-            throw new GradleException("malformed XML: expected `dependencies'");
-        }
+    // <state>
+    //   <timestamp value="YYYY"/>
+    //   <slice name="A.ice"/>
+    //   <slice name="B.ice"/>
+    //   <generated name="B.java"/>
+    //   <generated name="B.ice"/>
+    // </state>
 
-        def state = new FreezeJBuildState()
-        xml.children().each {
-            if(it.name() == "source") {
-                def source = it.attributes().get("name")
-                def timestamp = it.attributes().get("timestamp")
-                state.slice.put(source, timestamp)
-            } else if(name() == "generated") {
-                def source = it.attributes().get("name")
-                state.generated.add(source)
+    class FreezeJBuildState {
+        // Timestamp of last build in milliseconds.
+        def timestamp
+
+        // List of slice files.
+        def slice = []
+
+        // List of generated source files.
+        def generated = []
+
+        // List of command line arguments.
+        def args = []
+
+        def write(stateFile) {
+            def writer = new StringWriter()
+            def xml = new MarkupBuilder(writer)
+            xml.state {
+                xml.timestamp("value": timestamp)
+                args.each {
+                    xml.arg("value": it)
+                }
+                slice.each {
+                    xml.slice("name": it)
+                }
+                generated.each {
+                    xml.generated("name": it)
+                }
             }
-        }
-        return state
-    }
-
-    private class Dependency {
-        List<File> files;
-        long timestamp;
-    };
-
-    def processJavaSet(Java java) {
-        java.args = java.args.stripIndent()
-        def sourceFiles
-        if (java.files == null) {
-            sourceFiles = project.fileTree(dir: java.srcDir).include('**/*.ice')
-        } else {
-            sourceFiles = java.files
+            stateFile.write(writer.toString())
         }
 
-        // Dictionary to A -> timestamp, where A is a slice file
-        // we want to process.
-        def timestamps = getTimestamps(sourceFiles)
+        def read(stateFile) {
+            if(!stateFile.isFile()) {
+                return
+            }
 
-        // Dictionary of A  -> [B] where A depends on B.
-        def sliceDependencies = [:]
-        if(!sourceFiles.isEmpty()) {
-            sliceDependencies = getDependencies(java, sourceFiles)
-        }
-
-        // Dictionary of A -> timestamp, [B] where A is a slice file,
-        // timestamp is the  modified time for A at last build and B is the
-        // list of produced java source files.
-        def dependencies = [:]
-        def dependencyFile = new File(project.buildDir, java.name + ".d.xml")
-        if(dependencyFile.isFile()) {
             try {
-                dependencies = parseDependencies(new XmlSlurper().parse(dependencyFile));
+                def xml = new XmlSlurper().parse(stateFile)
+
+                if(xml.name() != "state") {
+                    throw new GradleException("malformed XML: expected `state'")
+                }
+
+                xml.children().each {
+                    if(it.name() == "arg") {
+                        args.add(it.attributes().get("value"))
+                    } else if(it.name() == "timestamp") {
+                        timestamp = it.attributes().get("value").toLong()
+                    } else if(it.name() == "slice") {
+                        slice.add(new File(it.attributes().get("name")))
+                    } else if(it.name() == "generated") {
+                        generated.add(new File(it.attributes().get("name")))
+                    }
+                }
             }
             catch(Exception ex) {
-                LOGGER.info("Dependencies file {} not found, or invalid", dependencyFile);
+                LOGGER.info("invalid XML: ${stateFile}")
                 println ex
             }
         }
+    }
 
-        def toBuild = new HashSet<>()
-        timestamps.each {
-            def d = dependencies[it.key]
-            // If the dependency doesn't exist, or the timestamp
-            // is older than the current timestamp then we need
-            // to build the source file.
-            if(d == null || d.timestamp < it.value) {
-                toBuild.add(it.key);
+
+    def processJava() {
+        // Dictionary of A->[B] where A is a slice file and B is the list of generated
+        // source files.
+        def generated = [:]
+
+        // Set of slice files processed.
+        Set built = []
+
+        // Complete set of slice files.
+        Set files = []
+
+        def stateFile = new File(project.buildDir, "slice2java.df.xml")
+
+        // Dictionary of A->[B] where A is the source set name and B is
+        // the JavaSourceSet
+        def sourceSet = [:]
+
+        // Dictionary of A->[B] where B depends on A for the java task.
+        def s2jDependencies = [:]
+
+        def state = new JavaBuildState()
+        state.read(stateFile)
+
+        project.slice.java.each {
+            it.args = it.args.stripIndent()
+
+            if (it.files == null) {
+                it.files = project.fileTree(dir: it.srcDir).include('**/*.ice')
+            }
+
+            it.files.each {
+                if(files.contains(it)) {
+                    throw new GradleException("${it}: input file specified in multiple source sets")
+                }
+                files.add(it)
+            }
+
+            if(!it.files.isEmpty()) {
+                s2jDependencies << getS2JDependencies(it)
+            }
+        }
+
+        project.slice.java.each {
+            processJavaSet(it, s2jDependencies, state, generated, built, sourceSet)
+        }
+
+        // The set of generated files to remove.
+        Set oldGenerated = []
+
+        // Add all of the previously generated files from the slice files that were
+        // just built in processJavaSet.
+        built.each {
+            def d = state.slice[it]
+            if(d != null) {
+                oldGenerated.addAll(d)
+            }
+        }
+
+        // Add to the oldGenerated list the generated files for those slice files
+        // no longer are in any source set.
+        state.slice.each {
+            if(!files.contains(it.key)) {
+                oldGenerated.addAll(it.value)
+            }
+        }
+
+        // Remove all generated files that were just generated in processJavaSet.
+        generated.values().each {
+            oldGenerated.removeAll(it)
+        }
+
+        def newState = new JavaBuildState()
+        newState.timestamp = System.currentTimeMillis()
+        newState.sourceSet = sourceSet
+        // Update the dependencies.
+        built.each {
+            newState.slice[it] = generated[it]
+        }
+        files.each {
+            if(!built.contains(it)) {
+                newState.slice[it] = state.slice[it]
+            }
+        }
+
+        // Write the new dependencies file.
+        newState.write(stateFile)
+
+        deleteFiles(oldGenerated)
+    }
+
+    def processJavaSet(java, s2jDependencies, state, generated, built, sourceSet) {
+        def ss = new JavaSourceSet()
+        ss.args = buildS2JCommandLine(java)
+        java.files.each {
+            ss.slice.add(it)
+        }
+        sourceSet[java.name] = ss
+
+        // The JavaSourceSet from the previous build.
+        def prevSS = state.sourceSet[java.name]
+
+        Set toBuild = []
+        // If the source set is new or the sourceSet arguments are different then rebuild all slice files.
+        if(prevSS == null || ss.args != prevSS.args) {
+            java.files.each {
+                toBuild.add(it)
+            }
+        } else {
+            // s2jDependencies is populated in getInputFiles.
+            java.files.each {
+                // `it' here is each of the slice files.
+                //
+                // Build the slice file if it wasn't built before in this source set,
+                // or its timestamp is newer than the last build time,
+                // or any of its dependencies have a timestamp newer than the last build time.
+                if(!prevSS.slice.contains(it) || (getTimestamp(it) > state.timestamp) ||
+                    s2jDependencies[it].any {
+                        // `it' here is each of the dependencies of the slice file.
+                        getTimestamp(it) > state.timestamp
+                    }) {
+                        toBuild.add(it)
+                }
             }
         }
 
         // Bail out if there is nothing to do (in theory this should not occur)
         if(toBuild.isEmpty()) {
-            LOGGER.info("Nothing to do");
-            return;
+            LOGGER.info("nothing to do")
+            return
         }
 
-        // Expand the toBuild list from the dependencies and
-        // dependencies of dependencies.
-
-        // First build a list of reverse dependencies.
-        def revdep = buildReverseDependencies(sliceDependencies)
-
-        // Add each of the dependencies. Use clone() as it changes the list.
-        // Is there a better way?
-        toBuild.clone().each {
-            revdep[it].each {
-                toBuild.add(it)
-            }
-        }
-
-        LOGGER.info("Running slice2java on the following slice files")
+        LOGGER.info("running slice2java on the following slice files")
         toBuild.each {
-            LOGGER.info("    {}", it)
+            LOGGER.info("    ${it}")
         }
 
-        // Dictionary of A -> [B] where A is a slice file, and B is
-        // the list of produced java source files.
-        def generated = executeSlice2Java(java, toBuild)
-
-        // Gather up the list of source files that we previously built for those
-        // files which are building.
-        def oldfiles = new HashSet<>()
-        toBuild.each {
-            Dependency d = dependencies[it]
-            if(d != null) {
-                d.files.each {
-                    oldfiles.add(it)
-                }
-            }
-        }
-
-        // Add to the oldfiles list those slice files which no longer are in
-        // the build list.
-        dependencies.each {
-            if(!sourceFiles.contains(it.key)){
-                it.value.files.each {
-                    oldfiles.add(it)
-                }
-            }
-        }
-
-        // Remove all source files that we have generated from the list of
-        // sources file that we previously have built.
-        generated.each {
-            it.value.each {
-                oldfiles.remove(it)
-            }
-        }
-
-        LOGGER.info("The following generated java source files can be removed")
-        oldfiles.each {
-            LOGGER.info("    {}", it)
-        }
-
-        String buildDirPath = project.slice.output.getPath()
-        oldfiles.each {
-            String parent = it.getParent()
-            if(!parent.startsWith(buildDirPath)) {
-                LOGGER.info("Not removing {} as it is outside the build dir {}", it, buildDirPath)
-            } else {
-                it.delete()
-            }
-        }
-
-        // Update the dependencies.
-        toBuild.each {
-            if(!dependencies.containsKey(it)) {
-                dependencies[it] = new Dependency();
-            }
-            Dependency d = dependencies[it]
-            d.timestamp = timestamps[it]
-            d.files = generated[it]
-        }
-
-        // Write the new dependencies file.
-        writeDependencies(dependencyFile, dependencies)
+        // Update the set of java source files generated and the slice files processed.
+        generated << executeS2J(java, toBuild)
+        built.addAll(toBuild)
     }
 
-    // Run slice2java. Returns a dictionary of A -> [B] where A is a slice file,
-    // and B is the list of produced java source files.
-    def executeSlice2Java(java, files) {
+    def buildS2JCommandLine(java) {
         def slice2java = getSlice2Java()
         def command = []
-        command.add(slice2java);
-        command.add("--list-generated")
-        command.add("--output-dir=" + project.slice.output.getAbsolutePath())
+        command.add(slice2java)
         command.add('-I' + getIceSliceDir())
         java.include.each {
             command.add('-I' + it)
@@ -500,11 +491,20 @@ class SliceTask extends DefaultTask {
             command.add(it)
         }
 
+        return command
+
+    }
+    // Run slice2java. Returns a dictionary of A -> [B] where A is a slice file,
+    // and B is the list of produced java source files.
+    def executeS2J(java, files) {
+        def command = buildS2JCommandLine(java)
+        command.add("--list-generated")
+        command.add("--output-dir=" + project.slice.output.getAbsolutePath())
         files.each {
-            command.add(it.getAbsolutePath() )
+            command.add(it.getAbsolutePath())
         }
 
-        LOGGER.info("Processing slice:\n{}", command);
+        LOGGER.info("processing slice:\n${command}")
 
         def sout = new StringBuffer()
         def serr = new StringBuffer()
@@ -514,31 +514,21 @@ class SliceTask extends DefaultTask {
         p.waitForProcessOutput(sout, serr)
         if (p.exitValue() != 0) {
             println serr.toString()
-            throw new GradleException("${slice2java} command failed: " + p.exitValue())
+            throw new GradleException("${command[0]} command failed: ${p.exitValue()}")
         }
         return parseGeneratedXML(new XmlSlurper().parseText(sout.toString()))
     }
 
     // Executes slice2java to determine the slice file dependencies.
     // Returns a dictionary of A  -> [B] where A depends on B.
-    def getDependencies(java, files) {
-        def slice2java = getSlice2Java()
-        def command = []
-        command.add(slice2java);
+    def getS2JDependencies(java) {
+        def command = buildS2JCommandLine(java)
         command.add("--depend-xml")
-        command.add('-I' + getIceSliceDir())
-        java.include.each {
-            command.add('-I' + it)
-        }
-        java.args.split().each {
-            command.add(it)
-        }
-
-        files.each {
+        java.files.each {
             command.add(it.getAbsolutePath() )
         }
 
-        LOGGER.info("Processing dependencies:\n{}", command);
+        LOGGER.info("processing dependencies:\n${command}")
 
         def sout = new StringBuffer()
         def serr = new StringBuffer()
@@ -548,7 +538,7 @@ class SliceTask extends DefaultTask {
         p.waitForProcessOutput(sout, serr)
         if (p.exitValue() != 0) {
             println serr.toString()
-            throw new GradleException("${slice2java} command failed: " + p.exitValue())
+            throw new GradleException("${command[0]} command failed: ${p.exitValue()}")
         }
 
         return parseSliceDependencyXML(new XmlSlurper().parseText(sout.toString()))
@@ -558,7 +548,7 @@ class SliceTask extends DefaultTask {
     def getIceVersion() {
         def slice2java = getSlice2Java()
         def command = []
-        command.add(slice2java);
+        command.add(slice2java)
         command.add("--version")
 
         def sout = new StringBuffer()
@@ -569,95 +559,134 @@ class SliceTask extends DefaultTask {
         p.waitForProcessOutput(sout, serr)
         if (p.exitValue() != 0) {
             println serr.toString()
-            throw new GradleException("${slice2java} command failed: " + p.exitValue())
+            throw new GradleException("${command[0]} command failed: ${p.exitValue()}")
         }
 
         return serr.toString()
     }
 
-    // Given a map of A->B,C,D where A depends on B, C, D produce a map
-    // of B->A, C->A, D->A meaning that if B is touched A must be rebuilt.
-    //
-    // The sliceDependencies map is already transitive in that if A->B and B->C then
-    // A already is A->B,C
-    def buildReverseDependencies(sliceDependencies) {
-        def revdep = [:]
-        sliceDependencies.each {
-            def source = it.key
-            it.value.each {
-                if(!revdep.containsKey(it)) {
-                   revdep[it] = new HashSet()
-                }
-                revdep[it].add(source)
-            }
+    // Cache of file -> timestamp.
+    def timestamps = [:]
+
+    // Get the last modified time for the file. Note that this time is in ms.
+    def getTimestamp(file) {
+        if(timestamps.containsKey(file)) {
+            return timestamps[file]
         }
-        return revdep;
+
+        if(!file.isFile()) {
+            throw new GradleException("${it}: cannot stat")
+        }
+
+        def t = file.lastModified()
+        timestamps[file] = t
+        return t
     }
 
-    // Return a dictionary of A->timestamp for each input file.
-    def getTimestamps(files) {
-        def timestamps = [:]
-        files.each {
-            if(!it.isFile()) {
-                throw new GradleException("Cannot stat " + it)
-            }
-            timestamps[it] = it.lastModified()
-        }
-        return timestamps
-    }
+    class JavaSourceSet {
+        // List of slice files.
+        def slice = []
 
-    def writeDependencies(dependencyFile, dependencies) {
-        def writer = new StringWriter()
-        def xml = new MarkupBuilder(writer)
-        xml.dependencies {
-            dependencies.each {
-                def key = it.key
-                def value = it.value
-                xml.source("name": key, "timestamp": value.timestamp) {
-                    value.files.each {
-                        xml.file("name": it)
-                    }
-                }
-            }
-        }
-
-        dependencyFile.write(writer.toString())
+        // List of arguments.
+        def args = []
     }
 
     // Process the written slice file which is of the format:
     //
-    // <dependencies>
-    //   <source name="A.ice" timestamp="XXXX">
-    //     <file name="Demo/Foo.java"/>
-    //   </source>
-    //   <source name="Hello.ice">
-    //   </source>
-    // </dependencies>
-    def parseDependencies(xml) {
-        if(xml.name() != "dependencies") {
-            throw new GradleException("malformed XML: expected `dependencies'");
-        }
+    // <state>
+    //   <timestamp value="xxxx"/>
+    //   <sourceSet name="default">
+    //     <source name="A.ice">
+    //       <file name="Demo/Foo.java"/>
+    //     </source>
+    //     <source name="Hello.ice"/>
+    //     <arg value="-I."/>
+    //   </sourceSet>
+    // </state>
+    //
+    class JavaBuildState {
+        // Timestamp of last build in milliseconds.
+        def timestamp
 
-        def dependencies =[:]
-        xml.children().each {
-            if(it.name() == "source") {
-                def source = it.attributes().get("name")
-                def timestamp = it.attributes().get("timestamp")
-                def files = []
-                it.children().each {
-                    if(it.name() == "file") {
-                        def file = new File(it.attributes().get("name"))
-                        files.add(file)
+        // List of slice files. Dictionary of A -> [B] where B is the list of generated java
+        // source files.
+        def slice = [:]
+
+        // Dictionary of source set -> JavaSourceSet
+        def sourceSet = [:]
+
+        def write(stateFile) {
+
+            def writer = new StringWriter()
+            def xml = new MarkupBuilder(writer)
+            xml.state {
+                xml.timestamp("value": timestamp)
+                sourceSet.each {
+                    def key = it.key
+                    def value = it.value
+                    xml.sourceSet("name": key) {
+                        value.slice.each {
+                            def file = it
+                            xml.source("name": file) {
+                                slice[file].each {
+                                    xml.file("name": it)
+                                }
+                            }
+                        }
+                        value.args.each {
+                            xml.arg("value": it)
+                        }
                     }
                 }
-                Dependency d = new Dependency()
-                d.files = files
-                d.timestamp = timestamp.toLong()
-                dependencies.put(new File(source), d)
+            }
+
+            stateFile.write(writer.toString())
+        }
+
+        def read(stateFile) {
+            if(!stateFile.isFile()) {
+                return
+            }
+
+            try {
+                def xml = new XmlSlurper().parse(stateFile)
+                if(xml.name() != "state") {
+                    throw new GradleException("malformed XML: expected `state'")
+                }
+
+                xml.children().each {
+                    if(it.name() == "timestamp") {
+                        timestamp = it.attributes().get("value").toLong()
+                    } else if(it.name() == "sourceSet") {
+                        def ss = new JavaSourceSet()
+                        def name = it.attributes().get("name")
+                        it.children().each {
+                            if(it.name() == "arg") {
+                                ss.args.add(it.attributes().get("value"))
+                            } else if(it.name() == "source") {
+
+                                def source = new File(it.attributes().get("name"))
+                                def files = []
+                                it.children().each {
+                                    if(it.name() == "file") {
+                                        files.add(new File(it.attributes().get("name")))
+                                    }
+                                }
+                                slice[source] = files
+                                ss.slice.add(source)
+                            }
+                        }
+                        sourceSet[name] = ss
+                    }
+                }
+            }
+            catch(Exception ex) {
+                LOGGER.info("invalid XML: ${stateFile}")
+                println ex
             }
         }
-        return dependencies
     }
+
 
     // Process the generated XML which is of the format:
     //
@@ -668,7 +697,7 @@ class SliceTask extends DefaultTask {
     // </generated>
     def parseGeneratedXML(xml) {
         if(xml.name() != "generated") {
-            throw new GradleException("malformed XML: expected `generated'");
+            throw new GradleException("malformed XML: expected `generated'")
         }
 
         def generated =[:]
@@ -678,11 +707,10 @@ class SliceTask extends DefaultTask {
                 def files = []
                 it.children().each {
                     if(it.name() == "file") {
-                        def name = new File(it.attributes().get("name"))
-                        files.add(name)
+                        files.add(new File(it.attributes().get("name")))
                     }
                 }
-                generated.put(new File(source), files);
+                generated.put(new File(source), files)
 
             }
         }
@@ -700,7 +728,7 @@ class SliceTask extends DefaultTask {
     // </dependencies>
     def parseSliceDependencyXML(xml) {
         if(xml.name() != "dependencies") {
-            throw new GradleException("malformed XML");
+            throw new GradleException("malformed XML")
         }
 
         def dependencies =[:]
@@ -714,7 +742,7 @@ class SliceTask extends DefaultTask {
                         files.add(dependsOn)
                     }
                 }
-                dependencies.put(new File(source), files);
+                dependencies.put(new File(source), files)
             }
         }
         return dependencies
@@ -724,7 +752,7 @@ class SliceTask extends DefaultTask {
         def slice2java = "slice2java"
         def iceHome = getIceHome()
         if (iceHome != null) {
-            slice2java = iceHome + File.separator + "bin" + File.separator + "slice2java"
+            slice2java = pathJoin(iceHome, "bin", "slice2java")
         }
         return slice2java
     }
@@ -733,7 +761,7 @@ class SliceTask extends DefaultTask {
         def slice2freezej = "slice2freezej"
         def iceHome = getIceHome()
         if (iceHome != null) {
-            slice2freezej = iceHome + File.separator + "bin" + File.separator + "slice2freezej"
+            slice2freezej = pathJoin(iceHome, "bin", "slice2freezej")
         }
         return slice2freezej
     }
@@ -760,25 +788,30 @@ class SliceTask extends DefaultTask {
             if(os == "Mac OS X") {
                 iceHome = "/usr/local"
             } else if(os.contains("Windows")) {
-                throw new GradleException("Could not find Ice installation, please set iceHome");
+                throw new GradleException("cannot find Ice installation, please set iceHome")
             } else {
                 iceHome = "/usr"
             }
         }
 
-        if (!File(iceHome + File.separator + "bin" + File.separator + "slice2java").exists() ||
-            !File(iceHome + File.separator + "bin" + File.separator + "slice2java.exe").exists())
+        if (!File(pathJoin(iceHome, "bin", "slice2java")).exists() ||
+            !File(pathJoin(iceHome, "bin", "slice2java.exe")).exists())
         {
-            throw new GradleException("Could not find Ice installation in " + iceHome);
+            throw new GradleException("${iceHome}: cannot find Ice installation")
         }
 
         return iceHome
     }
 
+    // Equivalent of os.path.join in python.
+    def pathJoin(String... args) {
+        return new File(args.join(File.separator)).getPath()
+    }
+
     def getIceSliceDir() {
         def iceHome = getIceHome()
         if (project.slice.srcDist) {
-            return iceHome + File.separator + ".." + File.separator + "slice"
+            return pathJoin(iceHome, "..", "slice")
         }
 
         def os = System.properties['os.name']
@@ -789,7 +822,7 @@ class SliceTask extends DefaultTask {
         } else if (iceHome == "/usr") {
             return "/usr/share/Ice-" + getIceVersion() + "/slice"
         }
-        return iceHome + File.separator + "slice"
+        return pathJoin(iceHome, "slice")
     }
 
     def addLdLibraryPath() {
@@ -798,7 +831,7 @@ class SliceTask extends DefaultTask {
 
         def ldLibPathEnv = null
         def ldLib64PathEnv = null
-        def libPath = new File(iceInstall + File.separator + "lib").toString()
+        def libPath = pathJoin(iceInstall, "lib")
         def lib64Path = null
 
         def os = System.properties['os.name']
@@ -812,44 +845,59 @@ class SliceTask extends DefaultTask {
         } else {
             ldLibPathEnv = "LD_LIBRARY_PATH"
             ldLib64PathEnv = "LD_LIBRARY_PATH"
-            lib64Path = new File(iceInstall + File.separator + "lib64").toString()
+            lib64Path = pathJoin(iceInstall, "lib64")
 
-            if(new File(iceInstall + File.separator + "lib" + File.separator + "i386-linux-gnu").exists())
+            if(new File(pathJoin(iceInstall, "lib", "i386-linux-gnu")).exists())
             {
-                libPath = new File(iceInstall + File.separator +
-                                   "lib" + File.separator +
-                                   "i386-linux-gnu").toString()
+                libPath = pathJoin(iceInstall, "lib", "i386-linux-gnu")
             }
 
-            if(new File(iceInstall + File.separator + "lib" + File.separator + "x86_64-linux-gnu").exists())
+            if(new File(pathJoin(iceInstall, "lib", "x86_64-linux-gnu")).exists())
             {
-                lib64Path = new File(iceInstall + File.separator +
-                                     "lib" + File.separator +
-                                     "x86_64-linux-gnu").toString();
+                lib64Path = pathJoin(iceInstall, "lib", "x86_64-linux-gnu")
             }
         }
 
         def newEnv = [:]
         if(ldLibPathEnv != null) {
-            if(ldLibPathEnv.equals(ldLib64PathEnv)) {
-                libPath = libPath + File.pathSeparator + lib64Path;
+            if(ldLibPathEnv == ldLib64PathEnv) {
+                libPath = pathJoin(libPath, lib64Path)
             }
 
             def envLibPath = env[ldLibPathEnv]
             if(envLibPath != null) {
-                libPath = libPath + File.pathSeparator + envLibPath
+                libPath = pathJoin(libPath, envLibPath)
             }
             newEnv[ldLibPathEnv] = libPath
         }
 
-        if(ldLib64PathEnv != null && !ldLib64PathEnv.equals(ldLibPathEnv)) {
+        if(ldLib64PathEnv != null && ldLib64PathEnv != ldLibPathEnv) {
             def envLib64Path = env[ldLib64PathEnv]
             if(envLib64Path != null) {
-                lib64Path = lib64Path + File.pathSeparator + envLib64Path
+                lib64Path = pathJoin(lib64Path, envLib64Path)
             }
             newEnv[ldLib64PathEnv] = lib64Path
         }
 
         return newEnv.collect { k, v -> "$k=$v" }
+    }
+
+    def deleteFiles(files) {
+        if(!files.isEmpty()) {
+            LOGGER.info("the following generated java source files will be deleted")
+            files.each {
+                LOGGER.info("    ${it}")
+            }
+
+            String buildDirPath = project.slice.output.getPath()
+            files.each {
+                String parent = it.getParent()
+                if(!parent.startsWith(buildDirPath)) {
+                    LOGGER.info("not removing ${it} as it is outside the build dir ${buildDirPath}")
+                } else {
+                    it.delete()
+                }
+            }
+        }
     }
 }

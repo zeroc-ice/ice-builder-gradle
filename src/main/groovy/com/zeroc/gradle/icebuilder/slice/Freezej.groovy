@@ -8,7 +8,7 @@ package com.zeroc.gradle.icebuilder.slice;
 
 import org.gradle.api.NamedDomainObjectContainer
 
-class FreezejExtension {
+class Freezej {
     final NamedDomainObjectContainer<Dict> dict;
     final NamedDomainObjectContainer<Index> index;
 
@@ -18,7 +18,7 @@ class FreezejExtension {
     def srcDir
     def include
 
-    FreezejExtension(dict, index) {
+    Freezej(dict, index) {
         this.dict = dict
         this.index = index
     }
