@@ -47,7 +47,7 @@ buildscript {
         }
     }
     dependencies {
-        classpath group: 'com.zeroc.gradle.ice-builder', name: 'slice', version: '1.0.0'
+        classpath group: 'com.zeroc.gradle.ice-builder', name: 'slice', version: '1.0.1'
     }
 }
 apply plugin: 'slice'
