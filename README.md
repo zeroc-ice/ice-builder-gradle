@@ -394,7 +394,7 @@ freezej {
 ## When does the Plug-In Recompile Slice Files?
 
 The plug-in compiles or recompiles a Slice file whenever one of the following conditions is true:
- * The corresponding Java files are missing.
  * This Slice file or a Slice file included directly or indirectly by this Slice file was updated after the last compilation of the Slice file through the plug-in.
+ * Any of the arguments used to compile the Slice file have changed.
 
 Furthermore, when the plug-in recompiles a Slice file or notices that a Slice file was removed, it removes all the Java files created by the previous compilation of this file. This way, you do not need to keep track and clean-up generated Java files that are no longer associated with any Slice files.
