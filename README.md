@@ -5,6 +5,8 @@
 The Ice Builder for Gradle provides a gradle plug-in named `slice`. This plug-in manages the compilation
 of [Slice](https://doc.zeroc.com/display/Ice/The+Slice+Language) files to Java. It compiles your Slice files with [`slice2java`](https://doc.zeroc.com/display/Ice/slice2java+Command-Line+Options), and it is also capable of generating Freeze maps and indices with [`slice2freezej`](https://doc.zeroc.com/display/Ice/Using+a+Freeze+Map+in+Java).
 
+An [Ice](https://github.com/zeroc-ice/ice) installation with `slice2java` and `slice2freezej` version 3.5.1 or higher is required.
+
 ## Contents
 
 - [Build Instructions](#build-instructions)
@@ -393,8 +395,10 @@ freezej {
 
 ## When does the Plug-In Recompile Slice Files?
 
-The plug-in compiles or recompiles a Slice file whenever one of the following conditions is true:
+Slice files will be recompiled if either of the following are true:
  * This Slice file or a Slice file included directly or indirectly by this Slice file was updated after the last compilation of the Slice file through the plug-in.
- * Any of the options used to compile the Slice file have changed.
+ * The options used to compile this Slice file have changed.
 
-Furthermore, when the plug-in recompiles a Slice file or notices that a Slice file was removed, it removes all the Java files created by the previous compilation of this file. This way, you do not need to keep track and clean-up generated Java files that are no longer associated with any Slice files.
+Removing a Slice file from a source set will trigger the removal of the corresponding generated `.java` files the next time the source set is built.
+
+Generated files will not be removed if a source set is renamed or removed. In this case you should perform a clean.
