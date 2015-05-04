@@ -400,5 +400,3 @@ Slice files will be recompiled if either of the following are true:
  * The options used to compile this Slice file have changed.
 
 Removing a Slice file from a source set will trigger the removal of the corresponding generated `.java` files the next time the source set is built.
-
-Generated files will not be removed if a source set is renamed or removed. In this case you should perform a clean.
