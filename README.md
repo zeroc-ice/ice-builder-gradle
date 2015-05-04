@@ -35,7 +35,7 @@ To build the `slice` plug-in run:
 $ ./gradlew build
 ```
 
-## Using the `slice` Plug-In
+## Using the `slice` Plug-in
 
 Include the following in your Gradle build script:
 
@@ -393,7 +393,7 @@ freezej {
 }
 ```
 
-## When does the Plug-In Recompile Slice Files?
+## When does the Plug-in Recompile Slice Files?
 
 Slice files will be recompiled if either of the following are true:
  * This Slice file or a Slice file included directly or indirectly by this Slice file was updated after the last compilation of the Slice file through the plug-in.
