@@ -861,12 +861,12 @@ class SliceTask extends DefaultTask {
         def newEnv = [:]
         if(ldLibPathEnv != null) {
             if(ldLibPathEnv == ldLib64PathEnv) {
-                libPath = pathJoin(libPath, lib64Path)
+                libPath = libPath + ";" + lib64Path
             }
 
             def envLibPath = env[ldLibPathEnv]
             if(envLibPath != null) {
-                libPath = pathJoin(libPath, envLibPath)
+                libPath = libPath + File.pathSeparator + envLibPath
             }
             newEnv[ldLibPathEnv] = libPath
         }
@@ -874,7 +874,7 @@ class SliceTask extends DefaultTask {
         if(ldLib64PathEnv != null && ldLib64PathEnv != ldLibPathEnv) {
             def envLib64Path = env[ldLib64PathEnv]
             if(envLib64Path != null) {
-                lib64Path = pathJoin(lib64Path, envLib64Path)
+                lib64Path = lib64Path + File.pathSeparator + envLib64Path
             }
             newEnv[ldLib64PathEnv] = lib64Path
         }
