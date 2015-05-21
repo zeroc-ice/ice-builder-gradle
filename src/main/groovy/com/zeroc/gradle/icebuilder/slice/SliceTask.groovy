@@ -820,7 +820,7 @@ class SliceTask extends DefaultTask {
                 return "/usr/local/share/slice"
             }
         } else if (iceHome == "/usr") {
-            return "/usr/share/Ice-" + getIceVersion() + "/slice"
+            return "/usr/share/Ice-" + getIceVersion().trim() + "/slice"
         }
         return pathJoin(iceHome, "slice")
     }
