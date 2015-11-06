@@ -759,7 +759,7 @@ class SliceTask extends DefaultTask {
 
     def getSlice2FreezeJ() {
         def slice2freezej = "slice2freezej"
-        def iceHome = getIceHome()
+        def iceHome = getFreezeHome()
         if (iceHome != null) {
             slice2freezej = pathJoin(iceHome, "bin", "slice2freezej")
         }
@@ -801,6 +801,15 @@ class SliceTask extends DefaultTask {
         }
 
         return iceHome
+    }
+
+    def getFreezeHome() {
+        // Check if plugin property is set
+        def freezeHome = project.slice.freezeHome
+        if (freezeHome != null) {
+            return freezeHome
+        }
+        return getIceHome()
     }
 
     // Equivalent of os.path.join in python.

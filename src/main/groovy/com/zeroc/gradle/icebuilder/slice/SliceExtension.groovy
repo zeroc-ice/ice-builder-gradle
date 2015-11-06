@@ -11,6 +11,7 @@ import org.gradle.api.NamedDomainObjectContainer
 class SliceExtension {
     final NamedDomainObjectContainer<Java> java;
     def iceHome = null
+    def freezeHome = null
     def srcDist = false
     def output
 
