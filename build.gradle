@@ -7,11 +7,11 @@
 buildscript {
     repositories {
         maven {
-            url 'https://plugins.gradle.org/m2/'
+            url "https://plugins.gradle.org/m2/"
         }
     }
     dependencies {
-        classpath 'com.gradle.publish:plugin-publish-plugin:0.9.0'
+        classpath "com.gradle.publish:plugin-publish-plugin:0.9.1"
     }
 }
 
@@ -39,7 +39,7 @@ sourceSets {
     }
 }
 
-version  = "1.0.3"
+version  = "1.0.4"
 group = "com.zeroc.gradle.ice-builder"
 
 pluginBundle {
@@ -61,5 +61,5 @@ pluginBundle {
 // the version of gradle needed to build plugin.
 //
 task wrapper(type: Wrapper) {
-    gradleVersion = "2.6"
+    gradleVersion = "2.9"
 }
