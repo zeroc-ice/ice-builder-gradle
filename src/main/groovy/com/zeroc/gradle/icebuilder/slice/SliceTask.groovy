@@ -35,6 +35,14 @@ class SliceTask extends DefaultTask {
             }
         }
 
+        // In case the slice output directory is not inside the buildDir, as we still store
+        // dependency files here
+        if (!project.buildDir.isDirectory()) {
+            if (!project.buildDir.mkdirs()) {
+                throw new GradleException("could not create build output directory: ${project.buildDir}")
+            }
+        }
+
         // Make sure default source set is present
         if (project.slice.java.isEmpty()) {
             project.slice.java.create("default")
