@@ -768,7 +768,7 @@ class SliceTask extends DefaultTask {
 
     def getIceHome() {
         // Check if plugin property is set
-        def iceHome = project.slice.iceHome
+        def iceHome = project.slice.iceHome as String
         if (iceHome != null) {
             return iceHome
         }
@@ -794,8 +794,8 @@ class SliceTask extends DefaultTask {
             }
         }
 
-        if (!File(pathJoin(iceHome, "bin", "slice2java")).exists() ||
-            !File(pathJoin(iceHome, "bin", "slice2java.exe")).exists())
+        if (!new File(pathJoin(iceHome, "bin", "slice2java")).exists() &&
+            !new File(pathJoin(iceHome, "bin", "slice2java.exe")).exists())
         {
             throw new GradleException("${iceHome}: cannot find Ice installation")
         }
@@ -813,7 +813,7 @@ class SliceTask extends DefaultTask {
     }
 
     // Equivalent of os.path.join in python.
-    def pathJoin(String... args) {
+    def static pathJoin(String... args) {
         return new File(args.join(File.separator)).getPath()
     }
 
@@ -831,6 +831,7 @@ class SliceTask extends DefaultTask {
         } else if (iceHome == "/usr") {
             return "/usr/share/Ice-" + getIceVersion().trim() + "/slice"
         }
+
         return pathJoin(iceHome, "slice")
     }
 
