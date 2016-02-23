@@ -760,6 +760,21 @@ class SliceTask extends DefaultTask {
         def slice2java = "slice2java"
         def iceHome = getIceHome()
         if (iceHome != null) {
+            def os = System.properties['os.name']
+            if(os.contains("Windows")) {
+                if(project.slice.srcDist){
+                    def env = System.getenv()
+                    slice2java = pathJoin(iceHome, "bin", env['CPP_PLATFORM'], env['CPP_CONFIGURATION'], "slice2java.exe")
+                    if(new File(slice2java).exists()){
+                        return slice2java
+                    }
+                }else{
+                    slice2java = pathJoin(iceHome, "build", "native", "bin", "Win32", "Release", "slice2java.exe")
+                    if(new File(slice2java).exists()){
+                        return slice2java
+                    }
+                }
+            }
             slice2java = pathJoin(iceHome, "bin", "slice2java")
         }
         return slice2java
@@ -803,7 +818,8 @@ class SliceTask extends DefaultTask {
         }
 
         if (!new File(pathJoin(iceHome, "bin", "slice2java")).exists() &&
-            !new File(pathJoin(iceHome, "bin", "slice2java.exe")).exists())
+            !new File(pathJoin(iceHome, "bin", "slice2java.exe")).exists() &&
+            !new File(pathJoin(iceHome, "build", "native", "bin", "Win32", "Release", "slice2java.exe")).exists())
         {
             throw new GradleException("${iceHome}: cannot find Ice installation")
         }
@@ -835,6 +851,10 @@ class SliceTask extends DefaultTask {
         if (os == "Mac OS X") {
             if (iceHome == "/usr/local") {
                 return "/usr/local/share/slice"
+            }
+        } else if(os.contains("Windows")) {
+            if(new File(pathJoin(iceHome, "build", "native", "slice")).exist()){
+                return pathJoin(iceHome, "build", "native", "slice")
             }
         } else if (iceHome == "/usr") {
             return "/usr/share/Ice-" + getIceVersion().trim() + "/slice"
