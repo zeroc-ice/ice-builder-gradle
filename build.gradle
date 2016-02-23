@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2014-2015 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2014-2016 ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -39,7 +39,7 @@ sourceSets {
     }
 }
 
-version  = "1.0.5"
+version  = "1.0.6"
 group = "com.zeroc.gradle.ice-builder"
 
 pluginBundle {
