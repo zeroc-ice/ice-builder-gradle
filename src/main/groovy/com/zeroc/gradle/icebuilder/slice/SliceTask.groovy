@@ -763,18 +763,30 @@ class SliceTask extends DefaultTask {
             def os = System.properties['os.name']
             if(os.contains("Windows")) {
                 if(project.slice.srcDist){
-                    def env = System.getenv()
-                    slice2java = pathJoin(iceHome, "bin", env['CPP_PLATFORM'], env['CPP_CONFIGURATION'], "slice2java.exe")
-                    if(new File(slice2java).exists()){
-                        return slice2java
+                    //
+                    // Ice >= 3.7 Windows source distribution, the slice2java compiler is located in the platform
+                    // configuration depend directory. Otherwise cppPlatforma and cppConfiguration will be null and
+                    // it fallback to the common bin directory used with Ice < 3.7.
+                    //
+                    def cppPlatform = getCppPlatform()
+                    def cppConfiguration = getCppConfiguration()
+
+                    if(cppPlatform != null && cppConfiguration != null) {
+                        return pathJoin(iceHome, "bin", cppPlatform, cppConfiguration, "slice2java.exe")
                     }
                 }else{
+                    //
+                    // With Ice >= 3.7 Windows binary distribution we use the slice2java compiler Win32/Release
+                    // bin directory. We assume that if the file exists at this location we are using Ice > 3.7
+                    // distribution otherwise it will fallback to the common bin directory used with Ice < 3.7.
+                    //
                     slice2java = pathJoin(iceHome, "build", "native", "bin", "Win32", "Release", "slice2java.exe")
                     if(new File(slice2java).exists()){
                         return slice2java
                     }
                 }
             }
+
             slice2java = pathJoin(iceHome, "bin", "slice2java")
         }
         return slice2java
@@ -787,6 +799,28 @@ class SliceTask extends DefaultTask {
             slice2freezej = pathJoin(iceHome, "bin", "slice2freezej")
         }
         return slice2freezej
+    }
+
+    def getCppPlatform() {
+        // Check if plugin property is set
+        def cppPlatform = project.slice.cppPlatform as String
+        if (cppPlatform != null) {
+            return cppPlatform
+        }
+
+        def env = System.getenv()
+        return env['CPP_PLATFORM']
+    }
+
+    def getCppConfiguration() {
+        // Check if plugin property is set
+        def cppConfiguration = project.slice.cppConfiguration as String
+        if (cppConfiguration != null) {
+            return cppConfiguration
+        }
+
+        def env = System.getenv()
+        return env['CPP_CONFIGURATION']
     }
 
     def getIceHome() {

@@ -15,6 +15,9 @@ class SliceExtension {
     def srcDist = false
     def output
 
+    def cppPlatform = null
+    def cppConfiguration = null
+
     SliceExtension(java) {
         this.java = java
     }
