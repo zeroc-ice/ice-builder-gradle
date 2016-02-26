@@ -39,7 +39,7 @@ sourceSets {
     }
 }
 
-version  = "1.0.6"
+version  = "1.2.0"
 group = "com.zeroc.gradle.ice-builder"
 
 pluginBundle {
@@ -61,5 +61,5 @@ pluginBundle {
 // the version of gradle needed to build plugin.
 //
 task wrapper(type: Wrapper) {
-    gradleVersion = "2.9"
+    gradleVersion = "2.11"
 }

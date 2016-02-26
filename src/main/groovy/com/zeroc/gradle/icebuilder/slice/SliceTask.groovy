@@ -765,8 +765,8 @@ class SliceTask extends DefaultTask {
                 if(project.slice.srcDist){
                     //
                     // Ice >= 3.7 Windows source distribution, the slice2java compiler is located in the platform
-                    // configuration depend directory. Otherwise cppPlatforma and cppConfiguration will be null and
-                    // it fallback to the common bin directory used with Ice < 3.7.
+                    // configuration depend directory. Otherwise cppPlatform and cppConfiguration will be null and
+                    // it will fallback to the common bin directory used with Ice < 3.7.
                     //
                     def cppPlatform = getCppPlatform()
                     def cppConfiguration = getCppConfiguration()
