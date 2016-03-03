@@ -887,7 +887,7 @@ class SliceTask extends DefaultTask {
                 return "/usr/local/share/slice"
             }
         } else if(os.contains("Windows")) {
-            if(new File(pathJoin(iceHome, "build", "native", "slice")).exist()){
+            if(new File(pathJoin(iceHome, "build", "native", "slice")).exists()){
                 return pathJoin(iceHome, "build", "native", "slice")
             }
         } else if (iceHome == "/usr") {
