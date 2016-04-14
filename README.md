@@ -91,10 +91,22 @@ This default layout can be changed with the property `srcDir`, described below.
 
 The `slice` plug-in defines the following convention properties:
 
-| Property name | Type   | Default value            | Description                                   |
-| ------------- | ------ | ------------------------ | --------------------------------------------- |
-| iceHome       | String | (see below)              | The location of the Ice installation.         |
-| output        | File   | _buildDir_/generated-src | The location to place generated source files. |
+| Property name     | Type    | Default value            | Description                                          |
+| ----------------- | ------- | ------------------------ | -----------------------------------------------------|
+| iceHome           | String  | (see below)              | The location of the Ice installation.                |
+| freezeHome        | String  | _iceHome_                | The location of the Freeze installation.             |
+| output            | File    | _buildDir_/generated-src | The location to place generated source files.        |
+| iceVersion        | String  | Ice version              | The version as return by slice2java -v (read only)   |
+| srcDist           | Boolean | (platform dependent)     | True if using a source distribution false otherwise  |
+|                                                          (read only)                                          |
+| sliceDir          | String  | (platform dependent)     | Ice Slice installation directory (read only)         |
+| jarDir            | String  | (platform dependent)     | Ice JARs installation directory (read only)          |
+| slice2java        | String  | (platform dependent)     | slice2java executable path (read only)               |
+| slice2freezej     | String  | (platform dependent)     | slice2freezej executable path (read only)            |
+| cppPlatform       | String  |                          | C++ platform for Windows source builds with          |
+|                                                          Ice >= 3.7 used to locate slice2java                 |
+| cppConfiguration  | String  |                          | C++ configuration required for Windows source builds |
+|                                                          with Ice >= 3.7 to locate slice2java               
 
 If `iceHome` is not set, the plug-in will check the `ICE_HOME` environment
 variable to determine the location of the Ice installation. If `ICE_HOME` is
@@ -105,8 +117,8 @@ not set either, the plug-in uses the following defaults on Linux and OS X:
 | Linux      | /usr                                   |
 | OS X       | /usr/local                             |
 
-On Windows, or when Ice is installed in a non-standard location, you need to set
-`iceHome` or `ICE_HOME`.
+On Windows when `iceHome` and `ICE_HOME` are not set, the builder query the Windows
+registry to find the available Ice installations and use the latest version available.
 
 You can set `iceHome` in your build script as shown below:
 
