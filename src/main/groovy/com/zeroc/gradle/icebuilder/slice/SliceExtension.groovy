@@ -10,55 +10,61 @@ import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.GradleException
 
 class SliceExtension {
+
     final NamedDomainObjectContainer<Java> java;
-    def iceHome = null
-    def iceVersion = null
-    def srcDist = false
-    def freezeHome = null
-    def sliceDir = null
-    def slice2java = null
-    def slice2freezej = null
-    def jarDir = null
-    def cppPlatform = null
-    def cppConfiguration = null
-    def env = []
+
+    private def iceHome = null
+    private def iceVersion = null
+    private def srcDist = false
+    private def freezeHome = null
+    private def sliceDir = null
+    private def slice2java = null
+    private def slice2freezej = null
+    private def jarDir = null
+    private def cppPlatform = null
+    private def cppConfiguration = null
+
+    private def env = []
     def output
 
-    static Configuration configuration = null
+    private static Configuration configuration = null
 
     class Configuration {
-        def iceHome = null
-        def iceVersion = null
-        def srcDist = false
-        def freezeHome = null
-        def sliceDir = null
-        def slice2java = null
-        def slice2freezej = null
-        def jarDir = null
-        def cppPlatform = null
-        def cppConfiguration = null
-        def env = []
 
-        Configuration(iceHome = null) {
-            this.iceHome = iceHome ? iceHome : getIceHome();
+        def _iceHome = null
+        def _iceVersion = null
+        def _srcDist = false
+        def _freezeHome = null
+        def _sliceDir = null
+        def _slice2java = null
+        def _slice2freezej = null
+        def _jarDir = null
+        def _cppPlatform = null
+        def _cppConfiguration = null
+        def _env = []
+
+        Configuration(iceHome = null, cppPlatform = null, cppConfiguration = null) {
+            _iceHome = iceHome ? iceHome : getIceHome();
+            _cppPlatform = cppPlatform
+            _cppConfiguration = cppConfiguration
 
             def os = System.properties['os.name']
 
             if(this.iceHome != null) {
-                srcDist = new File([this.iceHome, "java", "build.gradle"].join(File.separator)).exists()
-                slice2java = getSlice2java(this.iceHome)
+                _srcDist = new File([_iceHome, "java", "build.gradle"].join(File.separator)).exists()
+                _slice2java = getSlice2java(_iceHome)
 
                 //
                 // If freezeHome is not set we assume slice2freezej resides in the same location than slice2java
                 // otherwise slice2freezej will be located in the freeze home bin directory.
                 //
                 if (freezeHome == null) {
-                    slice2freezej = [new File(slice2java).getParent(), "slice2freezej"].join(File.separator)
+                    _slice2freezej = [new File(_slice2java).getParent(), "slice2freezej"].join(File.separator)
                 } else {
-                    if(new File([freezeHome, "bin"].join(File.separator)).exists()) {
-                        slice2freezej = [freezeHome, "bin", "slice2freezej"].join(File.separator)
+                    if(new File([_freezeHome, "bin"].join(File.separator)).exists()) {
+                        _slice2freezej = [_freezeHome, "bin", "slice2freezej"].join(File.separator)
                     } else {
-                        slice2freezej = [freezeHome, "cpp", "bin", "slice2freezej"].join(File.separator)
+                        _slice2freezej = [_freezeHome, "cpp", "bin", "slice2freezej"].join(File.separator)
                     }
                 }
 
@@ -66,32 +72,32 @@ class SliceExtension {
                 // Setup the environment required to run slice2java/slice2freezej commands
                 //
                 if (os == "Mac OS X") {
-                    def libdir = "${this.iceHome}/lib"
-                    env = ["DYLD_LIBRARY_PATH=${[libdir, System.env.DYLD_LIBRARY_PATH].join(File.pathSeparator)}"]
+                    def libdir = "${_iceHome}/lib"
+                    _env = ["DYLD_LIBRARY_PATH=${[libdir, System.env.DYLD_LIBRARY_PATH].join(File.pathSeparator)}"]
                 } else if (!os.contains("Windows")) {
-                    def libdir = new File("${this.iceHome}/lib/i386-linux-gnu").exists() ?
-                        "${this.iceHome}/lib/i386-linux-gnu" : "${this.iceHome}/lib"
-                    def lib64dir = new File("${this.iceHome}/lib/x86_64-linux-gnu").exists() ?
-                        "${this.iceHome}/lib/x86_64-linux-gnu" : "${this.iceHome}/lib64"
-                    env = ["LD_LIBRARY_PATH=${[libdir, lib64dir, System.env.LD_LIBRARY_PATH].join(File.pathSeparator)}"]
+                    def libdir = new File("${_iceHome}/lib/i386-linux-gnu").exists() ?
+                        "${_iceHome}/lib/i386-linux-gnu" : "${_iceHome}/lib"
+                    def lib64dir = new File("${_iceHome}/lib/x86_64-linux-gnu").exists() ?
+                        "${_iceHome}/lib/x86_64-linux-gnu" : "${_iceHome}/lib64"
+                    _env = ["LD_LIBRARY_PATH=${[libdir, lib64dir, System.env.LD_LIBRARY_PATH].join(File.pathSeparator)}"]
                 }
 
                 //
                 // Retrieve the version of the Ice distribution being used
                 //
-                iceVersion = getIceVersion(this.iceHome)
+                _iceVersion = getIceVersion(_iceHome)
 
                 //
                 // Guess the slice and jar directories of the Ice distribution we are using
                 //
-                if(this.iceHome in ["/usr", "/usr/local"]) {
-                    sliceDir = [this.iceHome, "share", "Ice-${iceVersion}", "slice"].join(File.separator)
-                    jarDir = [this.iceHome, "share", "java"].join(File.separator)
+                if(_iceHome in ["/usr", "/usr/local"]) {
+                    _sliceDir = [_iceHome, "share", "Ice-${iceVersion}", "slice"].join(File.separator)
+                    _jarDir = [_iceHome, "share", "java"].join(File.separator)
                 } else {
-                    sliceDir = [this.iceHome, "slice"].join(File.separator)
-                    jarDir = srcDist ?
-                        [this.iceHome, "java", "lib"].join(File.separator) :
-                        [this.iceHome, "lib"].join(File.separator)
+                    _sliceDir = [_iceHome, "slice"].join(File.separator)
+                    _jarDir = _srcDist ?
+                        [_iceHome, "java", "lib"].join(File.separator) :
+                        [_iceHome, "lib"].join(File.separator)
                 }
             }
         }
@@ -169,7 +175,7 @@ class SliceExtension {
             def command = [getSlice2java(iceHome), "--version"]
             def sout = new StringBuffer()
             def serr = new StringBuffer()
-            def p = command.execute(env, null)
+            def p = command.execute(_env, null)
             p.waitForProcessOutput(sout, serr)
             if (p.exitValue() != 0) {
                 println serr.toString()
@@ -193,15 +199,15 @@ class SliceExtension {
                     //
                     // Guess the cpp platform to use with Windows source builds
                     //
-                    if (cppPlatform == null) {
-                        cppPlatform = System.getenv("CPP_PLATFORM")
+                    if (_cppPlatform == null) {
+                        _cppPlatform = System.getenv("CPP_PLATFORM")
                     }
 
                     //
                     // Gues the cpp configuration to use with Windows source builds
                     //
-                    if (cppConfiguration == null) {
-                        cppConfiguration = System.getenv("CPP_CONFIGURATION")
+                    if (_cppConfiguration == null) {
+                        _cppConfiguration = System.getenv("CPP_CONFIGURATION")
                     }
 
                     //
@@ -209,8 +215,8 @@ class SliceExtension {
                     // configuration depend directory. Otherwise cppPlatform and cppConfiguration will be null and
                     // it will fallback to the common bin directory used with Ice < 3.7.
                     //
-                    if (cppPlatform != null && cppConfiguration != null) {
-                        slice2java = [iceHome, "bin", cppPlatform, cppConfiguration, "slice2java.exe"].join(File.separator)
+                    if (_cppPlatform != null && _cppConfiguration != null) {
+                        slice2java = [iceHome, "bin", _cppPlatform, _cppConfiguration, "slice2java.exe"].join(File.separator)
                     }
                 } else {
                     //
@@ -237,27 +243,7 @@ class SliceExtension {
 
     SliceExtension(java) {
         this.java = java
-        Configuration c = null
-        if (iceHome != null) {
-            if (configuration == null) {
-                configuration = new Configuration()
-            }
-            c = configuration
-        } else {
-            c = new Configuration(iceHome)
-        }
-
-        iceHome = c.iceHome
-        iceVersion = c.iceVersion
-        srcDist = c.srcDist
-        freezeHome = c.freezeHome
-        sliceDir = c.sliceDir
-        slice2java = c.slice2java
-        slice2freezej = c.slice2freezej
-        jarDir = c.jarDir
-        cppPlatform = c.cppPlatform
-        cppConfiguration = c.cppConfiguration
-        env = c.env
+        init()
     }
 
     def java(Closure closure) {
@@ -266,5 +252,89 @@ class SliceExtension {
         } catch(MissingPropertyException ex) {
             java.create('default', closure)
         }
+    }
+
+    private void init() {
+        Configuration c = null
+        if (iceHome) {
+            c = new Configuration(iceHome)
+        } else {
+            if (configuration == null) {
+                configuration = new Configuration()
+            }
+            c = configuration
+        }
+
+        iceHome = c._iceHome
+
+        iceVersion = c._iceVersion
+        srcDist = c._srcDist
+        freezeHome = c._freezeHome
+        sliceDir = c._sliceDir
+        slice2java = c._slice2java
+        slice2freezej = c._slice2freezej
+        jarDir = c._jarDir
+        cppPlatform = c._cppPlatform
+        cppConfiguration = c._cppConfiguration
+        env = c._env
+    }
+
+    def getIceHome() {
+        return iceHome
+    }
+
+    def setIceHome(value) {
+        iceHome = value
+        init()
+    }
+
+    def getIceVersion() {
+        return iceVersion
+    }
+
+    def getSrcDist() {
+        return srcDist
+    }
+
+    def getFreezeHome() {
+        return freezeHome
+    }
+
+    def getSliceDir() {
+        return sliceDir
+    }
+
+    def getSlice2java() {
+        return slice2java
+    }
+
+    def getSlice2freezej() {
+        return slice2freezej
+    }
+
+    def getJarDir() {
+        return jarDir
+    }
+
+    def getCppPlatform() {
+        return cppPlatform
+    }
+
+    def setCppPlatform(value) {
+        cppPlatform = value
+        init()
+    }
+
+    def getCppConfiguration() {
+        return cppConfiguration
+    }
+
+    def setCppConfiguration(value) {
+        cppConfiguration = value
+        init()
+    }
+
+    def getEnv() {
+        return env
     }
 }
