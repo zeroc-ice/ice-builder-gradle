@@ -114,8 +114,8 @@ not set either, the plug-in uses the following defaults on Linux and OS X:
 | Linux      | /usr                                   |
 | OS X       | /usr/local                             |
 
-On Windows when `iceHome` and `ICE_HOME` are not set, the builder query the Windows
-registry to find the available Ice installations and use the latest version available.
+On Windows, when neither `iceHome` nor `ICE_HOME` are set, the builder queries the Windows
+registry to find Ice installations and selects the newest version.
 
 You can set `iceHome` in your build script as shown below:
 
