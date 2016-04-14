@@ -29,22 +29,24 @@ class SliceTask extends DefaultTask {
 
     @TaskAction
     def action() {
-        if (!project.slice.output.isDirectory()) {
-            if (!project.slice.output.mkdirs()) {
+        if(!project.slice.output.isDirectory()) {
+            if(!project.slice.output.mkdirs()) {
                 throw new GradleException("could not create slice output directory: ${project.slice.output}")
             }
         }
 
+        //
         // In case the slice output directory is not inside the buildDir, as we still store
         // dependency files here
-        if (!project.buildDir.isDirectory()) {
-            if (!project.buildDir.mkdirs()) {
+        //
+        if(!project.buildDir.isDirectory()) {
+            if(!project.buildDir.mkdirs()) {
                 throw new GradleException("could not create build output directory: ${project.buildDir}")
             }
         }
 
         // Make sure default source set is present
-        if (project.slice.java.isEmpty()) {
+        if(project.slice.java.isEmpty()) {
             project.slice.java.create("default")
         }
 
@@ -68,9 +70,7 @@ class SliceTask extends DefaultTask {
         Set files = []
         if(project.slice.freezej.files) {
             files.addAll(project.slice.freezej.files)
-            getS2FDependencies(project.slice.freezej).values().each {
-                files.addAll(it)
-            }
+            getS2FDependencies(project.slice.freezej).values().each({ files.addAll(it) })
         }
 
         def state = new FreezeJBuildState()
@@ -108,9 +108,7 @@ class SliceTask extends DefaultTask {
         }
 
         LOGGER.info("running slice2freezej on the following slice files")
-        freezej.files.each {
-            LOGGER.info("    ${it}")
-        }
+        freezej.files.each { LOGGER.info("    ${it}") }
 
 
         // List of generated java source files.
@@ -177,8 +175,7 @@ class SliceTask extends DefaultTask {
         def sout = new StringBuffer()
         def serr = new StringBuffer()
 
-        def env = addLdLibraryPath()
-        def p = command.execute(env, null)
+        def p = command.execute(project.slice.env, null)
         p.waitForProcessOutput(sout, serr)
         if (p.exitValue() != 0) {
             println serr.toString()
@@ -206,8 +203,7 @@ class SliceTask extends DefaultTask {
         def sout = new StringBuffer()
         def serr = new StringBuffer()
 
-        def env = addLdLibraryPath()
-        def p = command.execute(env, null)
+        def p = command.execute(project.slice.env, null)
         p.waitForProcessOutput(sout, serr)
         if (p.exitValue() != 0) {
             println serr.toString()
@@ -218,9 +214,9 @@ class SliceTask extends DefaultTask {
 
     def buildS2FCommandLine(freezej) {
         def command = []
-        command.add(getSlice2FreezeJ())
+        command.add(project.slice.slice2freezej)
         command.add("--output-dir=" + project.slice.output.getAbsolutePath())
-        command.add('-I' + getIceSliceDir())
+        command.add("-I${project.slice.sliceDir}")
         freezej.include.each {
             command.add('-I' + it)
         }
@@ -487,10 +483,10 @@ class SliceTask extends DefaultTask {
     }
 
     def buildS2JCommandLine(java) {
-        def slice2java = getSlice2Java()
         def command = []
-        command.add(slice2java)
-        command.add('-I' + getIceSliceDir())
+        command.add(project.slice.slice2java)
+        command.add("-I${project.slice.sliceDir}")
+
         java.include.each {
             command.add('-I' + it)
         }
@@ -500,8 +496,8 @@ class SliceTask extends DefaultTask {
         }
 
         return command
-
     }
+
     // Run slice2java. Returns a dictionary of A -> [B] where A is a slice file,
     // and B is the list of produced java source files.
     def executeS2J(java, files) {
@@ -517,8 +513,7 @@ class SliceTask extends DefaultTask {
         def sout = new StringBuffer()
         def serr = new StringBuffer()
 
-        def env = addLdLibraryPath()
-        def p = command.execute(env, null)
+        def p = command.execute(project.slice.env, null)
         p.waitForProcessOutput(sout, serr)
         if (p.exitValue() != 0) {
             println serr.toString()
@@ -541,8 +536,7 @@ class SliceTask extends DefaultTask {
         def sout = new StringBuffer()
         def serr = new StringBuffer()
 
-        def env = addLdLibraryPath()
-        def p = command.execute(env, null)
+        def p = command.execute(project.slice.env, null)
         p.waitForProcessOutput(sout, serr)
         if (p.exitValue() != 0) {
             println serr.toString()
@@ -550,27 +544,6 @@ class SliceTask extends DefaultTask {
         }
 
         return parseSliceDependencyXML(new XmlSlurper().parseText(sout.toString()))
-    }
-
-    // Executes slice2java to determine the Ice version.
-    def getIceVersion() {
-        def slice2java = getSlice2Java()
-        def command = []
-        command.add(slice2java)
-        command.add("--version")
-
-        def sout = new StringBuffer()
-        def serr = new StringBuffer()
-
-        def env = addLdLibraryPath()
-        def p = command.execute(env, null)
-        p.waitForProcessOutput(sout, serr)
-        if (p.exitValue() != 0) {
-            println serr.toString()
-            throw new GradleException("${command[0]} command failed: ${p.exitValue()}")
-        }
-
-        return serr.toString()
     }
 
     // Cache of file -> timestamp.
@@ -754,204 +727,6 @@ class SliceTask extends DefaultTask {
             }
         }
         return dependencies
-    }
-
-    def getSlice2Java() {
-        def slice2java = "slice2java"
-        def iceHome = getIceHome()
-        if (iceHome != null) {
-            def os = System.properties['os.name']
-            if(os.contains("Windows")) {
-                if(project.slice.srcDist){
-                    //
-                    // Ice >= 3.7 Windows source distribution, the slice2java compiler is located in the platform
-                    // configuration depend directory. Otherwise cppPlatform and cppConfiguration will be null and
-                    // it will fallback to the common bin directory used with Ice < 3.7.
-                    //
-                    def cppPlatform = getCppPlatform()
-                    def cppConfiguration = getCppConfiguration()
-
-                    if(cppPlatform != null && cppConfiguration != null) {
-                        return pathJoin(iceHome, "bin", cppPlatform, cppConfiguration, "slice2java.exe")
-                    }
-                }else{
-                    //
-                    // With Ice >= 3.7 Windows binary distribution we use the slice2java compiler Win32/Release
-                    // bin directory. We assume that if the file exists at this location we are using Ice > 3.7
-                    // distribution otherwise it will fallback to the common bin directory used with Ice < 3.7.
-                    //
-                    slice2java = pathJoin(iceHome, "build", "native", "bin", "Win32", "Release", "slice2java.exe")
-                    if(new File(slice2java).exists()){
-                        return slice2java
-                    }
-                }
-            }
-
-            slice2java = pathJoin(iceHome, "bin", "slice2java")
-        }
-        return slice2java
-    }
-
-    def getSlice2FreezeJ() {
-        def slice2freezej = "slice2freezej"
-        def iceHome = getFreezeHome()
-        if (iceHome != null) {
-            slice2freezej = pathJoin(iceHome, "bin", "slice2freezej")
-        }
-        return slice2freezej
-    }
-
-    def getCppPlatform() {
-        // Check if plugin property is set
-        def cppPlatform = project.slice.cppPlatform as String
-        if (cppPlatform != null) {
-            return cppPlatform
-        }
-
-        def env = System.getenv()
-        return env['CPP_PLATFORM']
-    }
-
-    def getCppConfiguration() {
-        // Check if plugin property is set
-        def cppConfiguration = project.slice.cppConfiguration as String
-        if (cppConfiguration != null) {
-            return cppConfiguration
-        }
-
-        def env = System.getenv()
-        return env['CPP_CONFIGURATION']
-    }
-
-    def getIceHome() {
-        // Check if plugin property is set
-        def iceHome = project.slice.iceHome as String
-        if (iceHome != null) {
-            return iceHome
-        }
-
-        // Check if environment variable is set
-        if (iceHome == null) {
-            def env = System.getenv()
-            iceHome = env['ICE_HOME']
-            if (iceHome != null) {
-                return iceHome
-            }
-        }
-
-        // Check default install locations
-        if (iceHome == null) {
-            def os = System.properties['os.name']
-            if(os == "Mac OS X") {
-                iceHome = "/usr/local"
-            } else if(os.contains("Windows")) {
-                throw new GradleException("cannot find Ice installation, please set iceHome")
-            } else {
-                iceHome = "/usr"
-            }
-        }
-
-        if (!new File(pathJoin(iceHome, "bin", "slice2java")).exists() &&
-            !new File(pathJoin(iceHome, "bin", "slice2java.exe")).exists() &&
-            !new File(pathJoin(iceHome, "build", "native", "bin", "Win32", "Release", "slice2java.exe")).exists())
-        {
-            throw new GradleException("${iceHome}: cannot find Ice installation")
-        }
-
-        return iceHome
-    }
-
-    def getFreezeHome() {
-        // Check if plugin property is set
-        def freezeHome = project.slice.freezeHome
-        if (freezeHome != null) {
-            return freezeHome
-        }
-        return getIceHome()
-    }
-
-    // Equivalent of os.path.join in python.
-    def static pathJoin(String... args) {
-        return new File(args.join(File.separator)).getPath()
-    }
-
-    def getIceSliceDir() {
-        def iceHome = getIceHome()
-        if (project.slice.srcDist) {
-            return pathJoin(iceHome, "..", "slice")
-        }
-
-        def os = System.properties['os.name']
-        if (os == "Mac OS X") {
-            if (iceHome == "/usr/local") {
-                return "/usr/local/share/slice"
-            }
-        } else if(os.contains("Windows")) {
-            if(new File(pathJoin(iceHome, "build", "native", "slice")).exists()){
-                return pathJoin(iceHome, "build", "native", "slice")
-            }
-        } else if (iceHome == "/usr") {
-            return "/usr/share/Ice-" + getIceVersion().trim() + "/slice"
-        }
-
-        return pathJoin(iceHome, "slice")
-    }
-
-    def addLdLibraryPath() {
-        def iceInstall = getIceHome()
-        def env = System.getenv()
-
-        def ldLibPathEnv = null
-        def ldLib64PathEnv = null
-        def libPath = pathJoin(iceInstall, "lib")
-        def lib64Path = null
-
-        def os = System.properties['os.name']
-        if(os == "Mac OS X") {
-            ldLibPathEnv = "DYLD_LIBRARY_PATH"
-        } else if(os.contains("Windows")) {
-            //
-            // No need to change the PATH environment variable on Windows, the DLLs should be found
-            // in the translator local directory.
-            //
-        } else {
-            ldLibPathEnv = "LD_LIBRARY_PATH"
-            ldLib64PathEnv = "LD_LIBRARY_PATH"
-            lib64Path = pathJoin(iceInstall, "lib64")
-
-            if(new File(pathJoin(iceInstall, "lib", "i386-linux-gnu")).exists())
-            {
-                libPath = pathJoin(iceInstall, "lib", "i386-linux-gnu")
-            }
-
-            if(new File(pathJoin(iceInstall, "lib", "x86_64-linux-gnu")).exists())
-            {
-                lib64Path = pathJoin(iceInstall, "lib", "x86_64-linux-gnu")
-            }
-        }
-
-        def newEnv = [:]
-        if(ldLibPathEnv != null) {
-            if(ldLibPathEnv == ldLib64PathEnv) {
-                libPath = libPath + File.pathSeparator + lib64Path
-            }
-
-            def envLibPath = env[ldLibPathEnv]
-            if(envLibPath != null) {
-                libPath = libPath + File.pathSeparator + envLibPath
-            }
-            newEnv[ldLibPathEnv] = libPath
-        }
-
-        if(ldLib64PathEnv != null && ldLib64PathEnv != ldLibPathEnv) {
-            def envLib64Path = env[ldLib64PathEnv]
-            if(envLib64Path != null) {
-                lib64Path = lib64Path + File.pathSeparator + envLib64Path
-            }
-            newEnv[ldLib64PathEnv] = lib64Path
-        }
-
-        return newEnv.collect { k, v -> "$k=$v" }
     }
 
     def deleteFiles(files) {
