@@ -102,8 +102,8 @@ The `slice` plug-in defines the following convention properties:
 | jarDir            | String  | (platform dependent)     | The Ice JARs installation directory (read only)                    |
 | slice2java        | String  | (platform dependent)     | Full path of the slice2java compiler (read only)                   |
 | slice2freezej     | String  | (platform dependent)     | Full path of the slice2freezej compiler (read only)                |
-| cppPlatform       | String  | CPP_PLATFORM env variable, if set | On Windows, when _srcDist_ is True and _iceVersion_ >= 3.7, the plug-in finds slice2java and slice2freezej in _iceHome_\bin\_cppPlatform_\_cppConfiguration_. _cppPlatform_ can be `Win32` or `x64`. |
-| cppConfiguration  | String  | CPP_CONFIGURATION env variable, if set | On Windows, when _srcDist_ is True and _iceVersion_ >= 3.7, the plug-in finds slice2java and slice2freezej in in _iceHome_\bin\_cppPlatform_\_cppConfiguration_. _cppConfiguration_ can be `Debug` or `Release`.|
+| cppPlatform       | String  | CPP_PLATFORM env variable, if set | On Windows, when _srcDist_ is True and _iceVersion_ >= 3.7, the plug-in finds slice2java and slice2freezej in _iceHome_\bin\\_cppPlatform_\\_cppConfiguration_. _cppPlatform_ can be `Win32` or `x64`. |
+| cppConfiguration  | String  | CPP_CONFIGURATION env variable, if set | On Windows, when _srcDist_ is True and _iceVersion_ >= 3.7, the plug-in finds slice2java and slice2freezej in in _iceHome_\bin\\_cppPlatform_\\_cppConfiguration_. _cppConfiguration_ can be `Debug` or `Release`.|
 
 If `iceHome` is not set, the plug-in will check the `ICE_HOME` environment
 variable to determine the location of the Ice installation. If `ICE_HOME` is
