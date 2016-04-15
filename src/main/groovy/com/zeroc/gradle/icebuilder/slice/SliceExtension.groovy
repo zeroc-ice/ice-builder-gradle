@@ -91,7 +91,7 @@ class SliceExtension {
                 // Guess the slice and jar directories of the Ice distribution we are using
                 //
                 if(_iceHome in ["/usr", "/usr/local"]) {
-                    _sliceDir = [_iceHome, "share", "Ice-${iceVersion}", "slice"].join(File.separator)
+                    _sliceDir = [_iceHome, "share", "Ice-${_iceVersion}", "slice"].join(File.separator)
                     _jarDir = [_iceHome, "share", "java"].join(File.separator)
                 } else {
                     _sliceDir = [_iceHome, "slice"].join(File.separator)
