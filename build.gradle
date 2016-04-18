@@ -56,6 +56,18 @@ pluginBundle {
     }
 }
 
+if(project.hasProperty('nexusUrl')) {
+    uploadArchives {
+        repositories {
+            mavenDeployer {
+                repository(url: "${nexusUrl}/content/repositories/releases") {
+                    authentication(userName: nexusUsername, password: nexusPassword)
+                }
+            }
+        }
+    }
+}
+
 //
 // Used to build the gradle wrapper to automatically download and install
 // the version of gradle needed to build plugin.
