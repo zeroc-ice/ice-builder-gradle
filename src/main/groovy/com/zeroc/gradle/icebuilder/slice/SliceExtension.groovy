@@ -55,7 +55,7 @@ class SliceExtension {
                 _slice2java = getSlice2java(_iceHome)
 
                 //
-                // If freezeHome is not set we assume slice2freezej resides in the same location than slice2java
+                // If freezeHome is not set we assume slice2freezej resides in the same location as slice2java
                 // otherwise slice2freezej will be located in the freeze home bin directory.
                 //
                 if (freezeHome == null) {
@@ -71,10 +71,7 @@ class SliceExtension {
                 //
                 // Setup the environment required to run slice2java/slice2freezej commands
                 //
-                if (os == "Mac OS X") {
-                    def libdir = "${_iceHome}/lib"
-                    _env = ["DYLD_LIBRARY_PATH=${[libdir, System.env.DYLD_LIBRARY_PATH].join(File.pathSeparator)}"]
-                } else if (!os.contains("Windows")) {
+                if(os.contains("Linux")) {
                     def libdir = new File("${_iceHome}/lib/i386-linux-gnu").exists() ?
                         "${_iceHome}/lib/i386-linux-gnu" : "${_iceHome}/lib"
                     def lib64dir = new File("${_iceHome}/lib/x86_64-linux-gnu").exists() ?
