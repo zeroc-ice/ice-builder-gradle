@@ -138,8 +138,10 @@ class SliceExtension {
             def p = ["reg", "query", "HKLM\\Software\\ZeroC"].execute()
             p.waitForProcessOutput(sout, serr)
             if (p.exitValue() != 0) {
-                println serr.toString()
-                throw new GradleException("reg command failed: ${p.exitValue()}")
+                //
+                // reg query will fail if Ice is not installed
+                //
+                return ""
             }
 
             def iceInstallDir = null
@@ -169,16 +171,21 @@ class SliceExtension {
         }
 
         def getIceVersion(iceHome) {
-            def command = [getSlice2java(iceHome), "--version"]
-            def sout = new StringBuffer()
-            def serr = new StringBuffer()
-            def p = command.execute(_env, null)
-            p.waitForProcessOutput(sout, serr)
-            if (p.exitValue() != 0) {
-                println serr.toString()
-                throw new GradleException("${command[0]} command failed: ${p.exitValue()}")
+            def slice2java = getSlice2java(iceHome)
+            if(new File(slice2java).exists()) {
+                def command = [slice2java, "--version"]
+                def sout = new StringBuffer()
+                def serr = new StringBuffer()
+                def p = command.execute(_env, null)
+                p.waitForProcessOutput(sout, serr)
+                if (p.exitValue() != 0) {
+                    println serr.toString()
+                    throw new GradleException("${command[0]} command failed: ${p.exitValue()}")
+                }
+                return serr.toString().trim()
+            } else {
+                return ""
             }
-            return serr.toString().trim()
         }
 
         def getSlice2java(iceHome) {
