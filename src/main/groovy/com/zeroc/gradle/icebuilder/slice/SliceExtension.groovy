@@ -72,11 +72,17 @@ class SliceExtension {
                 // Setup the environment required to run slice2java/slice2freezej commands
                 //
                 if(os.contains("Linux")) {
-                    def libdir = new File("${_iceHome}/lib/i386-linux-gnu").exists() ?
-                        "${_iceHome}/lib/i386-linux-gnu" : "${_iceHome}/lib"
-                    def lib64dir = new File("${_iceHome}/lib/x86_64-linux-gnu").exists() ?
-                        "${_iceHome}/lib/x86_64-linux-gnu" : "${_iceHome}/lib64"
-                    _env = ["LD_LIBRARY_PATH=${[libdir, lib64dir, System.env.LD_LIBRARY_PATH].join(File.pathSeparator)}"]
+                    def cppDir = _srcDist ? "${_iceHome}/cpp" : _iceHome;
+
+                    def libdir = new File("${cppDir}/lib/i386-linux-gnu").exists() ?
+                        "${cppDir}/lib/i386-linux-gnu" : "${cppDir}/lib"
+                    def lib64dir = new File("${cppDir}/lib/x86_64-linux-gnu").exists() ?
+                        "${cppDir}/lib/x86_64-linux-gnu" : "${cppDir}/lib64"
+                    def env = [libdir, lib64dir]
+                    if(System.env.LD_LIBRARY_PATH) {
+                        env.add(System.env.LD_LIBRARY_PATH)
+                    }
+                    _env = ["LD_LIBRARY_PATH=${env.join(File.pathSeparator)}"]
                 }
 
                 //
