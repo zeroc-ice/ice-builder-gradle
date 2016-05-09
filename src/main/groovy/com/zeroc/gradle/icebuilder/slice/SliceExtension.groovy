@@ -50,7 +50,7 @@ class SliceExtension {
 
             def os = System.properties['os.name']
 
-            if(this.iceHome != null) {
+            if(_iceHome != null) {
                 _srcDist = new File([_iceHome, "java", "build.gradle"].join(File.separator)).exists()
                 _slice2java = getSlice2java(_iceHome)
 
@@ -226,7 +226,7 @@ class SliceExtension {
                     // it will fallback to the common bin directory used with Ice < 3.7.
                     //
                     if (_cppPlatform != null && _cppConfiguration != null) {
-                        slice2java = [iceHome, "bin", _cppPlatform, _cppConfiguration, "slice2java.exe"].join(File.separator)
+                        slice2java = [iceHome, "cpp", "bin", _cppPlatform, _cppConfiguration, "slice2java.exe"].join(File.separator)
                     }
                 } else {
                     //
