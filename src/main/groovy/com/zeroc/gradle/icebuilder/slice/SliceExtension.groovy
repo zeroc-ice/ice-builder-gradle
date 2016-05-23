@@ -43,10 +43,11 @@ class SliceExtension {
         def _cppConfiguration = null
         def _env = []
 
-        Configuration(iceHome = null, cppPlatform = null, cppConfiguration = null) {
+        Configuration(iceHome = null) {
             _iceHome = iceHome ? iceHome : getIceHome();
-            _cppPlatform = cppPlatform
             _cppConfiguration = cppConfiguration
+            _cppPlatform = cppPlatform
+            _freezeHome = freezeHome
 
             def os = System.properties['os.name']
 
@@ -308,6 +309,11 @@ class SliceExtension {
 
     def getFreezeHome() {
         return freezeHome
+    }
+
+    def setFreezeHome(value) {
+        freezeHome = value
+        init()
     }
 
     def getSliceDir() {
