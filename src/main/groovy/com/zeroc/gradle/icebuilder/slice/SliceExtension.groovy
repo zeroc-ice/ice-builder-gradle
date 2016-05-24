@@ -45,9 +45,11 @@ class SliceExtension {
 
         Configuration(iceHome = null) {
             _iceHome = iceHome ? iceHome : getIceHome();
-            _cppConfiguration = cppConfiguration
-            _cppPlatform = cppPlatform
             _freezeHome = freezeHome
+
+            // Guess the cpp platform and cpp configuration to use with Windows source builds
+            _cppConfiguration = cppConfiguration?.trim() ? cppConfiguration : System.getenv("CPP_CONFIGURATION")
+            _cppPlatform = cppPlatform?.trim() ? cppPlatform : System.getenv("CPP_PLATFORM")
 
             def os = System.properties['os.name']
 
@@ -59,15 +61,7 @@ class SliceExtension {
                 // If freezeHome is not set we assume slice2freezej resides in the same location as slice2java
                 // otherwise slice2freezej will be located in the freeze home bin directory.
                 //
-                if (freezeHome == null) {
-                    _slice2freezej = [new File(_slice2java).getParent(), "slice2freezej"].join(File.separator)
-                } else {
-                    if(new File([_freezeHome, "bin"].join(File.separator)).exists()) {
-                        _slice2freezej = [_freezeHome, "bin", "slice2freezej"].join(File.separator)
-                    } else {
-                        _slice2freezej = [_freezeHome, "cpp", "bin", "slice2freezej"].join(File.separator)
-                    }
-                }
+                _slice2freezej = getSlice2freezej(freezeHome ? freezeHome : iceHome)
 
                 //
                 // Setup the environment required to run slice2java/slice2freezej commands
@@ -196,59 +190,57 @@ class SliceExtension {
         }
 
         def getSlice2java(iceHome) {
+            return getSliceCompiler("slice2java", iceHome)
+        }
+
+        def getSlice2freezej(freezeHome) {
+            return getSliceCompiler("slice2freezej", freezeHome)
+        }
+
+        //
+        // Return the path to the specified slice compiler (slice2java|slice2freezej) with respect to
+        // the specified homeDir (iceHome|freezeHome)
+        //
+        def getSliceCompiler(compilerName, homeDir) {
             def os = System.properties['os.name']
             //
             // Check if we are using a Slice source distribution
             //
-            def srcDist = new File([iceHome, "java", "build.gradle"].join(File.separator)).exists()
-            def slice2java = null
+            def srcDist = new File([homeDir, "java", "build.gradle"].join(File.separator)).exists()
+            def sliceCompiler = null
             //
-            // Set the location of the slice2java executable
+            // Set the location of the sliceCompiler executable
             //
             if (os.contains("Windows")) {
                 if (srcDist) {
                     //
-                    // Guess the cpp platform to use with Windows source builds
-                    //
-                    if (_cppPlatform == null) {
-                        _cppPlatform = System.getenv("CPP_PLATFORM")
-                    }
-
-                    //
-                    // Gues the cpp configuration to use with Windows source builds
-                    //
-                    if (_cppConfiguration == null) {
-                        _cppConfiguration = System.getenv("CPP_CONFIGURATION")
-                    }
-
-                    //
-                    // Ice >= 3.7 Windows source distribution, the slice2java compiler is located in the platform
+                    // Ice >= 3.7 Windows source distribution, the compiler is located in the platform
                     // configuration depend directory. Otherwise cppPlatform and cppConfiguration will be null and
                     // it will fallback to the common bin directory used with Ice < 3.7.
                     //
                     if (_cppPlatform != null && _cppConfiguration != null) {
-                        slice2java = [iceHome, "cpp", "bin", _cppPlatform, _cppConfiguration, "slice2java.exe"].join(File.separator)
+                        sliceCompiler = [homeDir, "cpp", "bin", _cppPlatform, _cppConfiguration, "${compilerName}.exe"].join(File.separator)
                     }
                 } else {
                     //
-                    // With Ice >= 3.7 Windows binary distribution we use the slice2java compiler Win32/Release
+                    // With Ice >= 3.7 Windows binary distribution we use the compiler Win32/Release
                     // bin directory. We assume that if the file exists at this location we are using Ice >= 3.7
                     // distribution otherwise it will fallback to the common bin directory used with Ice < 3.7.
                     //
-                    def path = [iceHome, "build", "native", "bin", "Win32", "Release", "slice2java.exe"].join(File.separator)
+                    def path = [homeDir, "build", "native", "bin", "Win32", "Release", "${compilerName}.exe"].join(File.separator)
                     if (new File(path).exists()) {
-                        slice2java = path
+                        sliceCompiler = path
                     }
                 }
             }
 
-            if (slice2java == null) {
-                slice2java = srcDist ?
-                    [iceHome, "cpp", "bin", "slice2java"].join(File.separator) :
-                    [iceHome, "bin", "slice2java"].join(File.separator)
+            if (sliceCompiler == null) {
+                sliceCompiler = srcDist ?
+                    [homeDir, "cpp", "bin", compilerName].join(File.separator) :
+                    [homeDir, "bin", compilerName].join(File.separator)
             }
 
-            return slice2java
+            return sliceCompiler
         }
     }
 
