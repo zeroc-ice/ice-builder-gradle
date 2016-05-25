@@ -48,8 +48,8 @@ class SliceExtension {
             _freezeHome = freezeHome
 
             // Guess the cpp platform and cpp configuration to use with Windows source builds
-            _cppConfiguration = cppConfiguration?.trim() ? cppConfiguration : System.getenv("CPP_CONFIGURATION")
-            _cppPlatform = cppPlatform?.trim() ? cppPlatform : System.getenv("CPP_PLATFORM")
+            _cppConfiguration = cppConfiguration ? cppConfiguration : System.getenv("CPP_CONFIGURATION")
+            _cppPlatform = cppPlatform ? cppPlatform : System.getenv("CPP_PLATFORM")
 
             def os = System.properties['os.name']
 
