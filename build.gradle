@@ -4,18 +4,24 @@
 //
 // **********************************************************************
 
+
+
 buildscript {
-    repositories {
-        maven {
-            url "https://plugins.gradle.org/m2/"
+    if(!localOnly.toBoolean()) {
+        repositories {
+            maven {
+                url "https://plugins.gradle.org/m2/"
+            }
         }
-    }
-    dependencies {
-        classpath "com.gradle.publish:plugin-publish-plugin:0.9.1"
+        dependencies {
+            classpath "com.gradle.publish:plugin-publish-plugin:0.9.1"
+        }
     }
 }
 
-apply plugin: "com.gradle.plugin-publish"
+if(!localOnly.toBoolean()) {
+    apply plugin: "com.gradle.plugin-publish"
+}
 
 apply plugin: 'groovy'
 apply plugin: 'maven'
@@ -42,36 +48,95 @@ sourceSets {
 version  = "1.3.5"
 group = "com.zeroc.gradle.ice-builder"
 
-pluginBundle {
-    website = 'https://github.com/zeroc-ice/ice-builder-gradle'
-    vcsUrl = 'https://github.com/zeroc-ice/ice-builder-gradle.git'
-    description = 'Plugin to automate the compilation of Slice files to Java'
-    tags = ['zeroc', 'ice', 'slice']
+if(!localOnly.toBoolean()) {
+    pluginBundle {
+        website = 'https://github.com/zeroc-ice/ice-builder-gradle'
+        vcsUrl = 'https://github.com/zeroc-ice/ice-builder-gradle.git'
+        description = 'Plugin to automate the compilation of Slice files to Java'
+        tags = ['zeroc', 'ice', 'slice']
 
-    plugins {
-        slicePlugin {
-            id = 'com.zeroc.gradle.ice-builder.slice'
-            displayName = 'Ice Builder for Gradle'
+        plugins {
+            slicePlugin {
+                id = 'com.zeroc.gradle.ice-builder.slice'
+                displayName = 'Ice Builder for Gradle'
+            }
         }
     }
-}
 
-if(project.hasProperty('nexusUrl')) {
-    uploadArchives {
-        repositories {
-            mavenDeployer {
-                repository(url: "${nexusUrl}/content/repositories/releases") {
-                    authentication(userName: nexusUsername, password: nexusPassword)
+    if(project.hasProperty('nexusUrl')) {
+        uploadArchives {
+            repositories {
+                mavenDeployer {
+                    repository(url: "${nexusUrl}/content/repositories/releases") {
+                        authentication(userName: nexusUsername, password: nexusPassword)
+                    }
                 }
             }
         }
     }
+
+    //
+    // Used to build the gradle wrapper to automatically download and install
+    // the version of gradle needed to build plugin.
+    //
+    task wrapper(type: Wrapper) {
+        gradleVersion = "2.11"
+    }
+} 
+
+def pomName = "$buildDir/libs/${project.name}-${project.version}.pom"
+
+task writeNewPom << {
+
+    pom {
+        project {
+            name 'Ice Builder for Gradle'
+            description 'Plugin to automate the compilation of Slice files to Java'
+            url 'https://zeroc.com'
+            scm {
+                connection 'scm:git:git@github.com/zeroc-ice/ice-builder-gradle.git'
+                developerConnection 'scm:git:git@github.com/zeroc-ice/ice-builder-gradle.git'
+                url 'git://github.com/zeroc-ice/ice-builder-gradle.git'
+            }
+            licenses {
+                license {
+                    name 'The BSD 3-Clause License'
+                    url licenseURL
+                    distribution 'repo'
+                }
+            }
+            organization {
+                name 'ZeroC, Inc.'
+                url 'https://zeroc.com'
+            }
+            developers {
+                developer {
+                    name = 'ZeroC Developers'
+                    email = 'info@zeroc.com'
+                    organization = 'ZeroC, Inc.'
+                    organizationUrl = 'https://zeroc.com'
+                }
+            }
+        }
+    }.writeTo(pomName)
 }
 
-//
-// Used to build the gradle wrapper to automatically download and install
-// the version of gradle needed to build plugin.
-//
-task wrapper(type: Wrapper) {
-    gradleVersion = "2.11"
+jar.dependsOn(writeNewPom)
+
+if(localOnly.toBoolean()) {
+    
+    task groovydocJar(type: Jar, dependsOn: groovydoc) {
+        classifier = 'groovydoc'
+        from groovydoc
+        destinationDir = new File("$buildDir/libs")
+    }
+    
+    assemble.dependsOn(groovydocJar)
+    
+    task sourcesJar(type: Jar, dependsOn: jar) {
+        classifier = 'sources'
+        from sourceSets.main.allSource
+        destinationDir = new File("$buildDir/libs")
+    }
+    assemble.dependsOn(sourcesJar)
 }
