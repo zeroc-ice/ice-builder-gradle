@@ -4,8 +4,6 @@
 //
 // **********************************************************************
 
-
-
 buildscript {
     if(!localOnly.toBoolean()) {
         repositories {
@@ -82,48 +80,51 @@ if(!localOnly.toBoolean()) {
     task wrapper(type: Wrapper) {
         gradleVersion = "2.11"
     }
-} 
+} else {
+    prefix = prefix ? prefix : (System.properties['os.name'].toLowerCase().contains('windows') ? 
+        "C:\\ice-builder-gradle-${project.version}" : "/opt/ice-builder-gradle-${project.version}")
 
-def pomName = "$buildDir/libs/${project.name}-${project.version}.pom"
+    def jarDir = (prefix == "/usr" || prefix == "/usr/local") ? "${prefix}/share/java" : "${prefix}/lib"
 
-task writeNewPom << {
+    def pomName = "$buildDir/libs/${project.name}-${project.version}.pom"
+    def pomLicense = project.hasProperty("licenseURL") ? licenseURL : "https://github.com/zeroc-ice/ice-builder-gradle/blob/master/LICENSE"
 
-    pom {
-        project {
-            name 'Ice Builder for Gradle'
-            description 'Plugin to automate the compilation of Slice files to Java'
-            url 'https://zeroc.com'
-            scm {
-                connection 'scm:git:git@github.com/zeroc-ice/ice-builder-gradle.git'
-                developerConnection 'scm:git:git@github.com/zeroc-ice/ice-builder-gradle.git'
-                url 'git://github.com/zeroc-ice/ice-builder-gradle.git'
-            }
-            licenses {
-                license {
-                    name 'The BSD 3-Clause License'
-                    url licenseURL
-                    distribution 'repo'
-                }
-            }
-            organization {
-                name 'ZeroC, Inc.'
+    task writeNewPom << {
+
+        pom {
+            project {
+                name 'Ice Builder for Gradle'
+                description 'Plugin to automate the compilation of Slice files to Java'
                 url 'https://zeroc.com'
-            }
-            developers {
-                developer {
-                    name = 'ZeroC Developers'
-                    email = 'info@zeroc.com'
-                    organization = 'ZeroC, Inc.'
-                    organizationUrl = 'https://zeroc.com'
+                scm {
+                    connection 'scm:git:git@github.com/zeroc-ice/ice-builder-gradle.git'
+                    developerConnection 'scm:git:git@github.com/zeroc-ice/ice-builder-gradle.git'
+                    url 'git://github.com/zeroc-ice/ice-builder-gradle.git'
+                }
+                licenses {
+                    license {
+                        name 'The BSD 3-Clause License'
+                        url pomLicense
+                        distribution 'repo'
+                    }
+                }
+                organization {
+                    name 'ZeroC, Inc.'
+                    url 'https://zeroc.com'
+                }
+                developers {
+                    developer {
+                        name = 'ZeroC Developers'
+                        email = 'info@zeroc.com'
+                        organization = 'ZeroC, Inc.'
+                        organizationUrl = 'https://zeroc.com'
+                    }
                 }
             }
-        }
-    }.writeTo(pomName)
-}
+        }.writeTo(pomName)
+    }
 
-jar.dependsOn(writeNewPom)
-
-if(localOnly.toBoolean()) {
+    jar.dependsOn(writeNewPom)
     
     task groovydocJar(type: Jar, dependsOn: groovydoc) {
         classifier = 'groovydoc'
@@ -139,4 +140,12 @@ if(localOnly.toBoolean()) {
         destinationDir = new File("$buildDir/libs")
     }
     assemble.dependsOn(sourcesJar)
+    
+    task install(type: Copy, dependsOn: assemble, overwrite: true) {
+        from "${pomName}"
+        from "$buildDir/libs/${jar.archiveName}"
+        from "$buildDir/libs/${project.name}-${project.version}-sources.jar"
+        from "$buildDir/libs/${project.name}-${project.version}-groovydoc.jar"
+        into "${DESTDIR}${jarDir}"
+    }
 }
