@@ -43,7 +43,7 @@ class SliceExtension {
         def _cppConfiguration = null
         def _env = []
 
-        Configuration(iceHome = null) {
+        Configuration(iceHome = null, freezeHome = null) {
             _iceHome = iceHome ? iceHome : getIceHome();
             _freezeHome = freezeHome
 
@@ -61,7 +61,7 @@ class SliceExtension {
                 // If freezeHome is not set we assume slice2freezej resides in the same location as slice2java
                 // otherwise slice2freezej will be located in the freeze home bin directory.
                 //
-                _slice2freezej = getSlice2freezej(freezeHome ? freezeHome : iceHome)
+                _slice2freezej = getSlice2freezej(_freezeHome ? _freezeHome : _iceHome)
 
                 //
                 // Setup the environment required to run slice2java/slice2freezej commands
@@ -259,8 +259,8 @@ class SliceExtension {
 
     private void init() {
         Configuration c = null
-        if (iceHome) {
-            c = new Configuration(iceHome)
+        if (iceHome || freezeHome) {
+            c = new Configuration(iceHome, freezeHome)
         } else {
             if (configuration == null) {
                 configuration = new Configuration()
