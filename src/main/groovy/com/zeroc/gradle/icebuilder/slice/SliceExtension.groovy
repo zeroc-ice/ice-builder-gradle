@@ -258,18 +258,8 @@ class SliceExtension {
     }
 
     private void init() {
-        Configuration c = null
-        if (iceHome || freezeHome) {
-            c = new Configuration(iceHome, freezeHome)
-        } else {
-            if (configuration == null) {
-                configuration = new Configuration()
-            }
-            c = configuration
-        }
-
+        Configuration c = new Configuration(iceHome, freezeHome)
         iceHome = c._iceHome
-
         iceVersion = c._iceVersion
         srcDist = c._srcDist
         freezeHome = c._freezeHome
