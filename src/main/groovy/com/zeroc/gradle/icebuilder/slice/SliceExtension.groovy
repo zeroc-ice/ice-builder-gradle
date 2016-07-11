@@ -257,10 +257,21 @@ class SliceExtension {
         }
     }
 
+    private def parseVersion(v) {
+        def vv = v.tokenize('.')
+        if(v.indexOf('a') != -1) {
+            return "${vv[0]}.${vv[1].replace('a', '.0-alpha')}"
+        } else if (v.indexOf('b') != -1) {
+            return "${vv[0]}.${vv[1].replace('b', '.0-beta')}"
+        } else {
+            return v
+        }
+    }
+
     private void init() {
         Configuration c = new Configuration(iceHome, freezeHome)
         iceHome = c._iceHome
-        iceVersion = c._iceVersion
+        iceVersion = parseVersion(c._iceVersion)
         srcDist = c._srcDist
         freezeHome = c._freezeHome
         sliceDir = c._sliceDir
