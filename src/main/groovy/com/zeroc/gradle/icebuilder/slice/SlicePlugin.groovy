@@ -25,29 +25,12 @@ class SlicePlugin implements Plugin<Project> {
 
         project.slice.output = project.file("${project.buildDir}/generated-src")
 
-        try {
+
+        if(!project.getTasksByName("compileJava", false).isEmpty()) {
             project.getTasks().getByName("compileJava").dependsOn('compileSlice');
             project.sourceSets.main.java.srcDir project.slice.output
-        } catch(UnknownTaskException ex)  {
-            // Using an exception to add android support isn't very nice
-            // but I couldn't find another way to find out whether a task
-            // exists.
-            //
-            // Android support.
-            //
-            // WORKAROUND
-            //
-            // This is a horrible hack, but necessary to work with the android plugin.
-            // The problem is that the compileDebugJava task isn't available at this point,
-            // and using project.getGradle().projectsEvaluated({ to add the dependency on the
-            // compileDebugJava/compileReleaseJava task doesn't work in android studio as of
-            // 0.8.9.
-            try {
-                project.getTasks().getByName("preBuild").dependsOn('compileSlice');
-                // This doesn't work either.
-                //project.sourceSets.main.java.srcDir project.slice.output
-            } catch(UnknownTaskException ex2)  {
-            }
+        } else if(!project.getTasksByName("preBuild", false).isEmpty())  {
+            project.getTasks().getByName("preBuild").dependsOn('compileSlice');
         }
     }
 }
