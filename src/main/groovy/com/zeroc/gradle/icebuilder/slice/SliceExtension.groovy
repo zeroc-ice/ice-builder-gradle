@@ -6,8 +6,9 @@
 
 package com.zeroc.gradle.icebuilder.slice;
 
-import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.GradleException
+import org.gradle.api.logging.Logging
+import org.gradle.api.NamedDomainObjectContainer
 
 class SliceExtension {
 
@@ -28,6 +29,7 @@ class SliceExtension {
     def output
 
     private static Configuration configuration = null
+    private static final def LOGGER = Logging.getLogger(SliceExtension)
 
     class Configuration {
 
@@ -44,12 +46,12 @@ class SliceExtension {
         def _env = []
 
         Configuration(iceHome = null, freezeHome = null) {
-            _iceHome = iceHome ? iceHome : getIceHome();
+            _iceHome = iceHome ?: getIceHome();
             _freezeHome = freezeHome
 
             // Guess the cpp platform and cpp configuration to use with Windows source builds
-            _cppConfiguration = cppConfiguration ? cppConfiguration : System.getenv("CPP_CONFIGURATION")
-            _cppPlatform = cppPlatform ? cppPlatform : System.getenv("CPP_PLATFORM")
+            _cppConfiguration = cppConfiguration ?: System.getenv("CPP_CONFIGURATION")
+            _cppPlatform = cppPlatform ?: System.getenv("CPP_PLATFORM")
 
             def os = System.properties['os.name']
 
@@ -269,6 +271,8 @@ class SliceExtension {
     }
 
     private void init() {
+        LOGGER.debug('Initializing configuration')
+
         Configuration c = new Configuration(iceHome, freezeHome)
         iceHome = c._iceHome
         iceVersion = parseVersion(c._iceVersion)
@@ -281,6 +285,18 @@ class SliceExtension {
         cppPlatform = c._cppPlatform
         cppConfiguration = c._cppConfiguration
         env = c._env
+
+        LOGGER.debug("Property: iceHome = ${iceHome}")
+        LOGGER.debug("Property: iceVersion = ${iceVersion}")
+        LOGGER.debug("Property: srcDist = ${srcDist}")
+        LOGGER.debug("Property: freezeHome = ${freezeHome}")
+        LOGGER.debug("Property: sliceDir = ${sliceDir}")
+        LOGGER.debug("Property: slice2java = ${slice2java}")
+        LOGGER.debug("Property: slice2freezej = ${slice2freezej}")
+        LOGGER.debug("Property: jarDir = ${jarDir}")
+        LOGGER.debug("Property: cppPlatform = ${cppPlatform}")
+        LOGGER.debug("Property: cppConfiguration = ${cppConfiguration}")
+        LOGGER.debug("Property: env = ${env}")
     }
 
     def getIceHome() {
