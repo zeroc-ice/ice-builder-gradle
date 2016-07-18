@@ -280,9 +280,9 @@ class SliceExtension {
 
     private void init() {
         LOGGER.debug('Initializing configuration')
+        initialized = true // must happen before calling setters
 
         Configuration c = new Configuration(iceHome, freezeHome)
-        initialized = true // must happen before calling setters
 
         iceHome = c._iceHome
         iceVersion = parseVersion(c._iceVersion)
