@@ -151,23 +151,26 @@ class SliceExtension {
             def iceVersion = null
 
             sout.toString().split("\\r?\\n").each {
-                if (it.indexOf("HKEY_LOCAL_MACHINE\\Software\\ZeroC\\Ice") != -1) {
-                    def installDir = getWin32InstallDir(it)
-                    if (installDir != null) {
-                        def version = getIceVersion(installDir).split("\\.")
-                        if (version.length == 3) {
-                            //
-                            // Check if version is greater than current version
-                            //
-                            if (iceVersion == null || version[0] > iceVersion[0] ||
-                                (version[0] == iceVersion[0] && version[1] > iceVersion[1]) ||
-                                (version[0] == iceVersion[0] && version[1] == iceVersion[1] &&
-                                 version[2] > iceVersion[2])) {
-                                iceInstallDir = installDir
-                                iceVersion = version
+                try{
+                    if (it.indexOf("HKEY_LOCAL_MACHINE\\Software\\ZeroC\\Ice") != -1) {
+                        def installDir = getWin32InstallDir(it)
+                        if (installDir != null) {
+                            def version = getIceVersion(installDir).split("\\.")
+                            if (version.length == 3) {
+                                //
+                                // Check if version is greater than current version
+                                //
+                                if (iceVersion == null || version[0] > iceVersion[0] ||
+                                    (version[0] == iceVersion[0] && version[1] > iceVersion[1]) ||
+                                    (version[0] == iceVersion[0] && version[1] == iceVersion[1] &&
+                                     version[2] > iceVersion[2])) {
+                                    iceInstallDir = installDir
+                                    iceVersion = version
+                                }
                             }
                         }
                     }
+                } catch(e){
                 }
             }
             return iceInstallDir
@@ -261,13 +264,17 @@ class SliceExtension {
     }
 
     private def parseVersion(v) {
-        def vv = v.tokenize('.')
-        if(v.indexOf('a') != -1) {
-            return "${vv[0]}.${vv[1].replace('a', '.0-alpha')}"
-        } else if (v.indexOf('b') != -1) {
-            return "${vv[0]}.${vv[1].replace('b', '.0-beta')}"
-        } else {
-            return v
+        if(v){
+            def vv = v.tokenize('.')
+            if(v.indexOf('a') != -1) {
+                return "${vv[0]}.${vv[1].replace('a', '.0-alpha')}"
+            } else if (v.indexOf('b') != -1) {
+                return "${vv[0]}.${vv[1].replace('b', '.0-beta')}"
+            } else {
+                return v
+            }
+        }else{
+            return null;
         }
     }
 
