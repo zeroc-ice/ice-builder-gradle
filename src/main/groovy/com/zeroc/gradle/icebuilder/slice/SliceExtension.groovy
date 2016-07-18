@@ -26,6 +26,7 @@ class SliceExtension {
     private def cppConfiguration = null
 
     private def env = []
+    private def initialized = false
     def output
 
     private static Configuration configuration = null
@@ -252,7 +253,6 @@ class SliceExtension {
 
     SliceExtension(java) {
         this.java = java
-        init()
     }
 
     def java(Closure closure) {
@@ -264,7 +264,7 @@ class SliceExtension {
     }
 
     private def parseVersion(v) {
-        if(v){
+        if(v) {
             def vv = v.tokenize('.')
             if(v.indexOf('a') != -1) {
                 return "${vv[0]}.${vv[1].replace('a', '.0-alpha')}"
@@ -273,13 +273,14 @@ class SliceExtension {
             } else {
                 return v
             }
-        }else{
+        } else {
             return null;
         }
     }
 
     private void init() {
         LOGGER.debug('Initializing configuration')
+        initialized = true
 
         Configuration c = new Configuration(iceHome, freezeHome)
         iceHome = c._iceHome
@@ -308,66 +309,83 @@ class SliceExtension {
     }
 
     def getIceHome() {
+        lazyInit()
         return iceHome
     }
 
     def setIceHome(value) {
         iceHome = value
-        init()
+        initialized = false
     }
 
     def getIceVersion() {
+        lazyInit()
         return iceVersion
     }
 
     def getSrcDist() {
+        lazyInit()
         return srcDist
     }
 
     def getFreezeHome() {
+        lazyInit()
         return freezeHome
     }
 
     def setFreezeHome(value) {
         freezeHome = value
-        init()
+        initialized = false
     }
 
     def getSliceDir() {
+        lazyInit()
         return sliceDir
     }
 
     def getSlice2java() {
+        lazyInit()
         return slice2java
     }
 
     def getSlice2freezej() {
+        lazyInit()
         return slice2freezej
     }
 
     def getJarDir() {
+        lazyInit()
         return jarDir
     }
 
     def getCppPlatform() {
+        lazyInit()
         return cppPlatform
     }
 
     def setCppPlatform(value) {
         cppPlatform = value
-        init()
+        initialized = false
     }
 
     def getCppConfiguration() {
+        lazyInit()
         return cppConfiguration
     }
 
     def setCppConfiguration(value) {
         cppConfiguration = value
-        init()
+        initialized = false
     }
 
     def getEnv() {
+        lazyInit()
         return env
+    }
+
+    def lazyInit() {
+        if(!initialized) {
+            init()
+        }
     }
 }
