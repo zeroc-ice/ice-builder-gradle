@@ -192,7 +192,7 @@ class SliceExtension {
                 return serr.toString().trim()
             } else {
                 throw new GradleException("slice2java (${slice2java}) not found. Please ensure that Ice is installed " +
-                    "and the iceHome proprety (${iceHome}) is correct.")
+                    "and the iceHome property (${iceHome}) is correct.")
             }
         }
 
