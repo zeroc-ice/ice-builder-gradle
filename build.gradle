@@ -78,7 +78,7 @@ if(!localOnly.toBoolean()) {
     // the version of gradle needed to build plugin.
     //
     task wrapper(type: Wrapper) {
-        gradleVersion = "2.11"
+        gradleVersion = "2.14"
     }
 } else {
     prefix = prefix ? prefix : (System.properties['os.name'].toLowerCase().contains('windows') ?
