@@ -70,12 +70,12 @@ The plug-in adds the following dependency to tasks added by the `java` plug-in:
 | ----------- | ------------ |
 | compileJava | compileSlice |
 
-In addition, it adds the following dependency to tasks added by
-the Android plug-in:
+On Android, it adds the following dependency to each build variant of `project.android.libraryVariants`,
+`project.android.applicationVariants`, and `project.android.testVariants`:
 
-| Task name | Depends On   |
-| --------- | ------------ |
-| preBuild  | compileSlice |
+| Task name    | Depends On   |
+| ------------ | ------------ |
+| javaCompiler | compileSlice |
 
 ### Project Layout
 
@@ -91,19 +91,20 @@ This default layout can be changed with the property `srcDir`, described below.
 
 The `slice` plug-in defines the following convention properties:
 
-| Property name     | Type    | Default value            | Description                                                        |
-| ----------------- | ------- | ------------------------ | -------------------------------------------------------------------|
-| iceHome           | String  | (see below)              | The root directory of the Ice installation.                        |
-| freezeHome        | String  | _iceHome_                | The root directory of the Freeze installation.                     |
-| output            | File    | _buildDir_/generated-src | The directory that contains the generated source files.            |
-| iceVersion        | String  | Ice version              | The Ice version returned by slice2java -v (read only)              |
-| srcDist           | Boolean | (platform dependent)     | True when using a source distribution, false otherwise (read only) |
-| sliceDir          | String  | (platform dependent)     | The Ice Slice installation directory (read only)                   |
-| jarDir            | String  | (platform dependent)     | The Ice JARs installation directory (read only)                    |
-| slice2java        | String  | (platform dependent)     | Full path of the slice2java compiler (read only)                   |
-| slice2freezej     | String  | (platform dependent)     | Full path of the slice2freezej compiler (read only)                |
-| cppPlatform       | String  | CPP_PLATFORM env variable, if set | On Windows, when _srcDist_ is True and _iceVersion_ >= 3.7, the plug-in finds slice2java and slice2freezej in _iceHome_\bin\\_cppPlatform_\\_cppConfiguration_. _cppPlatform_ can be `Win32` or `x64`. |
-| cppConfiguration  | String  | CPP_CONFIGURATION env variable, if set | On Windows, when _srcDist_ is True and _iceVersion_ >= 3.7, the plug-in finds slice2java and slice2freezej in in _iceHome_\bin\\_cppPlatform_\\_cppConfiguration_. _cppConfiguration_ can be `Debug` or `Release`.|
+| Property name     | Type    | Default value                                    | Description                                                                                                                                                                                                          |
+| ----------------- | ------- | ------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| iceHome           | String  | (see below)                                      | The root directory of the Ice installation.                                                                                                                                                                          |
+| freezeHome        | String  | _iceHome_                                        | The root directory of the Freeze installation.                                                                                                                                                                       |
+| output            | File    | _buildDir_/generated-src                         | The directory that contains the generated source files.                                                                                                                                                              |
+| iceVersion        | String  | Ice version                                      | The Ice version returned by slice2java -v (read only)                                                                                                                                                                |
+| srcDist           | Boolean | (platform dependent)                             | True when using a source distribution, false otherwise (read only)                                                                                                                                                   |
+| sliceDir          | String  | (platform dependent)                             | The Ice Slice installation directory (read only)                                                                                                                                                                     |
+| jarDir            | String  | (platform dependent)                             | The Ice JARs installation directory (read only)                                                                                                                                                                      |
+| slice2java        | String  | (platform dependent)                             | Full path of the slice2java compiler (read only)                                                                                                                                                                     |
+| slice2freezej     | String  | (platform dependent)                             | Full path of the slice2freezej compiler (read only)                                                                                                                                                                  |
+| cppPlatform       | String  | CPP\_PLATFORM env variable, if set               | On Windows, when _srcDist_ is `true` and _iceVersion_ >= 3.7, the plug-in finds slice2java and slice2freezej in _iceHome_\bin\\_cppPlatform_\\_cppConfiguration_. _cppPlatform_ can be `Win32` or `x64`.             |
+| cppConfiguration  | String  | CPP\_CONFIGURATION env variable, if set          | On Windows, when _srcDist_ is `true` and _iceVersion_ >= 3.7, the plug-in finds slice2java and slice2freezej in in _iceHome_\bin\\_cppPlatform_\\_cppConfiguration_. _cppConfiguration_ can be `Debug` or `Release`. |
+| compat            | Boolean | `false` if _iceVersion_ >= 3.7, otherwise `null` | When _iceVersion_ >= 3.7, adds `--compat` to the _slice2java_ arguments.                                                                                                                                             |
 
 If `iceHome` is not set, the plug-in will check the `ICE_HOME` environment
 variable to determine the location of the Ice installation. If `ICE_HOME` is

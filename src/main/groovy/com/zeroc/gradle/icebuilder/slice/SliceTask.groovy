@@ -495,6 +495,10 @@ class SliceTask extends DefaultTask {
             command.add(it)
         }
 
+        if(project.slice.compat) {
+            command.add('--compat')
+        }
+
         return command
     }
 

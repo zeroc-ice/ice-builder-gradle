@@ -24,6 +24,7 @@ class SliceExtension {
     private def jarDir = null
     private def cppPlatform = null
     private def cppConfiguration = null
+    private def compat = null
 
     private def env = []
     private def initialized = false
@@ -44,6 +45,7 @@ class SliceExtension {
         def _jarDir = null
         def _cppPlatform = null
         def _cppConfiguration = null
+        def _compat = null
         def _env = []
 
         Configuration(iceHome = null, freezeHome = null) {
@@ -89,6 +91,15 @@ class SliceExtension {
                 _iceVersion = getIceVersion(_iceHome)
 
                 //
+                // --compat only available for Ice 3.7 and higher
+                //
+                if(compareVersions(_iceVersion, '3.7') >= 0) {
+                    _compat = compat ?: false
+                } else if(compat != null) {
+                    LOGGER.warn("Property \"compat\" unavailable for Ice ${_iceVersion}.")
+                }
+
+                //
                 // Guess the slice and jar directories of the Ice distribution we are using
                 //
                 if(_iceHome in ["/usr", "/usr/local"]) {
@@ -97,7 +108,7 @@ class SliceExtension {
                 } else {
                     _sliceDir = [_iceHome, "slice"].join(File.separator)
                     _jarDir = _srcDist ?
-                        [_iceHome, "java", "lib"].join(File.separator) :
+                        [_iceHome, _compat ? "java-compat" : "java", "lib"].join(File.separator) :
                         [_iceHome, "lib"].join(File.separator)
                 }
             }
@@ -249,6 +260,22 @@ class SliceExtension {
 
             return sliceCompiler
         }
+
+        // 1 is a > b
+        // 0 if a == b
+        // -1 if a < b
+        def compareVersions(a, b) {
+            def verA = a.tokenize('.')
+            def verB = b.tokenize('.')
+
+            for (int i = 0; i < Math.min(verA.size(), verB.size()); ++i) {
+                if (verA[i] != verB[i]) {
+                    return verA[i] <=> verB[i]
+                }
+            }
+            // Common indices match. Assume the longest version is the most recent
+            verA.size() <=> verB.size()
+        }
     }
 
     SliceExtension(java) {
@@ -294,6 +321,7 @@ class SliceExtension {
         jarDir = c._jarDir
         cppPlatform = c._cppPlatform
         cppConfiguration = c._cppConfiguration
+        compat = c._compat
         env = c._env
 
         LOGGER.debug("Property: iceHome = ${iceHome}")
@@ -306,7 +334,10 @@ class SliceExtension {
         LOGGER.debug("Property: jarDir = ${jarDir}")
         LOGGER.debug("Property: cppPlatform = ${cppPlatform}")
         LOGGER.debug("Property: cppConfiguration = ${cppConfiguration}")
+        LOGGER.debug("Property: compat = ${compat}")
         LOGGER.debug("Property: env = ${env}")
+
+        assert initialized == true
     }
 
     def getIceHome() {
@@ -376,6 +407,16 @@ class SliceExtension {
 
     def setCppConfiguration(value) {
         cppConfiguration = value
+        initialized = false
+    }
+
+    def getCompat() {
+        lazyInit()
+        return compat
+    }
+
+    def setCompat(value) {
+        compat = value
         initialized = false
     }
 
