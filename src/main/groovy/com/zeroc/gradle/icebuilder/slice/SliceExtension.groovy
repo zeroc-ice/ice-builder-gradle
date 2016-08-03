@@ -201,9 +201,13 @@ class SliceExtension {
                     throw new GradleException("${command[0]} command failed: ${p.exitValue()}")
                 }
                 return serr.toString().trim()
-            } else {
+            } else if(!_srcDist) {
+                // Only throw an exception if we are not using a source distribution. A binary distribution should
+                // always have slice2java, howerver a source distribution may not. For example, during a clean.
                 throw new GradleException("slice2java (${slice2java}) not found. Please ensure that Ice is installed " +
-                    "and the iceHome property (${iceHome}) is correct.")
+                                          "and the iceHome property (${iceHome}) is correct.")
+            } else {
+                return ""
             }
         }
 

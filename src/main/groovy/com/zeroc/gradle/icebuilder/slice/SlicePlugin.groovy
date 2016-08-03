@@ -47,7 +47,7 @@ class SlicePlugin implements Plugin<Project> {
                 project.tasks.getByName("compileJava").dependsOn('compileSlice');
                 project.sourceSets.main.java.srcDir project.slice.output
             } catch(UnknownTaskException ex)  {
-                LOGGER.error("No compileSlice task was found for project: '${project}'")
+                LOGGER.error("No compileJava task was found for project: ${project}")
             }
         }
 
