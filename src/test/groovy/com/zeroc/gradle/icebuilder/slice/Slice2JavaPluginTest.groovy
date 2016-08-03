@@ -2,6 +2,7 @@ package com.zeroc.gradle.icebuilder.slice
 
 import org.gradle.api.Project
 import org.gradle.testfixtures.ProjectBuilder
+import org.junit.After
 import org.junit.Before
 import org.junit.Test
 
@@ -10,21 +11,25 @@ import static org.junit.Assume.assumeNotNull
 
 class Slice2JavaPluginTest {
 
+    def project = null
+
     @Before
-    public void checkForInstalledSlice2Java() {
-        Project project = ProjectBuilder.builder().build()
+    public void applySlicePlugin() {
+        project = ProjectBuilder.builder().build()
         project.pluginManager.apply 'java'
         project.pluginManager.apply 'slice'
         assumeNotNull(project.slice.iceHome)
         assumeNotNull(project.slice.slice2java)
     }
 
+    @After
+    public void cleanup() {
+        project.delete()
+        project = null
+    }
+
     @Test
     public void testSlice2JavaWithDefaults() {
-        Project project = ProjectBuilder.builder().build()
-        project.pluginManager.apply 'java'
-        project.pluginManager.apply 'slice'
-
         // Where builder checks for slice files by default
         pathToFile([project.rootDir, 'src', 'main', 'slice']).mkdirs()
 
@@ -38,10 +43,6 @@ class Slice2JavaPluginTest {
 
     @Test
     public void testSlice2JavaSliceSrcDir() {
-        Project project = ProjectBuilder.builder().build()
-        project.pluginManager.apply 'java'
-        project.pluginManager.apply 'slice'
-
         def sliceDir = pathToFile([project.rootDir, 'src', 'other', 'slice'])
         sliceDir.mkdirs()
 
