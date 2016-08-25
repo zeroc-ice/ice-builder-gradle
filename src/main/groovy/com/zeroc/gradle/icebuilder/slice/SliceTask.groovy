@@ -499,6 +499,16 @@ class SliceTask extends DefaultTask {
             command.add('--compat')
         }
 
+        //
+        // If the ice version is less than 3.7 it is still possible that we are compiling
+        // 3.7 slice files.
+        //
+        // compareIceVersion returns -1 if iceVersion < 3.7
+        //
+        if(project.slice.compareIceVersion('3.7') == -1) {
+            command.add('-D__SLICE2JAVA_COMPAT__')
+        }
+
         return command
     }
 

@@ -124,6 +124,12 @@ You can set `iceHome` in your build script as shown below:
 slice.iceHome = '/opt/Ice'
 ```
 
+### Slice Plugin Methods
+
+| Method Name       | Arugment(s) | Description                                                                                                                                                             |
+| ----------------- | ----------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| compareIceVersion | `String`    | Compares _iceVersion_ with given string. Returns `-1`, `0`, or `1`, depending on whether _iceVersion_ is respectfuly less than, equal to, or greater than given string. |
+
 ### Configuring Slice-to-Java Projects
 
 Use the `java` block to configure the compilation of Slice files with `slice2java`.

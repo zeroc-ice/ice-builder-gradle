@@ -93,7 +93,7 @@ class SliceExtension {
                 //
                 // --compat only available for Ice 3.7 and higher
                 //
-                if(compareVersions(_iceVersion, '3.7') >= 0) {
+                if(SliceExtension.compareVersions(_iceVersion, '3.7') >= 0) {
                     _compat = compat ?: false
                 } else if(compat != null) {
                     LOGGER.warn("Property \"compat\" unavailable for Ice ${_iceVersion}.")
@@ -264,22 +264,6 @@ class SliceExtension {
 
             return sliceCompiler
         }
-
-        // 1 is a > b
-        // 0 if a == b
-        // -1 if a < b
-        def compareVersions(a, b) {
-            def verA = a.tokenize('.')
-            def verB = b.tokenize('.')
-
-            for (int i = 0; i < Math.min(verA.size(), verB.size()); ++i) {
-                if (verA[i] != verB[i]) {
-                    return verA[i] <=> verB[i]
-                }
-            }
-            // Common indices match. Assume the longest version is the most recent
-            verA.size() <=> verB.size()
-        }
     }
 
     SliceExtension(java) {
@@ -342,6 +326,31 @@ class SliceExtension {
         LOGGER.debug("Property: env = ${env}")
 
         assert initialized == true
+    }
+
+    // 1 is a > b
+    // 0 if a == b
+    // -1 if a < b
+    static def compareVersions(a, b) {
+        def verA = a.tokenize('.')
+        def verB = b.tokenize('.')
+
+        for (int i = 0; i < Math.min(verA.size(), verB.size()); ++i) {
+            if (verA[i] != verB[i]) {
+                return verA[i] <=> verB[i]
+            }
+        }
+        // Common indices match. Assume the longest version is the most recent
+        verA.size() <=> verB.size()
+    }
+
+    // Compare iceVersion with version
+    // 1 is iceVersion > version
+    // 0 if iceVersion == version
+    // -1 if iceVersion < version
+    def compareIceVersion(version) {
+        lazyInit()
+        return compareVersions(iceVersion, version)
     }
 
     def getIceHome() {
