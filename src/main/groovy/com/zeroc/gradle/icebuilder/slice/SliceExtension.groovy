@@ -91,12 +91,23 @@ class SliceExtension {
                 _iceVersion = getIceVersion(_iceHome)
 
                 //
+                // This can only happen if iceHome is set to a source distribution. In this case we log a warning
+                // and return partially initialized. We DO NOT want to throw an exception because we could be in the
+                // middle of a clean, in which case slice2java will be missing.
+                //
+                if(!_iceVersion) {
+                    LOGGER.warn("Unable to determine the Ice version using slice2java (${slice2java}) from " +
+                                "iceHome (${iceHome}). This is expected when cleaning.")
+                    return
+                }
+
+                //
                 // --compat only available for Ice 3.7 and higher
                 //
                 if(SliceExtension.compareVersions(_iceVersion, '3.7') >= 0) {
                     _compat = compat ?: false
                 } else if(compat != null) {
-                    LOGGER.warn("Property \"compat\" unavailable for Ice ${_iceVersion}.")
+                    LOGGER.warn("Property \"slice.compat\" unavailable for Ice ${_iceVersion}.")
                 }
 
                 //
@@ -207,7 +218,7 @@ class SliceExtension {
                 throw new GradleException("slice2java (${slice2java}) not found. Please ensure that Ice is installed " +
                                           "and the iceHome property (${iceHome}) is correct.")
             } else {
-                return ""
+                return null;
             }
         }
 

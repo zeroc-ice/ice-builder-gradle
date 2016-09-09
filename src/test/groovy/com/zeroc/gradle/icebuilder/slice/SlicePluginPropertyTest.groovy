@@ -87,10 +87,10 @@ class SlicePluginPropertyTest {
     public void testIceHomeWithNoSlice2Java() {
         //
         // Test that if iceHome is a srcDist and slice2java is missing that we can still
-        // initialize the configuration without failure
+        // initialize (at least partially) the configuration without failure
         //
 
-        // Create temporary iceHome with fake structure that build expects
+        // Create temporary iceHome with fake structure that slice extension requires
         def tmpIceHome = File.createTempDir("iceHome", "dir")
         tmpIceHome.deleteOnExit()
         def tmpBuildGralde = new File([tmpIceHome.toString(), "java", "build.gradle"].join(File.separator))
@@ -102,6 +102,8 @@ class SlicePluginPropertyTest {
         assertTrue(project.slice.iceHome == tmpIceHome.toString())
         assertTrue(project.slice.srcDist == true)
         assertTrue(project.slice.iceVersion == null)
+        assertTrue(project.slice.sliceDir == null)
+        assertTrue(project.slice.jarDir == null)
     }
 
 
