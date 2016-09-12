@@ -107,9 +107,10 @@ class SliceTask extends DefaultTask {
             return
         }
 
-        LOGGER.info("running slice2freezej on the following slice files")
-        freezej.files.each { LOGGER.info("    ${it}") }
-
+        if(freezej.files) {
+            LOGGER.info("running slice2freezej on the following slice files")
+            freezej.files.each { LOGGER.info("    ${it}") }
+        }
 
         // List of generated java source files.
         def generated = executeS2F(freezej)
