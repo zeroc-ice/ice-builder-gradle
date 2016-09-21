@@ -234,13 +234,16 @@ class SliceExtension {
         // Return the path to the specified slice compiler (slice2java|slice2freezej) with respect to
         // the specified homeDir (iceHome|freezeHome)
         //
-        def getSliceCompiler(compilerName, homeDir) {
+        def getSliceCompiler(name, homeDir) {
             def os = System.properties['os.name']
             //
             // Check if we are using a Slice source distribution
             //
             def srcDist = new File([homeDir, "java", "build.gradle"].join(File.separator)).exists()
+            def compilerName = os.contains('Windows') ? "${name}.exe" : name
             def sliceCompiler = null
+
+
             //
             // Set the location of the sliceCompiler executable
             //
@@ -252,7 +255,7 @@ class SliceExtension {
                     // it will fallback to the common bin directory used with Ice < 3.7.
                     //
                     if (_cppPlatform != null && _cppConfiguration != null) {
-                        sliceCompiler = [homeDir, "cpp", "bin", _cppPlatform, _cppConfiguration, "${compilerName}.exe"].join(File.separator)
+                        sliceCompiler = [homeDir, "cpp", "bin", _cppPlatform, _cppConfiguration, compilerName].join(File.separator)
                     }
                 } else {
                     //
@@ -260,7 +263,7 @@ class SliceExtension {
                     // bin directory. We assume that if the file exists at this location we are using Ice >= 3.7
                     // distribution otherwise it will fallback to the common bin directory used with Ice < 3.7.
                     //
-                    def path = [homeDir, "build", "native", "bin", "Win32", "Release", "${compilerName}.exe"].join(File.separator)
+                    def path = [homeDir, "build", "native", "bin", "Win32", "Release", compilerName].join(File.separator)
                     if (new File(path).exists()) {
                         sliceCompiler = path
                     }
