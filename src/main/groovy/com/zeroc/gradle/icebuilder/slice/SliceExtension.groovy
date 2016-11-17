@@ -113,20 +113,33 @@ class SliceExtension {
                 //
                 // Guess the slice and jar directories of the Ice distribution we are using
                 //
-                if(_iceHome in ["/usr", "/usr/local"]) {
-                    _sliceDir = [_iceHome, "share", "Ice-${_iceVersion}", "slice"].join(File.separator)
-                    _jarDir = [_iceHome, "share", "java"].join(File.separator)
-                } else {
-                    _sliceDir = [_iceHome, "slice"].join(File.separator)
-                    _jarDir = _srcDist ?
-                        [_iceHome, _compat ? "java-compat" : "java", "lib"].join(File.separator) :
-                        [_iceHome, "lib"].join(File.separator)
+                def sliceDirectories = [
+                    [_iceHome, "share", "slice"],                         // Common shared slice directory
+                    [_iceHome, "share", "ice", "slice"],                  // Ice >= 3.7
+                    [_iceHome, "share", "Ice-${_iceVersion}", "slice"],   // Ice < 3.7
+                    [_iceHome, "slice"]                                   // Opt/source installs & Windows distribution
+                ]
+
+                def jarDirectories = [
+                    [_iceHome, "share", "java"],                          // Default usr install
+                    [_iceHome, _compat ? "java-compat" : "java", "lib"],  // Source distribution
+                    [_iceHome, "lib"]                                     // Opt style install & Windows distribution
+                ]
+
+                def sliceDirCandidates = sliceDirectories.collect { it.join(File.separator) }
+                def jarDirCandidates = jarDirectories.collect { it.join(File.separator) }
+
+                _sliceDir = sliceDirCandidates.find { new File(it).exists() }
+                _jarDir = jarDirCandidates.find { new File(it).exists() }
+
+                if (!_sliceDir) {
+                    LOGGER.warn("Unable to locate slice directory in iceHome (${iceHome})")
                 }
             }
         }
 
         def getIceHome() {
-            if(System.env.ICE_HOME != null) {
+            if (System.env.ICE_HOME != null) {
                 return System.env.ICE_HOME
             }
 

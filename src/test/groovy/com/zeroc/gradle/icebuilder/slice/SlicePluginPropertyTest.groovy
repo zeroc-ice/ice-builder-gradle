@@ -72,7 +72,7 @@ class SlicePluginPropertyTest {
         //
         // Test an bogus iceHome (non srcDist)
         //
-        def tmpIceHome = File.createTempDir("iceHome", "dir")
+        def tmpIceHome = File.createTempDir()
         tmpIceHome.deleteOnExit()
         project.slice.iceHome = tmpIceHome.toString()
         try {
@@ -91,10 +91,11 @@ class SlicePluginPropertyTest {
         //
 
         // Create temporary iceHome with fake structure that slice extension requires
-        def tmpIceHome = File.createTempDir("iceHome", "dir")
+        def tmpIceHome = File.createTempDir()
         tmpIceHome.deleteOnExit()
         def tmpBuildGralde = new File([tmpIceHome.toString(), "java", "build.gradle"].join(File.separator))
         tmpBuildGralde.mkdirs()
+        tmpBuildGralde.deleteOnExit()
         assertTrue(tmpBuildGralde.exists())
 
         project.slice.iceHome = tmpIceHome.toString()

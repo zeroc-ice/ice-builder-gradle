@@ -217,7 +217,10 @@ class SliceTask extends DefaultTask {
         def command = []
         command.add(project.slice.slice2freezej)
         command.add("--output-dir=" + project.slice.output.getAbsolutePath())
-        command.add("-I${project.slice.sliceDir}")
+        if (project.slice.sliceDir) {
+            command.add("-I${project.slice.sliceDir}")
+        }
+
         freezej.include.each {
             command.add('-I' + it)
         }
@@ -486,7 +489,9 @@ class SliceTask extends DefaultTask {
     def buildS2JCommandLine(java) {
         def command = []
         command.add(project.slice.slice2java)
-        command.add("-I${project.slice.sliceDir}")
+        if (project.slice.sliceDir) {
+            command.add("-I${project.slice.sliceDir}")
+        }
 
         java.include.each {
             command.add('-I' + it)
