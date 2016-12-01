@@ -86,7 +86,6 @@ class SliceJarDirectoryTest {
     public void testIce36SliceDir() {
         def tmpSliceDir = createIceHomePath(["share", "Ice-${project.slice.iceVersion}", "slice"])
         project.slice.iceHome = iceHome.toString()
-        println(project.slice.iceHome)
         assertNotNull(project.slice.sliceDir)
         assertTrue(project.slice.sliceDir == tmpSliceDir)
     }
