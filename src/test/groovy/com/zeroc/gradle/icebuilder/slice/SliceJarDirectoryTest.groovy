@@ -22,6 +22,7 @@ class SliceJarDirectoryTest {
 
     @Before
     public void applySlicePlugin() {
+        def isWindows = System.getProperty('os.name').toLowerCase().contains('windows')
         project = ProjectBuilder.builder().build()
         project.pluginManager.apply 'java'
         project.pluginManager.apply 'slice'
@@ -30,10 +31,25 @@ class SliceJarDirectoryTest {
 
         iceHome = File.createTempDir()
         createIceHomePath(["bin"])
-        def src = new File(project.slice.slice2java)
-        def dst = new File([iceHome.toString(), "bin", "slice2java"].join(File.separator))
-        dst << src.bytes
-        dst.setExecutable(true)
+
+        def copyFileBytes = { src, dst ->
+           def srcFile = new File(src)
+           def dstFile = new File(dst)
+           dstFile << srcFile.bytes
+           return dstFile
+        }
+
+        def dst =  [iceHome.toString(), "bin", new File(project.slice.slice2java).getName()].join(File.separator)
+        copyFileBytes(project.slice.slice2java, dst).setExecutable(true)
+
+        // For Ice 3.6 we also copy slice2java dependencies.
+        // This is unnecessary in Ice 3.7 as slice2java is statically linked
+        if(isWindows && project.slice.compareIceVersion("3.6") == 1) {
+           ['slice36.dll', 'iceutil36.dll'].each {
+                def src = [new File(project.slice.slice2java).getParent(), it].join(File.separator)
+                copyFileBytes(src, [iceHome.toString(), "bin", it].join(File.separator)).setExecutable(true)
+           }
+        }
     }
 
     @After
@@ -70,6 +86,7 @@ class SliceJarDirectoryTest {
     public void testIce36SliceDir() {
         def tmpSliceDir = createIceHomePath(["share", "Ice-${project.slice.iceVersion}", "slice"])
         project.slice.iceHome = iceHome.toString()
+        println(project.slice.iceHome)
         assertNotNull(project.slice.sliceDir)
         assertTrue(project.slice.sliceDir == tmpSliceDir)
     }
