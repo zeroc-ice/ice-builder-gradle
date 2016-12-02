@@ -191,18 +191,10 @@ class SliceExtension {
                     if (it.indexOf("HKEY_LOCAL_MACHINE\\Software\\ZeroC\\Ice") != -1) {
                         def installDir = getWin32InstallDir(it)
                         if (installDir != null) {
-                            def version = getIceVersion(installDir).split("\\.")
-                            if (version.length == 3) {
-                                //
-                                // Check if version is greater than current version
-                                //
-                                if (iceVersion == null || version[0] > iceVersion[0] ||
-                                    (version[0] == iceVersion[0] && version[1] > iceVersion[1]) ||
-                                    (version[0] == iceVersion[0] && version[1] == iceVersion[1] &&
-                                     version[2] > iceVersion[2])) {
-                                    iceInstallDir = installDir
-                                    iceVersion = version
-                                }
+                            def version = getIceVersion(installDir)
+                            if(iceVersion == null || compareVersions(version, iceVersion) == 1) {
+                                iceInstallDir = installDir
+                                iceVersion = version
                             }
                         }
                     }
@@ -260,27 +252,13 @@ class SliceExtension {
             //
             // Set the location of the sliceCompiler executable
             //
-            if (os.contains("Windows")) {
-                if (srcDist) {
-                    //
-                    // Ice >= 3.7 Windows source distribution, the compiler is located in the platform
-                    // configuration depend directory. Otherwise cppPlatform and cppConfiguration will be null and
-                    // it will fallback to the common bin directory used with Ice < 3.7.
-                    //
-                    if (_cppPlatform != null && _cppConfiguration != null) {
-                        sliceCompiler = [homeDir, "cpp", "bin", _cppPlatform, _cppConfiguration, compilerName].join(File.separator)
-                    }
-                } else {
-                    //
-                    // With Ice >= 3.7 Windows binary distribution we use the compiler Win32/Release
-                    // bin directory. We assume that if the file exists at this location we are using Ice >= 3.7
-                    // distribution otherwise it will fallback to the common bin directory used with Ice < 3.7.
-                    //
-                    def path = [homeDir, "build", "native", "bin", "Win32", "Release", compilerName].join(File.separator)
-                    if (new File(path).exists()) {
-                        sliceCompiler = path
-                    }
-                }
+            if (os.contains("Windows") && srcDist && _cppPlatform != null && _cppConfiguration != null) {
+                //
+                // Ice >= 3.7 Windows source distribution, the compiler is located in the platform
+                // configuration depend directory. Otherwise cppPlatform and cppConfiguration will be null and
+                // it will fallback to the common bin directory used with Ice < 3.7.
+                //
+                sliceCompiler = [homeDir, "cpp", "bin", _cppPlatform, _cppConfiguration, compilerName].join(File.separator)
             }
 
             if (sliceCompiler == null) {
