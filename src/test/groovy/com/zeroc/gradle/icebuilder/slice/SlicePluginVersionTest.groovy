@@ -1,18 +1,15 @@
+// **********************************************************************
+//
+// Copyright (c) 2014-2016 ZeroC, Inc. All rights reserved.
+//
+// **********************************************************************
+
 package com.zeroc.gradle.icebuilder.slice
 
-import org.gradle.api.Project
-import org.gradle.testfixtures.ProjectBuilder
-import org.junit.After
-import org.junit.Before
-import org.junit.BeforeClass
-import org.junit.Rule
 import org.junit.Test
 
 import static org.junit.Assert.assertEquals
-import static org.junit.Assert.fail
 import static org.junit.Assume.assumeNotNull
-
-import static com.zeroc.gradle.icebuilder.slice.SliceExtension.compareVersions
 
 //
 // Test version comparsions
@@ -22,22 +19,7 @@ import static com.zeroc.gradle.icebuilder.slice.SliceExtension.compareVersions
 // -1 if a < b
 //
 
-class SlicePluginVersionTest {
-
-    def project = null
-
-    @Before
-    public void applySlicePlugin() {
-        project = ProjectBuilder.builder().build()
-        project.pluginManager.apply 'java'
-        project.pluginManager.apply 'slice'
-    }
-
-    @After
-    public void cleanup() {
-        project.delete()
-        project = null
-    }
+class SlicePluginVersionTest extends TestCase {
 
     @Test
     public void testIceVersionEquals() {

@@ -1,34 +1,23 @@
+// **********************************************************************
+//
+// Copyright (c) 2014-2016 ZeroC, Inc. All rights reserved.
+//
+// **********************************************************************
+
 package com.zeroc.gradle.icebuilder.slice
 
-import org.gradle.api.Project
-import org.gradle.testfixtures.ProjectBuilder
-import org.junit.After
 import org.junit.Before
 import org.junit.Test
 
 import static org.junit.Assert.assertTrue
-import static org.junit.Assume.assumeNotNull
 import static org.junit.Assume.assumeTrue
 
-class Slice2JavaCompatDefine {
-
-    def project = null
+class Slice2JavaCompatDefine extends TestCase {
 
     @Before
-    public void applySlicePlugin() {
-        project = ProjectBuilder.builder().build()
-        project.pluginManager.apply 'java'
-        project.pluginManager.apply 'slice'
-        assumeNotNull(project.slice.iceHome)
-        assumeNotNull(project.slice.slice2java)
+    public void checkVersion() {
         // For what we are testing our ice version must be < 3.7
         assumeTrue(project.slice.compareIceVersion('3.7') == -1)
-    }
-
-    @After
-    public void cleanup() {
-        project.delete()
-        project = null
     }
 
     @Test

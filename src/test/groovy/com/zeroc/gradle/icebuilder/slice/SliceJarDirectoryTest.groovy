@@ -1,33 +1,25 @@
+// **********************************************************************
+//
+// Copyright (c) 2014-2016 ZeroC, Inc. All rights reserved.
+//
+// **********************************************************************
+
 package com.zeroc.gradle.icebuilder.slice
 
-import java.nio.file.Files
-import org.gradle.api.Project
-import org.gradle.testfixtures.ProjectBuilder
 import org.junit.After
 import org.junit.Before
-import org.junit.BeforeClass
-import org.junit.contrib.java.lang.system.EnvironmentVariables
-import org.junit.Rule
 import org.junit.Test
 
 import static org.junit.Assert.assertNotNull
 import static org.junit.Assert.assertTrue
-import static org.junit.Assert.fail
-import static org.junit.Assume.assumeNotNull
 
-class SliceJarDirectoryTest {
+class SliceJarDirectoryTest extends TestCase {
 
-    def project = null
     def iceHome = null
 
     @Before
-    public void applySlicePlugin() {
+    public void createIceHome() {
         def isWindows = System.getProperty('os.name').toLowerCase().contains('windows')
-        project = ProjectBuilder.builder().build()
-        project.pluginManager.apply 'java'
-        project.pluginManager.apply 'slice'
-        assumeNotNull(project.slice.iceHome)
-        assumeNotNull(project.slice.slice2java)
 
         iceHome = File.createTempDir()
         createIceHomePath(["bin"])
@@ -53,11 +45,11 @@ class SliceJarDirectoryTest {
     }
 
     @After
-    public void cleanup() {
-        project.delete()
-        project = null
-        iceHome.deleteDir()
-        iceHome.deleteOnExit()
+    public void cleanupIceHome() {
+        if(iceHome) {
+            iceHome.deleteDir()
+            iceHome.deleteOnExit()
+        }
     }
 
     def createIceHomePath(path) {

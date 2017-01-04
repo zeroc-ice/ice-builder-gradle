@@ -1,44 +1,21 @@
+// **********************************************************************
+//
+// Copyright (c) 2014-2016 ZeroC, Inc. All rights reserved.
+//
+// **********************************************************************
+
 package com.zeroc.gradle.icebuilder.slice
 
-import org.gradle.api.Project
-import org.gradle.testfixtures.ProjectBuilder
-import org.junit.After
-import org.junit.Before
-import org.junit.BeforeClass
-import org.junit.contrib.java.lang.system.EnvironmentVariables
 import org.junit.Rule
 import org.junit.Test
+import org.junit.contrib.java.lang.system.EnvironmentVariables
 
-import static org.junit.Assert.assertNotNull
-import static org.junit.Assert.assertTrue
-import static org.junit.Assert.fail
-import static org.junit.Assume.assumeNotNull
+import static org.junit.Assert.*
 
-class SlicePluginPropertyTest {
-
-    def project = null
-    def static os = null
+class SlicePluginPropertyTest extends TestCase {
 
     @Rule
     public final EnvironmentVariables environmentVariables = new EnvironmentVariables();
-
-    @BeforeClass
-    public static void initialize() {
-        os = System.properties['os.name']
-    }
-
-    @Before
-    public void applySlicePlugin() {
-        project = ProjectBuilder.builder().build()
-        project.pluginManager.apply 'java'
-        project.pluginManager.apply 'slice'
-    }
-
-    @After
-    public void cleanup() {
-        project.delete()
-        project = null
-    }
 
     @Test
     public void pluginAddsCompileSliceTaskToProject() {
@@ -56,8 +33,7 @@ class SlicePluginPropertyTest {
 
     @Test
     public void testManualBinDistIceHome() {
-        def iceHome = project.slice.iceHome
-        project.slice.iceHome = iceHome // forces re-initialization
+        forceReinitialization()
         assertTrue(project.slice.iceHome != "")
         assertNotNull(project.slice.iceHome)
         assertTrue(project.slice.srcDist == false)
@@ -112,6 +88,7 @@ class SlicePluginPropertyTest {
     public void testCppPlatformAndConfigurationFromEnvironment() {
         environmentVariables.set("CPP_CONFIGURATION", "Release");
         environmentVariables.set("CPP_PLATFORM", "Win32");
+        forceReinitialization()
 
         assertTrue(project.slice.cppConfiguration == "Release")
         assertTrue(project.slice.cppPlatform == "Win32")
@@ -123,7 +100,6 @@ class SlicePluginPropertyTest {
             cppConfiguration = "Debug"
             cppPlatform = "x64"
         }
-
         assertTrue(project.slice.cppConfiguration == "Debug")
         assertTrue(project.slice.cppPlatform == "x64")
     }
@@ -132,6 +108,7 @@ class SlicePluginPropertyTest {
     public void testCppPlatformAndConfigurationOverrideEnvironment() {
         environmentVariables.set("CPP_CONFIGURATION", "Release");
         environmentVariables.set("CPP_PLATFORM", "Win32");
+        forceReinitialization()
 
         project.slice {
             cppConfiguration = "Debug"

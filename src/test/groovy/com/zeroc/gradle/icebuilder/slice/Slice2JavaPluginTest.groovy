@@ -1,32 +1,16 @@
+// **********************************************************************
+//
+// Copyright (c) 2014-2016 ZeroC, Inc. All rights reserved.
+//
+// **********************************************************************
+
 package com.zeroc.gradle.icebuilder.slice
 
-import org.gradle.api.Project
-import org.gradle.testfixtures.ProjectBuilder
-import org.junit.After
-import org.junit.Before
 import org.junit.Test
 
 import static org.junit.Assert.assertTrue
-import static org.junit.Assume.assumeNotNull
 
-class Slice2JavaPluginTest {
-
-    def project = null
-
-    @Before
-    public void applySlicePlugin() {
-        project = ProjectBuilder.builder().build()
-        project.pluginManager.apply 'java'
-        project.pluginManager.apply 'slice'
-        assumeNotNull(project.slice.iceHome)
-        assumeNotNull(project.slice.slice2java)
-    }
-
-    @After
-    public void cleanup() {
-        project.delete()
-        project = null
-    }
+class Slice2JavaPluginTest extends TestCase {
 
     @Test
     public void testSlice2JavaWithDefaults() {
