@@ -33,7 +33,8 @@ class SlicePluginPropertyTest extends TestCase {
 
     @Test
     public void testManualBinDistIceHome() {
-        forceReinitialization()
+        def iceHome = project.slice.iceHome
+        project.slice.iceHome = iceHome
         assertTrue(project.slice.iceHome != "")
         assertNotNull(project.slice.iceHome)
         assertTrue(project.slice.srcDist == false)

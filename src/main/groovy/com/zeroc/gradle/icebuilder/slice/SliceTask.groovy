@@ -80,8 +80,9 @@ class SliceTask extends DefaultTask {
         def rebuild = false
 
         def args = buildS2FCommandLine(freezej)
-        // If the command line changes rebuild.
-        if(args != state.args) {
+        // If the command line changes or the slice2freezej compiler (always the first argument)
+        // has been updated then rebuild.
+        if(args != state.args || getTimestamp(new File(args[0])) > state.timestamp) {
             rebuild = true
         }
 
@@ -447,8 +448,11 @@ class SliceTask extends DefaultTask {
         def prevSS = state.sourceSet[java.name]
 
         Set toBuild = []
-        // If the source set is new or the sourceSet arguments are different then rebuild all slice files.
-        if(prevSS == null || ss.args != prevSS.args) {
+
+        // If the source set is new, the sourceSet arguments are different,
+        // or the slice2java compiler (always the first argument) has been updated,
+        // then rebuild all slice files.
+        if(prevSS == null || ss.args != prevSS.args || getTimestamp(new File(ss.args[0])) > state.timestamp) {
             java.files.each {
                 toBuild.add(it)
             }

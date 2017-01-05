@@ -40,7 +40,7 @@ class TestCase {
     }
 
     void forceReinitialization() {
-        // forces re-initialization
+        // setting any variable forces reinitialization
         def iceHome = project.slice.iceHome
         project.slice.iceHome = iceHome
     }
