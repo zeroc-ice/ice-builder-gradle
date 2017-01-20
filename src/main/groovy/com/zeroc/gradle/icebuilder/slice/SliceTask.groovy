@@ -51,8 +51,7 @@ class SliceTask extends DefaultTask {
         }
 
         processJava()
-
-        processFreezeJ(project.slice.freezej)
+        processFreezeJ()
     }
 
     @InputFiles
@@ -65,12 +64,14 @@ class SliceTask extends DefaultTask {
         return project.slice.output
     }
 
-    def processFreezeJ(freezej) {
+    def processFreezeJ() {
+        def freezej = project.slice.freezej
+
         // Set of source files and all dependencies.
         Set files = []
-        if(project.slice.freezej.files) {
-            files.addAll(project.slice.freezej.files)
-            getS2FDependencies(project.slice.freezej).values().each({ files.addAll(it) })
+        if(freezej.files) {
+            files.addAll(freezej.files)
+            getS2FDependencies(freezej).values().each({ files.addAll(it) })
         }
 
         def state = new FreezeJBuildState()
@@ -111,6 +112,12 @@ class SliceTask extends DefaultTask {
         if(freezej.files) {
             LOGGER.info("running slice2freezej on the following slice files")
             freezej.files.each { LOGGER.info("    ${it}") }
+        } else if (!stateFile.isFile()) {
+            // The state file has never been written and and we have no
+            // files to process. No reason to continue as it will only
+            // write an empty dependency file.
+            LOGGER.info("nothing to do")
+            return
         }
 
         // List of generated java source files.
@@ -392,6 +399,14 @@ class SliceTask extends DefaultTask {
             processJavaSet(it, s2jDependencies, state, generated, built, sourceSet)
         }
 
+        if(built.isEmpty() && !stateFile.isFile()) {
+            // The state file has never been written and and we have no
+            // files to process. No reason to continue as it will only
+            // write an empty dependency file.
+            LOGGER.info("nothing to do")
+            return
+        }
+
         // The set of generated files to remove.
         Set oldGenerated = []
 
@@ -580,7 +595,7 @@ class SliceTask extends DefaultTask {
         }
 
         if(!file.isFile()) {
-            throw new GradleException("${it}: cannot stat")
+            throw new GradleException("${file}: cannot stat")
         }
 
         def t = file.lastModified()
