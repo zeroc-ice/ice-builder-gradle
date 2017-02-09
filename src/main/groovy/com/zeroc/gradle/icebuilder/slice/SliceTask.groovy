@@ -815,7 +815,7 @@ class SliceTask extends DefaultTask {
                 if(it.name() == "source") {
                     it.children().each {
                         if(it.name() == "output") {
-                            def lines = it.toString().split(lineSep).findAll { !it.trim().isEmpty() }
+                            def lines = it.text().split(lineSep).findAll { !it.trim().isEmpty() }
                             outLines.addAll(lines)
                         }
                     }
