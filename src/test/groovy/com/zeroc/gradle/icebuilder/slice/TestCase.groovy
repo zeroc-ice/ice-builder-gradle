@@ -44,4 +44,8 @@ class TestCase {
         def iceHome = project.slice.iceHome
         project.slice.iceHome = iceHome
     }
+
+    File pathToFile(pathList) {
+        return new File(pathList.join(File.separator))
+    }
 }

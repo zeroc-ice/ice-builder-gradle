@@ -46,10 +46,10 @@ class SliceJarDirectoryTest extends TestCase {
 
     @After
     public void cleanupIceHome() {
-        if(iceHome) {
-            iceHome.deleteDir()
-            iceHome.deleteOnExit()
-        }
+        // if(iceHome) {
+        //     iceHome.deleteDir()
+        //     iceHome.deleteOnExit()
+        // }
     }
 
     def createIceHomePath(path) {

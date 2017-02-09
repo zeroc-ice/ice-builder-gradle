@@ -38,10 +38,6 @@ class Slice2JavaCompatDefine extends TestCase {
                                'Hello.java']).exists())
     }
 
-    private File pathToFile(pathList) {
-        return new File(pathList.join(File.separator))
-    }
-
     private void writeTestSliceToFile(file) {
         file << """
             |#ifdef __SLICE2JAVA_COMPAT__

@@ -11,6 +11,7 @@ import org.junit.Test
 import org.junit.contrib.java.lang.system.EnvironmentVariables
 
 import static org.junit.Assert.*
+import static org.junit.Assume.*
 
 class SlicePluginPropertyTest extends TestCase {
 
@@ -24,6 +25,8 @@ class SlicePluginPropertyTest extends TestCase {
 
     @Test
     public void testAutoDetectIceHome() {
+        // This test only works if ICE_HOME is not set
+        assumeTrue(System.getenv()['ICE_HOME'] == null)
         assertTrue(project.slice.iceHome != "")
         assertTrue(project.slice.srcDist == false)
         assertTrue(project.slice.iceVersion != "" && project.slice.iceVersion != null)
@@ -33,6 +36,8 @@ class SlicePluginPropertyTest extends TestCase {
 
     @Test
     public void testManualBinDistIceHome() {
+        // This test only works if ICE_HOME is not set
+        assumeTrue(System.getenv()['ICE_HOME'] == null)
         def iceHome = project.slice.iceHome
         project.slice.iceHome = iceHome
         assertTrue(project.slice.iceHome != "")

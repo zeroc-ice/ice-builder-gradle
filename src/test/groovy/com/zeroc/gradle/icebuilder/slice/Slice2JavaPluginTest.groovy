@@ -43,10 +43,6 @@ class Slice2JavaPluginTest extends TestCase {
 
     }
 
-    private File pathToFile(pathList) {
-        return new File(pathList.join(File.separator))
-    }
-
     private void writeTestSliceToFile(file) {
         file << """
             |module Test
