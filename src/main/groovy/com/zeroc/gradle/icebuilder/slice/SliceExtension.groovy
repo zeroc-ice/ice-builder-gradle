@@ -16,6 +16,7 @@ class SliceExtension {
 
     private def iceHome = null
     private def iceVersion = null
+    private def iceArtifactVersion = null
     private def srcDist = false
     private def freezeHome = null
     private def sliceDir = null
@@ -305,7 +306,8 @@ class SliceExtension {
         Configuration c = new Configuration(iceHome, freezeHome)
 
         iceHome = c._iceHome
-        iceVersion = parseVersion(c._iceVersion)
+        iceVersion = c._iceVersion
+        iceArtifactVersion = parseVersion(c._iceVersion)
         srcDist = c._srcDist
         freezeHome = c._freezeHome
         sliceDir = c._sliceDir
@@ -371,6 +373,11 @@ class SliceExtension {
     def getIceVersion() {
         lazyInit()
         return iceVersion
+    }
+
+    def getIceArtifactVersion() {
+        lazyInit()
+        return iceArtifactVersion
     }
 
     def getSrcDist() {
