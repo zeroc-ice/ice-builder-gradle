@@ -187,7 +187,7 @@ class SliceTask extends DefaultTask {
         def p = command.execute(project.slice.env, null)
         p.waitForProcessOutput(sout, serr)
 
-        printWarningsAndErrors(sout, serr)
+        printWarningsAndErrors(serr)
 
         if (p.exitValue() != 0) {
             throw new GradleException("${command[0]} failed with exit code: ${p.exitValue()}")
@@ -217,7 +217,7 @@ class SliceTask extends DefaultTask {
         def p = command.execute(project.slice.env, null)
         p.waitForProcessOutput(sout, serr)
 
-        printWarningsAndErrors(sout, serr)
+        printWarningsAndErrors(serr)
 
         if (p.exitValue() != 0) {
             throw new GradleException("${command[0]} failed with exit code: ${p.exitValue()}")
@@ -559,7 +559,7 @@ class SliceTask extends DefaultTask {
         def p = command.execute(project.slice.env, null)
         p.waitForProcessOutput(sout, serr)
 
-        printWarningsAndErrors(sout, serr)
+        printWarningsAndErrors(serr, sout)
 
         if (p.exitValue() != 0) {
             throw new GradleException("${command[0]} failed with exit code: ${p.exitValue()}")
@@ -584,7 +584,7 @@ class SliceTask extends DefaultTask {
         def p = command.execute(project.slice.env, null)
         p.waitForProcessOutput(sout, serr)
 
-        printWarningsAndErrors(sout, serr)
+        printWarningsAndErrors(serr)
 
         if (p.exitValue() != 0) {
             throw new GradleException("${command[0]} failed with exit code: ${p.exitValue()}")
@@ -711,8 +711,8 @@ class SliceTask extends DefaultTask {
                 }
             }
             catch(Exception ex) {
-                LOGGER.info("invalid XML: ${stateFile}")
-                println ex
+                LOGGER.error("invalid XML: ${stateFile}")
+                LOGGER.error(ex)
             }
         }
     }
@@ -797,28 +797,42 @@ class SliceTask extends DefaultTask {
         }
     }
 
-    def printWarningsAndErrors(sout, serr) {
+    def printWarningsAndErrors(serr, sout = null) {
+        def lineSep = System.getProperty("line.separator")
+        def errLines = serr.toString().split(lineSep).findAll { !it.trim().isEmpty() }
+        def outLines = []
 
-        def errLines = serr.toString().split(System.getProperty("line.separator")).findAll { !it.trim().isEmpty() }
-        def outLines = sout.toString().split(System.getProperty("line.separator")).findAll { !it.trim().isEmpty() }
+        //
+        // stdout is always xml
+        //
+        if(sout) {
+            def xml = new XmlSlurper().parseText(sout.toString())
+            if(xml.name() != "generated") {
+                throw new GradleException("malformed XML: expected `generated'")
+            }
+
+            xml.children().each {
+                if(it.name() == "source") {
+                    it.children().each {
+                        if(it.name() == "output") {
+                            def lines = it.toString().split(lineSep).findAll { !it.trim().isEmpty() }
+                            outLines.addAll(lines)
+                        }
+                    }
+                }
+            }
+        }
 
         def warningMatch = /(.*):[0-9]+:\s+warning:(.*)/
 
-        for(line in errLines) {
+        for(line in errLines + outLines) {
             switch(line) {
                 case ~warningMatch:
-                    LOGGER.warn(line)
+                    LOGGER.warn(line.trim())
                     break
                 default:
                     // These should all be errors
-                    LOGGER.error(line)
-                    break
-            }
-        }
-        for(line in outLines) {
-            switch(line) {
-                case ~warningMatch:
-                    LOGGER.warn(line.replaceAll(/(?<=^\s*)<output>/, ""))
+                    LOGGER.error(line.trim())
                     break
             }
         }
