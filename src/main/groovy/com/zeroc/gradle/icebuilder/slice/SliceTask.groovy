@@ -186,9 +186,11 @@ class SliceTask extends DefaultTask {
 
         def p = command.execute(project.slice.env, null)
         p.waitForProcessOutput(sout, serr)
+
+        printWarningsAndErrors(sout, serr)
+
         if (p.exitValue() != 0) {
-            println serr.toString()
-            throw new GradleException("${command[0]} command failed: ${p.exitValue()}")
+            throw new GradleException("${command[0]} failed with exit code: ${p.exitValue()}")
         }
 
         return parseSliceDependencyXML(new XmlSlurper().parseText(sout.toString()))
@@ -214,9 +216,11 @@ class SliceTask extends DefaultTask {
 
         def p = command.execute(project.slice.env, null)
         p.waitForProcessOutput(sout, serr)
+
+        printWarningsAndErrors(sout, serr)
+
         if (p.exitValue() != 0) {
-            println serr.toString()
-            throw new GradleException("${command[0]} command failed: ${p.exitValue()}")
+            throw new GradleException("${command[0]} failed with exit code: ${p.exitValue()}")
         }
         return getS2FGenerated(freezej)
     }
@@ -554,9 +558,11 @@ class SliceTask extends DefaultTask {
 
         def p = command.execute(project.slice.env, null)
         p.waitForProcessOutput(sout, serr)
+
+        printWarningsAndErrors(sout, serr)
+
         if (p.exitValue() != 0) {
-            println serr.toString()
-            throw new GradleException("${command[0]} command failed: ${p.exitValue()}")
+            throw new GradleException("${command[0]} failed with exit code: ${p.exitValue()}")
         }
         return parseGeneratedXML(new XmlSlurper().parseText(sout.toString()))
     }
@@ -577,10 +583,14 @@ class SliceTask extends DefaultTask {
 
         def p = command.execute(project.slice.env, null)
         p.waitForProcessOutput(sout, serr)
+
+        printWarningsAndErrors(sout, serr)
+
         if (p.exitValue() != 0) {
-            println serr.toString()
-            throw new GradleException("${command[0]} command failed: ${p.exitValue()}")
+            throw new GradleException("${command[0]} failed with exit code: ${p.exitValue()}")
         }
+
+        LOGGER.info("processing dependencies:\n${command}")
 
         return parseSliceDependencyXML(new XmlSlurper().parseText(sout.toString()))
     }
@@ -783,6 +793,33 @@ class SliceTask extends DefaultTask {
                 } else {
                     it.delete()
                 }
+            }
+        }
+    }
+
+    def printWarningsAndErrors(sout, serr) {
+
+        def errLines = serr.toString().split(System.getProperty("line.separator")).findAll { !it.trim().isEmpty() }
+        def outLines = sout.toString().split(System.getProperty("line.separator")).findAll { !it.trim().isEmpty() }
+
+        def warningMatch = /(.*):[0-9]+:\s+warning:(.*)/
+
+        for(line in errLines) {
+            switch(line) {
+                case ~warningMatch:
+                    LOGGER.warn(line)
+                    break
+                default:
+                    // These should all be errors
+                    LOGGER.error(line)
+                    break
+            }
+        }
+        for(line in outLines) {
+            switch(line) {
+                case ~warningMatch:
+                    LOGGER.warn(line.replaceAll(/(?<=^\s*)<output>/, ""))
+                    break
             }
         }
     }
