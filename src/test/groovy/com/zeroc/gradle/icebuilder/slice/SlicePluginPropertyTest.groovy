@@ -89,7 +89,6 @@ class SlicePluginPropertyTest extends TestCase {
         assertTrue(project.slice.jarDir == null)
     }
 
-
     @Test
     public void testCppPlatformAndConfigurationFromEnvironment() {
         environmentVariables.set("CPP_CONFIGURATION", "Release");

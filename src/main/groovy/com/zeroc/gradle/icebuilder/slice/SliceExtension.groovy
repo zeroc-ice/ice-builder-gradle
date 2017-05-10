@@ -249,7 +249,6 @@ class SliceExtension {
             def compilerName = os.contains('Windows') ? "${name}.exe" : name
             def sliceCompiler = null
 
-
             //
             // Set the location of the sliceCompiler executable
             //

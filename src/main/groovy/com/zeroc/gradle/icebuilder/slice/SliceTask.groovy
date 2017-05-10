@@ -356,7 +356,6 @@ class SliceTask extends DefaultTask {
         }
     }
 
-
     def processJava() {
         // Dictionary of A->[B] where A is a slice file and B is the list of generated
         // source files.
@@ -716,7 +715,6 @@ class SliceTask extends DefaultTask {
             }
         }
     }
-
 
     // Process the generated XML which is of the format:
     //
