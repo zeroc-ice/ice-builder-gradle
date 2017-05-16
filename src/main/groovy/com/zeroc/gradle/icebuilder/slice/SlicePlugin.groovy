@@ -35,22 +35,13 @@ class SlicePlugin implements Plugin<Project> {
             LOGGER.debug("Detected Android project: ${project}. Delaying applying task until project is evaluated")
             project.afterEvaluate {
                 getAndroidVariants(project).all { variant ->
-                    variant.javaCompiler.dependsOn('compileSlice')
+                    variant.registerJavaGeneratingTask(project.tasks.getByName('compileSlice'), project.slice.output)
                 }
-                project.android.testVariants.all { variant ->
-                    variant.javaCompiler.dependsOn('compileSlice')
-                }
-                project.android.sourceSets.main.java.srcDir project.slice.output
             }
         } else {
-            try {
-                project.tasks.getByName("compileJava").dependsOn('compileSlice');
-                project.sourceSets.main.java.srcDir project.slice.output
-            } catch(UnknownTaskException ex)  {
-                LOGGER.error("No compileJava task was found for project: ${project}")
-            }
+            project.tasks.getByName("compileJava").dependsOn('compileSlice');
+            project.sourceSets.main.java.srcDir project.slice.output
         }
-
     }
 
     def isAndroidProject(Project project) {

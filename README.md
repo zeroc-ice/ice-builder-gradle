@@ -201,7 +201,7 @@ slice {
      }
      set2 {
        include = ["${projectDir}"]
-       files = filetree(dir: "b", includes: ['**.ice'])
+       files = fileTree(dir: "b", includes: ['**.ice'])
      }
   }
 }
