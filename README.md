@@ -37,20 +37,27 @@ $ ./gradlew build
 
 ## Using the `slice` Plug-in
 
-Include the following in your Gradle build script:
-
+Build script snippet for use in all Gradle versions:
 ```gradle
 buildscript {
-    repositories {
-        maven {
-            url 'https://repo.zeroc.com/nexus/content/repositories/releases'
-        }
+  repositories {
+    maven {
+      url "https://plugins.gradle.org/m2/"
     }
-    dependencies {
-        classpath group: 'com.zeroc.gradle.ice-builder', name: 'slice', version: '1.4.1'
-    }
+  }
+  dependencies {
+    classpath "gradle.plugin.com.zeroc.gradle.ice-builder:slice:1.4.1"
+  }
 }
-apply plugin: 'slice'
+
+apply plugin: "com.zeroc.gradle.ice-builder.slice"
+```
+
+Build script snippet for new, incubating, plugin mechanism introduced in Gradle 2.1:
+```
+plugins {
+  id "com.zeroc.gradle.ice-builder.slice" version "1.4.1"
+}
 ```
 
 It is important that the `slice` plug-in is applied after the `java` plug-in in
