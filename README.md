@@ -32,7 +32,7 @@ An [Ice](https://github.com/zeroc-ice/ice) installation with `slice2java` and `s
 To build the `slice` plug-in run:
 
 ```shell
-$ ./gradlew build
+./gradlew build
 ```
 
 ## Using the `slice` Plug-in
@@ -121,7 +121,7 @@ not set either, the plug-in uses the following defaults on Linux and OS X:
 | OS         | Default Ice Installation Directory     |
 | ---------- | -------------------------------------- |
 | Linux      | /usr                                   |
-| OS X       | /usr/local                             |
+| macOS      | /usr/local                             |
 
 On Windows, when neither `iceHome` nor `ICE_HOME` are set, the builder queries the Windows
 registry to find Ice installations and selects the newest version.
