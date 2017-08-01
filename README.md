@@ -124,7 +124,7 @@ not set either, the plug-in uses the following defaults on Linux and macOS:
 | macOS      | /usr/local                             |
 
 On Windows, when neither `iceHome` nor `ICE_HOME` are set, the builder queries the Windows
-registry to find Ice MSI installations and selects the newest version.
+registry to find Ice installations and selects the newest version.
 
 You can set `iceHome` in your build script as shown below:
 
