@@ -147,7 +147,7 @@ The slice plug-in uses the same logic to locate the `slice2freezej` compiler wit
 
 | Method Name       | Arugment(s) | Description                                                                                                                                                               |
 | ----------------- | ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| compareIceVersion | `String`    | Compares _iceVersion_ with given string. Returns `-1`, `0`, or `1`, depending on whether _iceVersion_ is less than, equal to, or greater than given string, respectively. |
+| compareIceVersion | `String`    | Compares `iceVersion` with given string. Returns `-1`, `0`, or `1`, depending on whether `iceVersion` is less than, equal to, or greater than given string, respectively. |
 
 ### Configuring Slice-to-Java Projects
 
