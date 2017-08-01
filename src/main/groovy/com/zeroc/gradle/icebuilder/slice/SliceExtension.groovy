@@ -257,9 +257,9 @@ class SliceExtension {
                 if(srcDist && _cppPlatform != null && _cppConfiguration != null)
                 {
                     //
-                    // Ice >= 3.7 Windows source distribution, the compiler is located in the platform
-                    // configuration depend directory. Otherwise cppPlatform and cppConfiguration will be null and
-                    // it will fallback to the common bin directory used with Ice < 3.7.
+                    // For Ice >= 3.7 Windows source distribution, the compiler is located in a platform and
+                    // configuration dependent directory. Otherwise cppPlatform and cppConfiguration will be null and
+                    // we will fallback to the common bin directory used with Ice < 3.7.
                     //
                     sliceCompiler = [homeDir, "cpp", "bin", _cppPlatform, _cppConfiguration, compilerName].join(File.separator)
                 }

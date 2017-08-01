@@ -103,13 +103,13 @@ The `slice` plug-in defines the following convention properties:
 | iceHome           | String  | (see below)                                      | The root directory of the Ice installation.                                                                                                                                                                          |
 | freezeHome        | String  | _iceHome_                                        | The root directory of the Freeze installation.                                                                                                                                                                       |
 | output            | File    | _buildDir_/generated-src                         | The directory that contains the generated source files.                                                                                                                                                              |
-| iceVersion        | String  | Ice version                                      | The Ice version returned by slice2java -v (read only)                                                                                                                                                                |
-| iceArtifactVersion| String  | Ice jar artifact version                         | The Ice jar artifact version version. This is often the same as `iceVersion`                                                                                                                                         |
-| srcDist           | Boolean | (platform dependent)                             | True when using a source distribution, false otherwise (read only)                                                                                                                                                   |
-| sliceDir          | String  | (platform dependent)                             | The Ice Slice installation directory (read only)                                                                                                                                                                     |
-| jarDir            | String  | (platform dependent)                             | The Ice JARs installation directory (read only)                                                                                                                                                                      |
-| slice2java        | String  | (platform dependent)                             | Full path of the slice2java compiler (read only)                                                                                                                                                                     |
-| slice2freezej     | String  | (platform dependent)                             | Full path of the slice2freezej compiler (read only)                                                                                                                                                                  |
+| iceVersion        | String  | Ice version                                      | The Ice version returned by slice2java -v (read only).                                                                                                                                                               |
+| iceArtifactVersion| String  | Ice jar artifact version                         | The Ice jar artifact version version. This is often the same as `iceVersion`.                                                                                                                                        |
+| srcDist           | Boolean | (platform dependent)                             | True when using a source distribution, false otherwise (read only).                                                                                                                                                  |
+| sliceDir          | String  | (platform dependent)                             | The Ice Slice installation directory (read only).                                                                                                                                                                    |
+| jarDir            | String  | (platform dependent)                             | The Ice JARs installation directory (read only).                                                                                                                                                                     |
+| slice2java        | String  | (platform dependent)                             | Full path of the slice2java compiler (read only).                                                                                                                                                                    |
+| slice2freezej     | String  | (platform dependent)                             | Full path of the slice2freezej compiler (read only).                                                                                                                                                                 |
 | cppPlatform       | String  | CPP\_PLATFORM env variable, if set               | On Windows, when _srcDist_ is `true` and _iceVersion_ >= 3.7, the plug-in finds slice2java and slice2freezej in _iceHome_\bin\\_cppPlatform_\\_cppConfiguration_. _cppPlatform_ can be `Win32` or `x64`.             |
 | cppConfiguration  | String  | CPP\_CONFIGURATION env variable, if set          | On Windows, when _srcDist_ is `true` and _iceVersion_ >= 3.7, the plug-in finds slice2java and slice2freezej in in _iceHome_\bin\\_cppPlatform_\\_cppConfiguration_. _cppConfiguration_ can be `Debug` or `Release`. |
 | compat            | Boolean | `false` if _iceVersion_ >= 3.7, otherwise `null` | When _iceVersion_ >= 3.7, adds `--compat` to the _slice2java_ arguments.                                                                                                                                             |
@@ -134,9 +134,9 @@ slice.iceHome = '/opt/Ice'
 
 ### Slice Plugin Methods
 
-| Method Name       | Arugment(s) | Description                                                                                                                                                             |
-| ----------------- | ----------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| compareIceVersion | `String`    | Compares _iceVersion_ with given string. Returns `-1`, `0`, or `1`, depending on whether _iceVersion_ is respectfuly less than, equal to, or greater than given string. |
+| Method Name       | Arugment(s) | Description                                                                                                                                                               |
+| ----------------- | ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| compareIceVersion | `String`    | Compares _iceVersion_ with given string. Returns `-1`, `0`, or `1`, depending on whether _iceVersion_ is less than, equal to, or greater than given string, respectively. |
 
 ### Configuring Slice-to-Java Projects
 
@@ -175,7 +175,7 @@ Each source set in the `java` block defines the following convention properties:
 | Property name | Type           | Default value  | Description                                             |
 | ------------- | -------------- | :------------: | ------------------------------------------------------- |
 | srcDir        | File           | src/main/slice | The Slice file source directory.                        |
-| args          | String         | -              | The arguments to slice2java                             |
+| args          | String         | -              | The arguments to slice2java.                            |
 | files         | FileCollection | -              | The Slice files in this source set. Overrides `srcDir`. |
 | include       | Set<File>      | -              | Slice include file search path.                         |
 
