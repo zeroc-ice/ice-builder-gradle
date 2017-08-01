@@ -252,13 +252,21 @@ class SliceExtension {
             //
             // Set the location of the sliceCompiler executable
             //
-            if (os.contains("Windows") && srcDist && _cppPlatform != null && _cppConfiguration != null) {
-                //
-                // Ice >= 3.7 Windows source distribution, the compiler is located in the platform
-                // configuration depend directory. Otherwise cppPlatform and cppConfiguration will be null and
-                // it will fallback to the common bin directory used with Ice < 3.7.
-                //
-                sliceCompiler = [homeDir, "cpp", "bin", _cppPlatform, _cppConfiguration, compilerName].join(File.separator)
+            if (os.contains("Windows")) {
+
+                if(srcDist && _cppPlatform != null && _cppConfiguration != null)
+                {
+                    //
+                    // Ice >= 3.7 Windows source distribution, the compiler is located in the platform
+                    // configuration depend directory. Otherwise cppPlatform and cppConfiguration will be null and
+                    // it will fallback to the common bin directory used with Ice < 3.7.
+                    //
+                    sliceCompiler = [homeDir, "cpp", "bin", _cppPlatform, _cppConfiguration, compilerName].join(File.separator)
+                }
+                else if(new File([homeDir, "tools", compilerName].join(File.separator)).exists())
+                {
+                    sliceCompiler = [homeDir, "tools", compilerName].join(File.separator)
+                }
             }
 
             if (sliceCompiler == null) {
