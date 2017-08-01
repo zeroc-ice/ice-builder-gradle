@@ -36,7 +36,7 @@ class SliceJarDirectoryTest extends TestCase {
 
         // For Ice 3.6 we also copy slice2java dependencies.
         // This is unnecessary in Ice 3.7 as slice2java is statically linked
-        if(isWindows && project.slice.compareIceVersion("3.6") == 1) {
+        if(isWindows && project.slice.compareIceVersion("3.7") == -1) {
            ['slice36.dll', 'iceutil36.dll'].each {
                 def src = [new File(project.slice.slice2java).getParent(), it].join(File.separator)
                 copyFileBytes(src, [iceHome.toString(), "bin", it].join(File.separator)).setExecutable(true)
