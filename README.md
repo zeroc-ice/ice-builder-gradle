@@ -3,7 +3,7 @@
 # Ice Builder for Gradle
 
 The Ice Builder for Gradle provides a Gradle plug-in named `slice`. This plug-in manages the compilation
-of [Slice](https://doc.zeroc.com/display/Ice/The+Slice+Language) files to Java. It compiles your Slice files with [`slice2java`](https://doc.zeroc.com/display/Ice/slice2java+Command-Line+Options), and it is also capable of generating Freeze maps and indices with [`slice2freezej`](https://doc.zeroc.com/display/Ice/Using+a+Freeze+Map+in+Java).
+of [Slice](https://doc.zeroc.com/display/Ice/The+Slice+Language) files to Java. It compiles your Slice files with [`slice2java`](https://doc.zeroc.com/display/Ice/slice2java+Command-Line+Options), and it is also capable of generating Freeze maps and indices with [`slice2freezej`](https://doc.zeroc.com/display/Freeze37/Using+a+Map+in+Java).
 
 An [Ice](https://github.com/zeroc-ice/ice) installation with `slice2java` and `slice2freezej` version 3.5.1 or higher is required.
 
@@ -104,10 +104,10 @@ The `slice` plug-in defines the following convention properties:
 | freezeHome        | String  | _iceHome_                                        | The root directory of the Freeze installation.                                                                                                                                                                       |
 | output            | File    | _buildDir_/generated-src                         | The directory that contains the generated source files.                                                                                                                                                              |
 | iceVersion        | String  | Ice version                                      | The Ice version returned by slice2java -v (read only).                                                                                                                                                               |
-| iceArtifactVersion| String  | Ice jar artifact version                         | The Ice jar artifact version version. This is often the same as `iceVersion`.                                                                                                                                        |
+| iceArtifactVersion| String  | Ice jar artifact version                         | The Ice JAR version. This version is computed from `iceVersion` and has usually the same value.                                                                                                                       |
 | srcDist           | Boolean | (platform dependent)                             | True when using a source distribution, false otherwise (read only).                                                                                                                                                  |
 | sliceDir          | String  | (platform dependent)                             | The Ice Slice installation directory (read only).                                                                                                                                                                    |
-| jarDir            | String  | (platform dependent)                             | The Ice JARs installation directory (read only).                                                                                                                                                                     |
+| jarDir            | String  | (platform dependent)                             | The Ice JARs installation directory (read only and can be null).                                                                                                                                                                     |
 | slice2java        | String  | (platform dependent)                             | Full path of the slice2java compiler (read only).                                                                                                                                                                    |
 | slice2freezej     | String  | (platform dependent)                             | Full path of the slice2freezej compiler (read only).                                                                                                                                                                 |
 | cppPlatform       | String  | CPP\_PLATFORM env variable, if set               | On Windows, when _srcDist_ is `true` and _iceVersion_ >= 3.7, the plug-in finds slice2java and slice2freezej in _iceHome_\bin\\_cppPlatform_\\_cppConfiguration_. _cppPlatform_ can be `Win32` or `x64`.             |
@@ -116,7 +116,7 @@ The `slice` plug-in defines the following convention properties:
 
 If `iceHome` is not set, the plug-in will check the `ICE_HOME` environment
 variable to determine the location of the Ice installation. If `ICE_HOME` is
-not set either, the plug-in uses the following defaults on Linux and OS X:
+not set either, the plug-in uses the following defaults on Linux and macOS:
 
 | OS         | Default Ice Installation Directory     |
 | ---------- | -------------------------------------- |
@@ -124,7 +124,7 @@ not set either, the plug-in uses the following defaults on Linux and OS X:
 | macOS      | /usr/local                             |
 
 On Windows, when neither `iceHome` nor `ICE_HOME` are set, the builder queries the Windows
-registry to find Ice installations and selects the newest version.
+registry to find Ice MSI installations and selects the newest version.
 
 You can set `iceHome` in your build script as shown below:
 
@@ -239,7 +239,7 @@ Each `freezej` block defines the following convention properties:
 | files         | FileCollection | -              | The Slice files in this source set. Overrides `srcDir`. |
 | include       | Set<File>      | -              | Slice include file search path.                         |
 
-Refer to the [slice2freezej Command-Line Options](https://doc.zeroc.com/display/Ice/slice2freezej+Command-Line+Options)
+Refer to the [slice2freezej Command-Line Options](https://doc.zeroc.com/display/Freeze37/slice2freezej+Command-Line+Options)
 for a description of the options you can provide through the `args` property.
 
 Note: the `slice` directory of your Ice installation (`${slice.iceHome}/slice`) is automatically added to `include` by the plug-in.
