@@ -290,13 +290,11 @@ Given the following Slice definitions in `Test.ice`:
 // Slice
 module Test
 {
-
-struct Foo
-{
-    string s;
-    Struct1 s1;
-}
-
+    struct Foo
+    {
+        string s;
+        Struct1 s1;
+    }
 }
 ```
 
@@ -396,14 +394,12 @@ Given the following Slice type defined in `Phonebook.ice`:
 // Slice
 module Demo
 {
-
-class Contact
-{
-    string name;
-    string address;
-    string phone;
-}
-
+    class Contact
+    {
+        string name;
+        string address;
+        string phone;
+    }
 }
 ```
 
