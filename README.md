@@ -5,7 +5,7 @@
 The Ice Builder for Gradle provides a Gradle plug-in named `slice`. This plug-in manages the compilation
 of [Slice](https://doc.zeroc.com/display/Ice/The+Slice+Language) files to Java. It compiles your Slice files with [`slice2java`](https://doc.zeroc.com/display/Ice/slice2java+Command-Line+Options), and it is also capable of generating Freeze maps and indices with [`slice2freezej`](https://doc.zeroc.com/display/Freeze37/Using+a+Map+in+Java).
 
-An [Ice](https://github.com/zeroc-ice/ice) installation with `slice2java` and `slice2freezej` version 3.5.1 or higher is required.
+An [Ice](https://github.com/zeroc-ice/ice) installation with `slice2java` version 3.5.1 or higher is required.
 
 ## Contents
 
