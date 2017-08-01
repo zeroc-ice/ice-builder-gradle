@@ -40,14 +40,14 @@ To build the `slice` plug-in run:
 Build script snippet for use in all Gradle versions:
 ```gradle
 buildscript {
-  repositories {
-    maven {
-      url "https://plugins.gradle.org/m2/"
+    repositories {
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
     }
-  }
-  dependencies {
-    classpath "gradle.plugin.com.zeroc.gradle.ice-builder:slice:1.4.1"
-  }
+    dependencies {
+        classpath "gradle.plugin.com.zeroc.gradle.ice-builder:slice:1.4.1"
+    }
 }
 
 apply plugin: "com.zeroc.gradle.ice-builder.slice"
@@ -56,7 +56,7 @@ apply plugin: "com.zeroc.gradle.ice-builder.slice"
 Build script snippet for new, incubating, plugin mechanism introduced in Gradle 2.1:
 ```
 plugins {
-  id "com.zeroc.gradle.ice-builder.slice" version "1.4.1"
+    id "com.zeroc.gradle.ice-builder.slice" version "1.4.1"
 }
 ```
 
@@ -146,9 +146,9 @@ for compiling Slice files. You can omit the source set name when you have a sing
 
 ```gradle
 slice {
-  java {
-     ...
-  }
+    java {
+        ...
+    }
 }
 ```
 
@@ -156,14 +156,14 @@ Otherwise, the source sets must have unique names, for example:
 
 ```gradle
 slice {
-  java {
-    set1 {
-      ...
+    java {
+        set1 {
+            ...
+        }
+        set2 {
+            ...
+        }
     }
-    set2 {
-      ...
-    }
-  }
 }
 ```
 Each source set triggers a separate execution of the `slice2java` compiler.
@@ -190,9 +190,9 @@ Compile all Slice files in `src/main/slice` with the `--tie` argument:
 
 ```gradle
 slice {
-  java {
-     args = "--tie"
-  }
+    java {
+        args = "--tie"
+    }
 }
 ```
 
@@ -200,17 +200,17 @@ Compile `a.ice` with the argument `--stream`, and compile all Slice files in `b`
 
 ```gradle
 slice {
-  java {
-     set1 {
-       include = ["${projectDir}"]
-       args = "--stream"
-       files = [file("a.ice")]
-     }
-     set2 {
-       include = ["${projectDir}"]
-       files = fileTree(dir: "b", includes: ['**.ice'])
-     }
-  }
+    java {
+        set1 {
+            include = ["${projectDir}"]
+            args = "--stream"
+            files = [file("a.ice")]
+        }
+        set2 {
+            include = ["${projectDir}"]
+            files = fileTree(dir: "b", includes: ['**.ice'])
+        }
+    }
 }
 ```
 
@@ -251,16 +251,16 @@ Each map in such a block must have a unique name.
 
 ```gradle
 slice {
-  freezej {
-    dict {
-      Dict1 {
-        ...
-      }
-      Dict2 {
-        ...
-      }
+    freezej {
+        dict {
+            Dict1 {
+                ...
+            }
+            Dict2 {
+                ...
+            }
+        }
     }
-  }
 }
 ```
 
@@ -288,29 +288,32 @@ Given the following Slice definitions in `Test.ice`:
 
 ```
 // Slice
-module Test {
+module Test
+{
+
 struct Foo
 {
     string s;
     Struct1 s1;
-};
-};
+}
+
+}
 ```
 
 Generate a Freeze map named `StringFooMap` that maps a `string` to the Slice type `Test::Foo`:
 
 ```gradle
 slice {
-  freezej {
-     files = [file("Test.ice")]
-     dict {
-       StringFooMap {
-          javaType = "Test.StringFooMap"
-          key = "string"
-          value = "Test::Foo"
-       }
-     }
-  }
+    freezej {
+        files = [file("Test.ice")]
+        dict {
+            StringFooMap {
+                javaType = "Test.StringFooMap"
+                key = "string"
+                value = "Test::Foo"
+            }
+        }
+    }
 }
 ```
 
@@ -318,21 +321,21 @@ Generate the same Freeze map, but this time with an index on the data member `s`
 
 ```gradle
 slice {
-  freezej {
-     files = [file("Test.ice")]
-     dict {
-       StringFooMap {
-          javaType = "Test.StringFooMap"
-          key = "string"
-          value = "Test::Foo"
-          index = [["member" : "s"]]
-          // Example: case insensitive
-          // index = [["member" : "s", "caseSensitive": false]]
-          // Example: two indices.
-          // index = [["member" : "s"], ['member': 's1']]
-       }
-     }
-  }
+    freezej {
+        files = [file("Test.ice")]
+        dict {
+            StringFooMap {
+                javaType = "Test.StringFooMap"
+                key = "string"
+                value = "Test::Foo"
+                index = [["member" : "s"]]
+                // Example: case insensitive
+                // index = [["member" : "s", "caseSensitive": false]]
+                // Example: two indices.
+                // index = [["member" : "s"], ['member': 's1']]
+            }
+        }
+    }
 }
 ```
 
@@ -340,18 +343,18 @@ Generate an `int` to `string` map, and create an index on the `string` value:
 
 ```gradle
 slice {
-  freezej {
-     dict {
-       IntToStringMap {
-          javaType = "Test.IntToStringMap"
-          key = "int"
-          value = "string"
-          index = [[]] // list with one empty map to create an index on the full value
-          // Same index but case insensitive:
-          // index = [["caseSensitive": false]]
-       }
-     }
-  }
+    freezej {
+        dict {
+            IntToStringMap {
+                javaType = "Test.IntToStringMap"
+                key = "int"
+                value = "string"
+                index = [[]] // list with one empty map to create an index on the full value
+                // Same index but case insensitive:
+                // index = [["caseSensitive": false]]
+            }
+        }
+    }
 }
 ```
 #### `index` Block
@@ -361,16 +364,16 @@ Each index must have a unique name.
 
 ```gradle
 slice {
-  freezej {
-    index {
-      Index1 {
-        ...
-      }
-      Index2 {
-        ...
-      }
+    freezej {
+        index {
+            Index1 {
+                ...
+            }
+            Index2 {
+                ...
+            }
+        }
     }
-  }
 }
 ```
 
@@ -391,29 +394,32 @@ Given the following Slice type defined in `Phonebook.ice`:
 
 ```
 // Slice
-module Demo {
+module Demo
+{
+
 class Contact
 {
     string name;
     string address;
     string phone;
-};
-};
+}
+
+}
 ```
 
 Generate a Freeze Evictor index `NameIndex` for the data member `name`:
 
 ```gradle
 freezej {
- files = [file("PhoneBook.ice")]
- index {
-     NameIndex {
-       javaType = "NameIndex"
-       type = "Demo::Contact"
-       member = "name"
-       caseSensitive = false
-     }
-  }
+    files = [file("PhoneBook.ice")]
+    index {
+        NameIndex {
+            javaType = "NameIndex"
+            type = "Demo::Contact"
+            member = "name"
+            caseSensitive = false
+        }
+    }
 }
 ```
 
