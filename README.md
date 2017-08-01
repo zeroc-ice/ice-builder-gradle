@@ -105,13 +105,13 @@ The `slice` plug-in defines the following convention properties:
 | output            | File    | _buildDir_/generated-src                         | The directory that contains the generated source files.                                                                                                                                                              |
 | iceVersion        | String  |                                      | The Ice version returned by slice2java -v (read only).                                                                                                                                                               |
 | iceArtifactVersion| String  |                       | The version of the Ice JAR file. This version is computed from `iceVersion` and has usually the same value (read only).                                                                                                                       |
-| srcDist           | Boolean | (platform dependent)                             | True when using a source distribution, false otherwise (read only).                                                                                                                                                  |
+| srcDist           | Boolean | (platform dependent)                             | True when using a source distribution for Ice, false otherwise (read only).                                                                                                                                                  |
 | sliceDir          | String  | (platform dependent)                             | The Ice Slice installation directory (read only).                                                                                                                                                                    |
 | jarDir            | String  | (platform dependent)                             | The Ice JARs installation directory (read only and can be null).                                                                                                                                                                     |
 | slice2java        | String  | (platform dependent)                             | Full path of the slice2java compiler (read only).                                                                                                                                                                    |
 | slice2freezej     | String  | (platform dependent)                             | Full path of the slice2freezej compiler (read only).                                                                                                                                                                 |
-| cppPlatform       | String  | CPP\_PLATFORM env variable, if set               | On Windows, when `srcDist` is `true` and `iceVersion` >= 3.7, the plug-in finds slice2java and slice2freezej in `iceHome`\bin\\`cppPlatform`\\`cppConfiguration`. `cppPlatform` can be `Win32` or `x64`.             |
-| cppConfiguration  | String  | CPP\_CONFIGURATION env variable, if set          | On Windows, when `srcDist` is `true` and `iceVersion` >= 3.7, the plug-in finds slice2java and slice2freezej in in `iceHome`\bin\\`cppPlatform`\\`cppConfiguration`. `cppConfiguration` can be `Debug` or `Release`. |
+| cppPlatform       | String  | CPP\_PLATFORM env variable, if set               | See note below. |
+| cppConfiguration  | String  | CPP\_CONFIGURATION env variable, if set          | See note below. |
 | compat            | Boolean | `false` if `iceVersion` >= 3.7, otherwise `null` | When `iceVersion` >= 3.7, adds `--compat` to the slice2java arguments.                                                                                                                                             |
 
 If `iceHome` is not set, the plug-in will check the `ICE_HOME` environment
@@ -131,6 +131,17 @@ You can set `iceHome` in your build script as shown below:
 ```gradle
 slice.iceHome = '/opt/Ice'
 ```
+
+The slice plug-in usually finds the `slice2java` compiler in the `bin` directory of
+`iceHome`.  On Windows, it prefers the following folders before falling back to `bin`:
+* `iceHome`\\bin\\`cppPlatform`\\`cppConfiguration` when `srcDist` is true and both
+`cppPlatform` and `cppConfiguration` are set (this corresponds to the layout of a 
+source distribution for Ice version 3.7 or greater).
+* `iceHome`\\tools when `srcDist` is false and the `tools` folder exists (this
+corresponds to the layout of a NuGet package).
+
+The slice plug-in uses the same logic to locate the `slice2freezej` compiler within
+`freezeHome`.
 
 ### Slice Plugin Methods
 
