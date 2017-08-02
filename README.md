@@ -132,11 +132,14 @@ You can set `iceHome` in your build script as shown below:
 slice.iceHome = '/opt/Ice'
 ```
 
-The slice plug-in usually finds the `slice2java` compiler in the `bin` directory of
-`iceHome`.  On Windows, it prefers the following folders before falling back to `bin`:
-* `iceHome`\\bin\\`cppPlatform`\\`cppConfiguration` when `srcDist` is true and both
-`cppPlatform` and `cppConfiguration` are set (this corresponds to the layout of a 
-source distribution for Ice version 3.7 or greater).
+The slice plug-in usually finds the `slice2java` compiler in the `bin`
+directory of `iceHome`.  On Windows, it prefers the following folders
+before falling back to `bin`:
+
+* `iceHome`\\cpp\\bin\\`cppPlatform`\\`cppConfiguration` when `srcDist` is true
+and cpp\\bin\\`cppPlatform`\\`cppConfiguration` folder exists (this corresponds
+to the layout of a source distribution for Ice version 3.7 or greater).
+
 * `iceHome`\\tools when `srcDist` is false and the `tools` folder exists (this
 corresponds to the layout of a NuGet package).
 

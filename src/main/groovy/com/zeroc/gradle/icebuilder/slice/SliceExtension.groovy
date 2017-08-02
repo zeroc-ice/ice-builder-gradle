@@ -254,18 +254,17 @@ class SliceExtension {
             //
             if (os.contains("Windows")) {
 
-                if(srcDist && _cppPlatform != null && _cppConfiguration != null)
-                {
-                    //
-                    // For Ice >= 3.7 Windows source distribution, the compiler is located in a platform and
-                    // configuration dependent directory. Otherwise cppPlatform and cppConfiguration will be null and
-                    // we will fallback to the common bin directory used with Ice < 3.7.
-                    //
-                    sliceCompiler = [homeDir, "cpp", "bin", _cppPlatform, _cppConfiguration, compilerName].join(File.separator)
-                }
-                else if(new File([homeDir, "tools", compilerName].join(File.separator)).exists())
-                {
-                    sliceCompiler = [homeDir, "tools", compilerName].join(File.separator)
+                //
+                // For Windows source distribution we first check for <IceHome>\cpp\bin\<cppPlatform>\<cppConfiguration>
+                // that correspond with Ice 3.7 or greater source distribution.
+                ///
+                // For Windows binary distribution we first check for <IceHome>\tools that correspond with NuGet package
+                // layout.
+                //
+                def basePath = srcDist ? [homeDir, "cpp", "bin", _cppPlatform, _cppConfiguration] : [homeDir, "tools"]
+                basePath = basePath.join(File.separator)
+                if(new File(basePath).exists()) {
+                    sliceCompiler = [basePath, compilerName].join(File.separator)
                 }
             }
 
