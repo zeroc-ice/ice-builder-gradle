@@ -37,7 +37,7 @@ To build the `slice` plug-in run:
 ./gradlew build
 ```
 
-## Using the `slice` Plug-in
+## Using the slice Plug-in
 
 Build script snippet for use in all Gradle versions:
 ```gradle
@@ -139,12 +139,12 @@ The slice plug-in usually finds the `slice2java` compiler in the `bin`
 directory of `iceHome`.  On Windows, it prefers the following folders
 before falling back to `bin`:
 
-* `iceHome`\\cpp\\bin\\`cppPlatform`\\`cppConfiguration` when `srcDist` is true
-and cpp\\bin\\`cppPlatform`\\`cppConfiguration` folder exists (this corresponds
-to the layout of a source distribution for Ice version 3.7 or greater).
+ * `iceHome`\\cpp\\bin\\`cppPlatform`\\`cppConfiguration` when `srcDist` is true
+ and cpp\\bin\\`cppPlatform`\\`cppConfiguration` folder exists (this corresponds
+ to the layout of a source distribution for Ice version 3.7 or greater).
 
-* `iceHome`\\tools when `srcDist` is false and the `tools` folder exists (this
-corresponds to the layout of a NuGet package).
+ * `iceHome`\\tools when `srcDist` is false and the `tools` folder exists (this
+ corresponds to the layout of a NuGet package).
 
 The slice plug-in uses the same logic to locate the `slice2freezej` compiler
 within `freezeHome`.
