@@ -2,10 +2,12 @@
 
 # Ice Builder for Gradle
 
-The Ice Builder for Gradle provides a Gradle plug-in named `slice`. This plug-in manages the compilation
-of [Slice](https://doc.zeroc.com/display/Ice/The+Slice+Language) files to Java. It compiles your Slice files with [`slice2java`](https://doc.zeroc.com/display/Ice/slice2java+Command-Line+Options), and it is also capable of generating Freeze maps and indices with [`slice2freezej`](https://doc.zeroc.com/display/Freeze37/Using+a+Map+in+Java).
+The Ice Builder for Gradle provides a Gradle plug-in named `slice`. This
+plug-in manages the compilation of [Slice][1] files to Java. It compiles your
+Slice files with [`slice2java`][2], and it is also capable of generating Freeze
+maps and indices with [`slice2freezej`][3].
 
-An [Ice](https://github.com/zeroc-ice/ice) installation with `slice2java` version 3.5.1 or higher is required.
+An [Ice][4] installation with `slice2java` version 3.5.1 or higher is required.
 
 ## Contents
 
@@ -77,8 +79,9 @@ The plug-in adds the following dependency to tasks added by the `java` plug-in:
 | ----------- | ------------ |
 | compileJava | compileSlice |
 
-On Android, it adds the following dependency to each build variant of `project.android.libraryVariants`,
-`project.android.applicationVariants`, and `project.android.testVariants`:
+On Android, it adds the following dependency to each build variant of
+`project.android.libraryVariants`, `project.android.applicationVariants`, and
+`project.android.testVariants`:
 
 | Task name    | Depends On   |
 | ------------ | ------------ |
@@ -99,13 +102,13 @@ This default layout can be changed with the property `srcDir`, described below.
 The `slice` plug-in defines the following convention properties:
 
 | Property name     | Type    | Default value                                    | Description                                                                                                                                                                                                          |
-| ----------------- | ------- | ------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| ----------------- | ------- | ------------------------------------------------ | --------------------------------------------- |
 | iceHome           | String  | (see below)                                      | The root directory of the Ice installation.                                                                                                                                                                          |
 | freezeHome        | String  | `iceHome`                                        | The root directory of the Freeze installation.                                                                                                                                                                       |
 | output            | File    | _buildDir_/generated-src                         | The directory that contains the generated source files.                                                                                                                                                              |
-| iceVersion        | String  |                                      | The Ice version returned by slice2java -v (read only).                                                                                                                                                               |
-| iceArtifactVersion| String  |                       | The version of the Ice JAR file. This version is computed from `iceVersion` and has usually the same value (read only).                                                                                                                       |
-| srcDist           | Boolean |                           | True when using a source distribution for Ice, false otherwise (read only).                                                                                                                                                  |
+| iceVersion        | String  |                                                  | The Ice version returned by slice2java -v (read only).                                                                                                                                                               |
+| iceArtifactVersion| String  |                                                  | The version of the Ice JAR file. This version is computed from `iceVersion` and has usually the same value (read only).                                                                                                                       |
+| srcDist           | Boolean |                                                  | True when using a source distribution for Ice, false otherwise (read only).                                                                                                                                                  |
 | sliceDir          | String  | (platform dependent)                             | The Ice Slice installation directory (read only).                                                                                                                                                                    |
 | jarDir            | String  | (platform dependent)                             | The Ice JARs installation directory (read only and can be null).                                                                                                                                                                     |
 | slice2java        | String  | (platform dependent)                             | Full path of the slice2java compiler (read only).                                                                                                                                                                    |
@@ -123,8 +126,8 @@ not set either, the plug-in uses the following defaults on Linux and macOS:
 | Linux      | /usr                                   |
 | macOS      | /usr/local                             |
 
-On Windows, when neither `iceHome` nor `ICE_HOME` are set, the builder queries the Windows
-registry to find Ice installations and selects the newest version.
+On Windows, when neither `iceHome` nor `ICE_HOME` are set, the builder queries
+the Windows registry to find Ice installations and selects the newest version.
 
 You can set `iceHome` in your build script as shown below:
 
@@ -143,8 +146,8 @@ to the layout of a source distribution for Ice version 3.7 or greater).
 * `iceHome`\\tools when `srcDist` is false and the `tools` folder exists (this
 corresponds to the layout of a NuGet package).
 
-The slice plug-in uses the same logic to locate the `slice2freezej` compiler within
-`freezeHome`.
+The slice plug-in uses the same logic to locate the `slice2freezej` compiler
+within `freezeHome`.
 
 ### Slice Plugin Methods
 
@@ -154,9 +157,10 @@ The slice plug-in uses the same logic to locate the `slice2freezej` compiler wit
 
 ### Configuring Slice-to-Java Projects
 
-Use the `java` block to configure the compilation of Slice files with `slice2java`.
-The `java` block can contain one or more source sets, each with its own set of flags
-for compiling Slice files. You can omit the source set name when you have a single set:
+Use the `java` block to configure the compilation of Slice files with
+`slice2java`. The `java` block can contain one or more source sets, each with
+its own set of flags for compiling Slice files. You can omit the source set
+name when you have a single set:
 
 ```gradle
 slice {
@@ -193,10 +197,11 @@ Each source set in the `java` block defines the following convention properties:
 | files         | FileCollection | -              | The Slice files in this source set. Overrides `srcDir`. |
 | include       | Set<File>      | -              | Slice include file search path.                         |
 
-Refer to the [slice2java Command-Line Options](https://doc.zeroc.com/display/Ice/slice2java+Command-Line+Options)
-for a description of the options you can provide through the `args` property.
+Refer to the [slice2java Command-Line Options][2] for a description of the
+options you can provide through the `args` property.
 
-Note: the `slice` directory of your Ice installation (`${slice.iceHome}/slice`) is automatically added to `include` by the plug-in.
+Note: the `slice` directory of your Ice installation (`${slice.iceHome}/slice`)
+is automatically added to `include` by the plug-in.
 
 #### `java` Examples
 
@@ -210,7 +215,9 @@ slice {
 }
 ```
 
-Compile `a.ice` with the argument `--stream`, and compile all Slice files in `b` without `--stream`. Both compilations add `${projectDir}` to the Slice include search path:
+Compile `a.ice` with the argument `--stream`, and compile all Slice files in
+`b` without `--stream`. Both compilations add `${projectDir}` to the Slice
+include search path:
 
 ```gradle
 slice {
@@ -230,7 +237,8 @@ slice {
 
 ### Configuring Slice-to-FreezeJ Projects
 
-Use the `freezej` block to generate Freeze maps and indices with `slice2freezej`.
+Use the `freezej` block to generate Freeze maps and indices with
+`slice2freezej`.
 
 The plug-in currently supports a single unnamed source set within `freezej`:
 ```
@@ -253,16 +261,16 @@ Each `freezej` block defines the following convention properties:
 | files         | FileCollection | -              | The Slice files in this source set. Overrides `srcDir`. |
 | include       | Set<File>      | -              | Slice include file search path.                         |
 
-Refer to the [slice2freezej Command-Line Options](https://doc.zeroc.com/display/Freeze37/slice2freezej+Command-Line+Options)
-for a description of the options you can provide through the `args` property.
+Refer to the [slice2freezej Command-Line Options][5] for a description of the
+options you can provide through the `args` property.
 
-Note: the `slice` directory of your Ice installation (`${slice.iceHome}/slice`) is automatically added to `include` by the plug-in.
+Note: the `slice` directory of your Ice installation (`${slice.iceHome}/slice`)
+is automatically added to `include` by the plug-in.
 
 #### `dict` Block
 
-A `dict` block describes one ore more Freeze maps (also known as dictionaries) generated by `slice2freezej`.
-Each map in such a block must have a unique name.
-
+A `dict` block describes one ore more Freeze maps (also known as dictionaries)
+generated by `slice2freezej`. Each map in such a block must have a unique name.
 ```gradle
 slice {
     freezej {
@@ -312,7 +320,8 @@ module Test
 }
 ```
 
-Generate a Freeze map named `StringFooMap` that maps a `string` to the Slice type `Test::Foo`:
+Generate a Freeze map named `StringFooMap` that maps a `string` to the Slice
+type `Test::Foo`:
 
 ```gradle
 slice {
@@ -329,7 +338,8 @@ slice {
 }
 ```
 
-Generate the same Freeze map, but this time with an index on the data member `s` of the `Foo` structure:
+Generate the same Freeze map, but this time with an index on the data member
+`s` of the `Foo` structure:
 
 ```gradle
 slice {
@@ -371,8 +381,8 @@ slice {
 ```
 #### `index` Block
 
-An `index` block describes one ore more Freeze Evictor indices generated by `slice2freezej`.
-Each index must have a unique name.
+An `index` block describes one ore more Freeze Evictor indices generated by
+`slice2freezej`. Each index must have a unique name.
 
 ```gradle
 slice {
@@ -436,7 +446,16 @@ freezej {
 ## When does the Plug-in Recompile Slice Files?
 
 Slice files will be recompiled if either of the following are true:
- * This Slice file or a Slice file included directly or indirectly by this Slice file was updated after the last compilation of the Slice file through the plug-in.
+ * This Slice file or a Slice file included directly or indirectly by this
+ Slice file was updated after the last compilation of the Slice file through
+ the plug-in.
  * The options used to compile this Slice file have changed.
 
-Removing a Slice file from a source set will trigger the removal of the corresponding generated `.java` files the next time the source set is built.
+Removing a Slice file from a source set will trigger the removal of the
+corresponding generated `.java` files the next time the source set is built.
+
+[1]: https://doc.zeroc.com/display/Ice/The+Slice+Language
+[2]: https://doc.zeroc.com/display/Ice/slice2java+Command-Line+Options
+[3]: https://doc.zeroc.com/display/Freeze37/Using+a+Map+in+Java
+[4]: https://github.com/zeroc-ice/ice
+[5]: https://doc.zeroc.com/display/Freeze37/slice2freezej+Command-Line+Options
