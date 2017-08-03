@@ -12,7 +12,7 @@ buildscript {
             }
         }
         dependencies {
-            classpath "com.gradle.publish:plugin-publish-plugin:0.9.4"
+            classpath "com.gradle.publish:plugin-publish-plugin:0.9.7"
         }
     }
 }
@@ -86,7 +86,7 @@ if(!localOnly.toBoolean()) {
     // the version of gradle needed to build plugin.
     //
     task wrapper(type: Wrapper) {
-        gradleVersion = "2.14"
+        gradleVersion = "4.0.1"
     }
 } else {
     prefix = prefix ? prefix : (System.properties['os.name'].toLowerCase().contains('windows') ?
