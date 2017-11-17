@@ -103,6 +103,15 @@ class SliceTask extends DefaultTask {
             rebuild = state.slice.any { !files.contains(it) }
         }
 
+        // Check that the previous generated files still exists
+        if(!rebuild) {
+            files.each {
+                rebuild = state.slice[it] != null && state.slice[it].any {
+                    !it.isFile() || getTimestamp(it) > state.timestamp
+                }
+            }
+        }
+
         // Bail out if there is nothing to do (in theory this should not occur).
         if(!rebuild) {
             LOGGER.info("nothing to do")
@@ -488,6 +497,15 @@ class SliceTask extends DefaultTask {
                         getTimestamp(it) > state.timestamp
                     }) {
                         toBuild.add(it)
+                }
+                //
+                // Check that the previous generated files still exists
+                //
+                else if(state.slice[it] != null && state.slice[it].any {
+                        // `it' here is each of the Java generated files for Slice file being process.
+                        !it.isFile() || getTimestamp(it) > state.timestamp
+                    }){
+                    toBuild.add(it)
                 }
             }
         }
