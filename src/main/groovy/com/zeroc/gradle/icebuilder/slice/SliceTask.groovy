@@ -75,7 +75,7 @@ class SliceTask extends DefaultTask {
         }
 
         def state = new FreezeJBuildState()
-        def stateFile = new File(project.buildDir, "slice2freezej.df.xml")
+        def stateFile = new File(project.slice.output, "slice2freezej.df.xml")
         state.read(stateFile)
 
         def rebuild = false
@@ -367,7 +367,7 @@ class SliceTask extends DefaultTask {
         // Complete set of slice files.
         Set files = []
 
-        def stateFile = new File(project.buildDir, "slice2java.df.xml")
+        def stateFile = new File(project.slice.output, "slice2java.df.xml")
 
         // Dictionary of A->[B] where A is the source set name and B is
         // the JavaSourceSet
