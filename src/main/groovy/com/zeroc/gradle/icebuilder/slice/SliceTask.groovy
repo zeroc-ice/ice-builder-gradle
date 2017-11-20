@@ -103,11 +103,11 @@ class SliceTask extends DefaultTask {
             rebuild = state.slice.any { !files.contains(it) }
         }
 
-        // Check that the previous generated files still exists
+        // Check that any previously generated files still exist
         if(!rebuild) {
-            files.each {
-                rebuild = state.slice[it] != null && state.slice[it].any {
-                    !it.isFile() || getTimestamp(it) > state.timestamp
+            files.each { sliceFile ->
+                rebuild = state.slice[sliceFile] != null && state.slice[sliceFile].any { generatedFile ->
+                    !generatedFile.isFile() || getTimestamp(generatedFile) > state.timestamp
                 }
             }
         }
@@ -485,27 +485,23 @@ class SliceTask extends DefaultTask {
             }
         } else {
             // s2jDependencies is populated in getInputFiles.
-            java.files.each {
-                // `it' here is each of the slice files.
-                //
+            java.files.each { sliceFile ->
                 // Build the slice file if it wasn't built before in this source set,
                 // or its timestamp is newer than the last build time,
                 // or any of its dependencies have a timestamp newer than the last build time.
-                if(!prevSS.slice.contains(it) || (getTimestamp(it) > state.timestamp) ||
-                    s2jDependencies[it].any {
-                        // `it' here is each of the dependencies of the slice file.
-                        getTimestamp(it) > state.timestamp
+                if(!prevSS.slice.contains(sliceFile) || (getTimestamp(sliceFile) > state.timestamp) ||
+                    s2jDependencies[sliceFile].any { dependency ->
+                        getTimestamp(dependency) > state.timestamp
                     }) {
-                        toBuild.add(it)
+                        toBuild.add(dependency)
                 }
                 //
-                // Check that the previous generated files still exists
+                // Check that any previously generated files still exist
                 //
-                else if(state.slice[it] != null && state.slice[it].any {
-                        // `it' here is each of the Java generated files for Slice file being process.
-                        !it.isFile() || getTimestamp(it) > state.timestamp
-                    }){
-                    toBuild.add(it)
+                else if(state.slice[sliceFile] != null && state.slice[sliceFile].any { generatedFile ->
+                        !generatedFile.isFile() || getTimestamp(generatedFile) > state.timestamp
+                    }) {
+                    toBuild.add(generatedFile)
                 }
             }
         }
