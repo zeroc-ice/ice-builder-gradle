@@ -493,7 +493,7 @@ class SliceTask extends DefaultTask {
                     s2jDependencies[sliceFile].any { dependency ->
                         getTimestamp(dependency) > state.timestamp
                     }) {
-                        toBuild.add(dependency)
+                        toBuild.add(sliceFile)
                 }
                 //
                 // Check that any previously generated files still exist
@@ -501,7 +501,7 @@ class SliceTask extends DefaultTask {
                 else if(state.slice[sliceFile] != null && state.slice[sliceFile].any { generatedFile ->
                         !generatedFile.isFile() || getTimestamp(generatedFile) > state.timestamp
                     }) {
-                    toBuild.add(generatedFile)
+                    toBuild.add(sliceFile)
                 }
             }
         }

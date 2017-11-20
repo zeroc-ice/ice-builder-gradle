@@ -39,13 +39,20 @@ class TestCase {
         project = null
     }
 
+    def newProjectWithProjectDir() {
+        def p = ProjectBuilder.builder().withProjectDir(project.rootDir).build()
+        p.pluginManager.apply 'java'
+        p.pluginManager.apply 'slice'
+        return p
+    }
+
     void forceReinitialization() {
         // setting any variable forces reinitialization
         def iceHome = project.slice.iceHome
         project.slice.iceHome = iceHome
     }
 
-    File pathToFile(pathList) {
+    def pathToFile(pathList) {
         return new File(pathList.join(File.separator))
     }
 }
