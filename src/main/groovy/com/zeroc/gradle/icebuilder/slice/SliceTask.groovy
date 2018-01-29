@@ -105,10 +105,8 @@ class SliceTask extends DefaultTask {
 
         // Check that any previously generated files still exist
         if(!rebuild) {
-            files.each { sliceFile ->
-                rebuild = state.slice[sliceFile] != null && state.slice[sliceFile].any { generatedFile ->
-                    !generatedFile.isFile() || getTimestamp(generatedFile) > state.timestamp
-                }
+            rebuild = state.generated.any { generatedFile ->
+                !generatedFile.isFile() || getTimestamp(generatedFile) > state.timestamp
             }
         }
 
