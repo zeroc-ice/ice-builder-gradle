@@ -29,18 +29,17 @@ class SlicePlugin implements Plugin<Project> {
 
         project.slice.output = project.file("${project.buildDir}/generated-src")
 
-        // Android projects do not define a 'compileJava' task. We wait until the project is evaluated
-        // and add our dependency to the variant's javaCompiler task.
-        if(isAndroidProject(project)) {
-            LOGGER.debug("Detected Android project: ${project}. Delaying applying task until project is evaluated")
-            project.afterEvaluate {
+        project.afterEvaluate {
+            if (isAndroidProject(project)) {
+                // Android projects do not define a 'compileJava' task. We wait until the project is evaluated
+                // and add our dependency to the variant's javaCompiler task.
                 getAndroidVariants(project).all { variant ->
                     variant.registerJavaGeneratingTask(project.tasks.getByName('compileSlice'), project.slice.output)
                 }
+            } else {
+                project.tasks.getByName("compileJava").dependsOn('compileSlice');
+                project.sourceSets.main.java.srcDir project.slice.output
             }
-        } else {
-            project.tasks.getByName("compileJava").dependsOn('compileSlice');
-            project.sourceSets.main.java.srcDir project.slice.output
         }
     }
 
