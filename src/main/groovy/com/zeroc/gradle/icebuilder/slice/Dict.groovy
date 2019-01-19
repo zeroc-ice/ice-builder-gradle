@@ -1,8 +1,6 @@
-// **********************************************************************
 //
-// Copyright (c) 2014-present ZeroC, Inc. All rights reserved.
+// Copyright (c) ZeroC, Inc. All rights reserved.
 //
-// **********************************************************************
 
 package com.zeroc.gradle.icebuilder.slice;
 
