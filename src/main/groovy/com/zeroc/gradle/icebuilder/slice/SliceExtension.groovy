@@ -158,7 +158,7 @@ class SliceExtension {
         def getWin32InstallDir(key) {
             def sout = new StringBuffer()
             def serr = new StringBuffer()
-            def p = ["reg", "query", key, "/v", "InstallDir"].execute()
+            def p = ["reg", "query", key, "/v", "InstallDir", "/reg:64"].execute()
             p.waitForProcessOutput(sout, serr)
             if (p.exitValue() != 0) {
                 return null
@@ -173,7 +173,7 @@ class SliceExtension {
             def sout = new StringBuffer()
             def serr = new StringBuffer()
 
-            def p = ["reg", "query", "HKLM\\Software\\ZeroC"].execute()
+            def p = ["reg", "query", "HKLM\\Software\\ZeroC", "/reg:64"].execute()
             p.waitForProcessOutput(sout, serr)
             if (p.exitValue() != 0) {
                 //
