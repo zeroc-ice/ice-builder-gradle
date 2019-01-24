@@ -61,7 +61,7 @@ sourceSets {
     }
 }
 
-version  = "1.4.6"
+version  = "1.4.7"
 group = "com.zeroc.gradle.ice-builder"
 
 if(!localOnly.toBoolean()) {
