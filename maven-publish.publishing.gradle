@@ -1,0 +1,48 @@
+//
+// Copyright (c) ZeroC, Inc. All rights reserved.
+//
+
+apply plugin: 'maven-publish'
+
+tasks.withType(GenerateMavenPom.class) {
+    destination = file(project.ext.pomName)
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            groupId = project.group
+            artifactId = 'slice'
+            version = project.version
+
+            from components.java
+            pom {
+                name = 'Ice Builder for Gradle'
+                description = 'Plugin to automate the compilation of Slice files to Java'
+                url = 'https://zeroc.com'
+                licenses {
+                    license {
+                        name = 'The BSD 3-Clause License'
+                        url = project.ext.pomLicense
+                    }
+                }
+                developers {
+                    developer {
+                        name = 'ZeroC Developers'
+                        email = 'info@zeroc.com'
+                        organization = 'ZeroC, Inc.'
+                        organizationUrl = 'https://zeroc.com'
+                    }
+                }
+                scm {
+                    connection = 'scm:git:git@github.com/zeroc-ice/ice-builder-gradle.git'
+                    url = 'git://github.com/zeroc-ice/ice-builder-gradle.git'
+                }
+            }
+        }
+    }
+}
+assemble.dependsOn(generatePomFileForMavenPublication)
+
+// This task is for compatibility with the old 'maven' plugin that provides an install task
+task install {}
