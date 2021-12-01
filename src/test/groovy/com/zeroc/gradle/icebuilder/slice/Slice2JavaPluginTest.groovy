@@ -16,7 +16,7 @@ class Slice2JavaPluginTest extends TestCase {
 
         writeTestSliceToFile(pathToFile([project.rootDir, 'src', 'main', 'slice', 'Test.ice']))
 
-        project.tasks.compileSlice.execute()
+        project.tasks.compileSlice.action()
 
         assertTrue(pathToFile([project.rootDir, 'build', 'generated-src', 'Test']).exists())
         assertTrue(pathToFile([project.rootDir, 'build', 'generated-src', 'Test', 'Hello.java']).exists())
@@ -33,7 +33,7 @@ class Slice2JavaPluginTest extends TestCase {
 
         writeTestSliceToFile(pathToFile([project.rootDir, 'src', 'other', 'slice', 'Test.ice']))
 
-        project.tasks.compileSlice.execute()
+        project.tasks.compileSlice.action()
 
         assertTrue(pathToFile([project.rootDir, 'build', 'generated-src', 'Test']).exists())
         assertTrue(pathToFile([project.rootDir, 'build', 'generated-src', 'Test', 'Hello.java']).exists())
@@ -46,7 +46,7 @@ class Slice2JavaPluginTest extends TestCase {
 
         writeTestSliceToFile(pathToFile([project.rootDir, 'src', 'main', 'slice', 'Test.ice']))
 
-        project.tasks.compileSlice.execute()
+        project.tasks.compileSlice.action()
 
         def geneatedHello = pathToFile([project.rootDir, 'build', 'generated-src', 'Test', 'Hello.java'])
 
@@ -59,7 +59,7 @@ class Slice2JavaPluginTest extends TestCase {
         def p = newProjectWithProjectDir()
         p.pluginManager.apply 'java'
         p.pluginManager.apply 'slice'
-        p.tasks.compileSlice.execute()
+        p.tasks.compileSlice.action()
         assertTrue(geneatedHello.exists())
     }
 

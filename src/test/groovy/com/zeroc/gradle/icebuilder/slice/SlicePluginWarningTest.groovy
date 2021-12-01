@@ -16,7 +16,7 @@ class SlicePluginWarningTest extends TestCase {
 
         writeTestSliceToFile(pathToFile([project.rootDir, 'src', 'main', 'slice', 'Test.ice']))
 
-        project.tasks.compileSlice.execute()
+        project.tasks.compileSlice.action()
     }
 
     private void writeTestSliceToFile(file) {

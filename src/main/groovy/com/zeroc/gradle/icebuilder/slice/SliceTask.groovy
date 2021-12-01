@@ -6,6 +6,7 @@ import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.OutputDirectory
+import org.gradle.api.tasks.Internal
 import org.gradle.api.GradleException
 import java.io.*
 import org.slf4j.Logger
@@ -599,6 +600,7 @@ class SliceTask extends DefaultTask {
     }
 
     // Cache of file -> timestamp.
+    @Internal
     def timestamps = [:]
 
     // Get the last modified time for the file. Note that this time is in ms.
