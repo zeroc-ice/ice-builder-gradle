@@ -1,6 +1,4 @@
-//
 // Copyright (c) ZeroC, Inc. All rights reserved.
-//
 
 package com.zeroc.gradle.icebuilder.slice
 
@@ -49,9 +47,7 @@ class SlicePluginPropertyTest extends TestCase {
 
     @Test
     public void testInvalidIceHome() {
-        //
         // Test an bogus iceHome (non srcDist)
-        //
         def tmpIceHome = File.createTempDir()
         tmpIceHome.deleteOnExit()
         project.slice.iceHome = tmpIceHome.toString()
@@ -65,10 +61,8 @@ class SlicePluginPropertyTest extends TestCase {
 
     @Test
     public void testIceHomeWithNoSlice2Java() {
-        //
         // Test that if iceHome is a srcDist and slice2java is missing that we can still
         // initialize (at least partially) the configuration without failure
-        //
 
         // Create temporary iceHome with fake structure that slice extension requires
         def tmpIceHome = File.createTempDir()

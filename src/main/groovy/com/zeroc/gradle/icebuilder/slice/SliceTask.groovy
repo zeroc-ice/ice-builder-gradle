@@ -1,6 +1,4 @@
-//
 // Copyright (c) ZeroC, Inc. All rights reserved.
-//
 
 package com.zeroc.gradle.icebuilder.slice
 
@@ -33,17 +31,14 @@ class SliceTask extends DefaultTask {
             }
         }
 
-        //
-        // In case the slice output directory is not inside the buildDir, as we still store
-        // dependency files here
-        //
+        // In case the slice output directory is not inside the buildDir, as we still store dependency files here.
         if(!project.buildDir.isDirectory()) {
             if(!project.buildDir.mkdirs()) {
                 throw new GradleException("could not create build output directory: ${project.buildDir}")
             }
         }
 
-        // Make sure default source set is present
+        // Make sure default source set is present.
         if(project.slice.java.isEmpty()) {
             project.slice.java.create("default")
         }
@@ -79,14 +74,13 @@ class SliceTask extends DefaultTask {
         def rebuild = false
 
         def args = buildS2FCommandLine(freezej)
-        // If the command line changes or the slice2freezej compiler (always the first argument)
-        // has been updated then rebuild.
+        // If the command line changes or the slice2freezej compiler (args[0]) has been updated then rebuild.
         if(args != state.args || getTimestamp(new File(args[0])) > state.timestamp) {
             rebuild = true
         }
 
-        // Rebuild if the set of slice files has changed, or if one of the slice files has a timestamp newer
-        // than the last build.
+        // Rebuild if the set of slice files has changed, or if one of the slice files has a timestamp newer than the
+        // last build.
         if(!rebuild && state.slice.size() != files.size()) {
             rebuild = true
         }
