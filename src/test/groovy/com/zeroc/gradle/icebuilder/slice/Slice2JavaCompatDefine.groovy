@@ -25,7 +25,7 @@ class Slice2JavaCompatDefine extends TestCase {
 
         writeTestSliceToFile(pathToFile([project.rootDir, 'src', 'main', 'slice', 'Test.ice']))
 
-        project.tasks.compileSlice.execute()
+        project.tasks.compileSlice.action()
 
         assertTrue(pathToFile([project.rootDir,
                                'build',

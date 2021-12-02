@@ -39,27 +39,27 @@ To build the `slice` plug-in run:
 
 ## Using the slice Plug-in
 
-Build script snippet for use in all Gradle versions:
+Using the plugins DSL:
 ```gradle
+plugins {
+  id "com.zeroc.gradle.ice-builder.slice" version "1.5.0"
+}
+```
+
+Using legacy plugin application:
+```
 buildscript {
-    repositories {
-        maven {
-            url "https://plugins.gradle.org/m2/"
-        }
+  repositories {
+    maven {
+      url "https://plugins.gradle.org/m2/"
     }
-    dependencies {
-        classpath "gradle.plugin.com.zeroc.gradle.ice-builder:slice:1.4.5"
-    }
+  }
+  dependencies {
+    classpath "gradle.plugin.com.zeroc.gradle.ice-builder:slice:1.5.0"
+  }
 }
 
 apply plugin: "com.zeroc.gradle.ice-builder.slice"
-```
-
-Build script snippet for new, incubating, plugin mechanism introduced in Gradle 2.1:
-```
-plugins {
-    id "com.zeroc.gradle.ice-builder.slice" version "1.4.5"
-}
 ```
 
 It is important that the `slice` plug-in is applied after the `java` plug-in in
