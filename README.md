@@ -1,5 +1,3 @@
-[![Build Status](https://travis-ci.org/zeroc-ice/ice-builder-gradle.svg)](https://travis-ci.org/zeroc-ice/ice-builder-gradle)
-
 # Ice Builder for Gradle
 
 The Ice Builder for Gradle provides a Gradle plug-in named `slice`. This
