@@ -120,8 +120,11 @@ class SliceExtension {
                 def jarDirectories = [
                     [_iceHome, "share", "java"],                          // Default usr install
                     [_iceHome, _compat ? "java-compat" : "java", "lib"],  // Source distribution
-                    [_iceHome, "lib"]                                     // Opt style install & Windows distribution
                 ]
+
+                if(_iceHome != "/usr" && _iceHome != "/usr/local") {
+                    jarDirectories += [_iceHome, "lib"]  // Opt style install & Windows distribution
+                }
 
                 def sliceDirCandidates = sliceDirectories.collect { it.join(File.separator) }
                 def jarDirCandidates = jarDirectories.collect { it.join(File.separator) }
