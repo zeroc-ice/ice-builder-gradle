@@ -68,7 +68,7 @@ if(!localOnly.toBoolean()) {
 
     def pomName = "$buildDir/libs/${project.name}-${project.version}.pom"
     def pomLicense = project.hasProperty("licenseURL") ?
-        licenseURL :
+        project.extlicenseURL :
         "https://github.com/zeroc-ice/ice-builder-gradle/blob/master/LICENSE"
 
     apply plugin: 'maven-publish'
@@ -92,7 +92,7 @@ if(!localOnly.toBoolean()) {
                     licenses {
                         license {
                             name = 'The BSD 3-Clause License'
-                            url = licenseURL
+                            url = pomLicense
                         }
                     }
                     developers {
@@ -129,7 +129,7 @@ if(!localOnly.toBoolean()) {
     assemble.dependsOn(sourcesJar)
 
     task install(type: Copy, dependsOn: assemble) {
-        from "${project.ext.pomName}"
+        from "${pomName}"
         from "$buildDir/libs/${jar.archiveName}"
         from "$buildDir/libs/${project.name}-${project.version}-sources.jar"
         from "$buildDir/libs/${project.name}-${project.version}-groovydoc.jar"
