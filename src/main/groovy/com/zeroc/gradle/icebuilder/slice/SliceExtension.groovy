@@ -12,13 +12,10 @@ class SliceExtension {
 
     private def iceHome = null
     private def iceVersion = null
-    private def iceArtifactVersion = null
-    private def srcDist = false
     private def freezeHome = null
     private def sliceDir = null
     private def slice2java = null
     private def slice2freezej = null
-    private def jarDir = null
     private def cppPlatform = null
     private def cppConfiguration = null
     private def compat = null
@@ -39,7 +36,6 @@ class SliceExtension {
         def _sliceDir = null
         def _slice2java = null
         def _slice2freezej = null
-        def _jarDir = null
         def _cppPlatform = null
         def _cppConfiguration = null
         def _compat = null
@@ -117,17 +113,9 @@ class SliceExtension {
                     [_iceHome, "slice"]                                   // Opt/source installs & Windows distribution
                 ]
 
-                def jarDirectories = [
-                    [_iceHome, "share", "java"],                          // Default usr install
-                    [_iceHome, _compat ? "java-compat" : "java", "lib"],  // Source distribution
-                    [_iceHome, "lib"]                                     // Opt style install & Windows distribution
-                ]
-
                 def sliceDirCandidates = sliceDirectories.collect { it.join(File.separator) }
-                def jarDirCandidates = jarDirectories.collect { it.join(File.separator) }
 
                 _sliceDir = sliceDirCandidates.find { new File(it).exists() }
-                _jarDir = jarDirCandidates.find { new File(it).exists() }
 
                 if (!_sliceDir) {
                     LOGGER.warn("Unable to locate slice directory in iceHome (${iceHome})")
@@ -309,13 +297,10 @@ class SliceExtension {
 
         iceHome = c._iceHome
         iceVersion = c._iceVersion
-        iceArtifactVersion = parseVersion(c._iceVersion)
-        srcDist = c._srcDist
         freezeHome = c._freezeHome
         sliceDir = c._sliceDir
         slice2java = c._slice2java
         slice2freezej = c._slice2freezej
-        jarDir = c._jarDir
         cppPlatform = c._cppPlatform
         cppConfiguration = c._cppConfiguration
         compat = c._compat
@@ -323,12 +308,10 @@ class SliceExtension {
 
         LOGGER.debug("Property: iceHome = ${iceHome}")
         LOGGER.debug("Property: iceVersion = ${iceVersion}")
-        LOGGER.debug("Property: srcDist = ${srcDist}")
         LOGGER.debug("Property: freezeHome = ${freezeHome}")
         LOGGER.debug("Property: sliceDir = ${sliceDir}")
         LOGGER.debug("Property: slice2java = ${slice2java}")
         LOGGER.debug("Property: slice2freezej = ${slice2freezej}")
-        LOGGER.debug("Property: jarDir = ${jarDir}")
         LOGGER.debug("Property: cppPlatform = ${cppPlatform}")
         LOGGER.debug("Property: cppConfiguration = ${cppConfiguration}")
         LOGGER.debug("Property: compat = ${compat}")
@@ -377,16 +360,6 @@ class SliceExtension {
         return iceVersion
     }
 
-    def getIceArtifactVersion() {
-        lazyInit()
-        return iceArtifactVersion
-    }
-
-    def getSrcDist() {
-        lazyInit()
-        return srcDist
-    }
-
     def getFreezeHome() {
         lazyInit()
         return freezeHome
@@ -410,11 +383,6 @@ class SliceExtension {
     def getSlice2freezej() {
         lazyInit()
         return slice2freezej
-    }
-
-    def getJarDir() {
-        lazyInit()
-        return jarDir
     }
 
     def getCppPlatform() {

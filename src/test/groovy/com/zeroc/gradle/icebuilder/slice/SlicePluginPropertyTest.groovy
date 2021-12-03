@@ -24,7 +24,6 @@ class SlicePluginPropertyTest extends TestCase {
         // This test only works if ICE_HOME is not set
         assumeTrue(System.getenv()['ICE_HOME'] == null)
         assertTrue(project.slice.iceHome != "")
-        assertTrue(project.slice.srcDist == false)
         assertTrue(project.slice.iceVersion != "" && project.slice.iceVersion != null)
         assertTrue(new File(project.slice.slice2java).exists())
         assertTrue(new File(project.slice.sliceDir).exists())
@@ -38,7 +37,6 @@ class SlicePluginPropertyTest extends TestCase {
         project.slice.iceHome = iceHome
         assertTrue(project.slice.iceHome != "")
         assertNotNull(project.slice.iceHome)
-        assertTrue(project.slice.srcDist == false)
         assertTrue(project.slice.iceVersion != "")
         assertNotNull(project.slice.iceVersion)
         assertTrue(new File(project.slice.slice2java).exists())
@@ -47,7 +45,7 @@ class SlicePluginPropertyTest extends TestCase {
 
     @Test
     public void testInvalidIceHome() {
-        // Test an bogus iceHome (non srcDist)
+        // Test an bogus iceHome
         def tmpIceHome = File.createTempDir()
         tmpIceHome.deleteOnExit()
         project.slice.iceHome = tmpIceHome.toString()
@@ -75,10 +73,8 @@ class SlicePluginPropertyTest extends TestCase {
         project.slice.iceHome = tmpIceHome.toString()
 
         assertTrue(project.slice.iceHome == tmpIceHome.toString())
-        assertTrue(project.slice.srcDist == true)
         assertTrue(project.slice.iceVersion == null)
         assertTrue(project.slice.sliceDir == null)
-        assertTrue(project.slice.jarDir == null)
     }
 
     @Test
