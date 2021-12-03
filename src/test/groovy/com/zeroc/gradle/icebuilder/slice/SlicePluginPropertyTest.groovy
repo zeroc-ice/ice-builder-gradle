@@ -45,7 +45,7 @@ class SlicePluginPropertyTest extends TestCase {
 
     @Test
     public void testInvalidIceHome() {
-        // Test an bogus iceHome
+        // Test a bogus iceHome
         def tmpIceHome = File.createTempDir()
         tmpIceHome.deleteOnExit()
         project.slice.iceHome = tmpIceHome.toString()
