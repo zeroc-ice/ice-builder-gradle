@@ -21,12 +21,8 @@ class TestCase {
 
     @Before
     void checkIceInstalled() {
-    //     try {
-            assumeNotNull(project.slice.iceHome)
-            assumeNotNull(project.slice.slice2java)
-    //     } catch (org.gradle.api.GradleException e) {
-    //         assumeNoException(e);
-    //     }
+        assumeNotNull(project.slice.iceHome)
+        assumeNotNull(project.slice.slice2java)
     }
 
     @After
@@ -43,9 +39,12 @@ class TestCase {
     }
 
     void forceReinitialization() {
-        // setting any variable forces reinitialization
-        def iceHome = project.slice.iceHome
-        project.slice.iceHome = iceHome
+        // Setting any property will trigger the plug-in initialization in the next property read.
+        //
+        // Set cppConfiguration and cppPlatform to null is required to force reading CPP_PLATFORM and
+        // CPP_CONFIGURATION enviroment variables during re-intialization
+        project.slice.cppConfiguration = null
+        project.slice.cppPlatform = null
     }
 
     def pathToFile(pathList) {
