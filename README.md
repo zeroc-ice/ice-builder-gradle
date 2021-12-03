@@ -1,9 +1,8 @@
 # Ice Builder for Gradle
 
-The Ice Builder for Gradle provides a Gradle plug-in named `slice`. This
-plug-in manages the compilation of [Slice][1] files to Java. It compiles your
-Slice files with [`slice2java`][2], and it is also capable of generating Freeze
-maps and indices with [`slice2freezej`][3].
+The Ice Builder for Gradle provides a Gradle plug-in named `slice`. This plug-in manages the compilation of [Slice][1]
+files to Java. It compiles your Slice files with [`slice2java`][2], and it is also capable of generating Freeze maps and
+indices with [`slice2freezej`][3].
 
 An [Ice][4] installation with `slice2java` version 3.5.1 or higher is required.
 
@@ -105,15 +104,12 @@ The `slice` plug-in defines the following convention properties:
 | freezeHome        | String  | `iceHome`                                        | The root directory of the Freeze installation.                                                                                                                                                                       |
 | output            | File    | _buildDir_/generated-src                         | The directory that contains the generated source files.                                                                                                                                                              |
 | iceVersion        | String  |                                                  | The Ice version returned by slice2java -v (read only).                                                                                                                                                               |
-| iceArtifactVersion| String  |                                                  | The version of the Ice JAR file. This version is computed from `iceVersion` and has usually the same value (read only).                                                                                                                       |
-| srcDist           | Boolean |                                                  | True when using a source distribution for Ice, false otherwise (read only).                                                                                                                                                  |
 | sliceDir          | String  | (platform dependent)                             | The Ice Slice installation directory (read only).                                                                                                                                                                    |
-| jarDir            | String  | (platform dependent)                             | The Ice JARs installation directory (read only and can be null).                                                                                                                                                                     |
 | slice2java        | String  | (platform dependent)                             | Full path of the slice2java compiler (read only).                                                                                                                                                                    |
 | slice2freezej     | String  | (platform dependent)                             | Full path of the slice2freezej compiler (read only).                                                                                                                                                                 |
 | cppPlatform       | String  | CPP\_PLATFORM env variable, if set               | See note below. |
 | cppConfiguration  | String  | CPP\_CONFIGURATION env variable, if set          | See note below. |
-| compat            | Boolean | `false` if `iceVersion` >= 3.7, otherwise `null` | When `iceVersion` >= 3.7, adds `--compat` to the slice2java arguments.                                                                                                                                             |
+| compat            | Boolean | `false` if `iceVersion` >= 3.7, otherwise `null` | When `iceVersion` >= 3.7, adds `--compat` to the slice2java arguments.                                                                                                                                               |
 
 If `iceHome` is not set, the plug-in will check the `ICE_HOME` environment
 variable to determine the location of the Ice installation. If `ICE_HOME` is
@@ -133,19 +129,17 @@ You can set `iceHome` in your build script as shown below:
 slice.iceHome = '/opt/Ice'
 ```
 
-The slice plug-in usually finds the `slice2java` compiler in the `bin`
-directory of `iceHome`.  On Windows, it prefers the following folders
-before falling back to `bin`:
+The slice plug-in usually finds the `slice2java` compiler in the `bin` directory of `iceHome`.  On Windows, it prefers
+the following folders before falling back to `bin`:
 
- * `iceHome`\\cpp\\bin\\`cppPlatform`\\`cppConfiguration` when `srcDist` is true
- and cpp\\bin\\`cppPlatform`\\`cppConfiguration` folder exists (this corresponds
- to the layout of a source distribution for Ice version 3.7 or greater).
+ * `iceHome`\\cpp\\bin\\`cppPlatform`\\`cppConfiguration` when using a source distribution and
+   cpp\\bin\\`cppPlatform`\\`cppConfiguration` folder exists (this corresponds to the layout of a source distribution
+   for Ice version 3.7 or greater).
 
- * `iceHome`\\tools when `srcDist` is false and the `tools` folder exists (this
- corresponds to the layout of a NuGet package).
+ * `iceHome`\\tools when not using a source distribution  and the `tools` folder exists (this corresponds to the layout
+    of a NuGet package).
 
-The slice plug-in uses the same logic to locate the `slice2freezej` compiler
-within `freezeHome`.
+The slice plug-in uses the same logic to locate the `slice2freezej` compiler within `freezeHome`.
 
 ### Slice Plugin Methods
 
