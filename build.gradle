@@ -69,7 +69,7 @@ if(!localOnly.toBoolean()) {
     def pomName = "$buildDir/libs/${project.name}-${project.version}.pom"
     def pomLicense = project.hasProperty("licenseURL") ?
         project.extlicenseURL :
-        "https://github.com/zeroc-ice/ice-builder-gradle/blob/master/LICENSE"
+        "https://github.com/zeroc-ice/ice-builder-gradle/blob/main/LICENSE"
 
     apply plugin: 'maven-publish'
 
