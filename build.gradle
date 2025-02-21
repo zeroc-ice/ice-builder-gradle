@@ -15,8 +15,8 @@ buildscript {
 
 apply plugin: 'groovy'
 
-sourceCompatibility = 1.7
-targetCompatibility = 1.7
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
 
 repositories {
     mavenCentral()
@@ -39,9 +39,15 @@ test {
         showStandardStreams = false
     }
     onlyIf { !localOnly.toBoolean() }
+
+    // Test runner needs to dynamically access java.lang and java.util for reflection
+    jvmArgs(
+        "--add-opens", "java.base/java.lang=ALL-UNNAMED",
+        "--add-opens", "java.base/java.util=ALL-UNNAMED"
+    )
 }
 
-version  = "1.5.0"
+version  = "1.5.1"
 group = "com.zeroc.gradle.ice-builder"
 
 if(!localOnly.toBoolean()) {

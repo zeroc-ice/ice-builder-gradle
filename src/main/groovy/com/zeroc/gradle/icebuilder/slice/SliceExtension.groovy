@@ -2,6 +2,7 @@
 
 package com.zeroc.gradle.icebuilder.slice;
 
+import org.gradle.api.Action
 import org.gradle.api.GradleException
 import org.gradle.api.logging.Logging
 import org.gradle.api.NamedDomainObjectContainer
@@ -266,12 +267,9 @@ class SliceExtension {
         this.java = java
     }
 
-    def java(Closure closure) {
-        try {
-            java.configure(closure)
-        } catch(MissingPropertyException ex) {
-            java.create('default', closure)
-        }
+    void java(Action<? super Java> action) {
+        def defaultJava = java.maybeCreate("default")
+        action.execute(defaultJava)
     }
 
     private def parseVersion(v) {
