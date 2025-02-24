@@ -267,9 +267,13 @@ class SliceExtension {
         this.java = java
     }
 
-    void java(Action<? super Java> action) {
-        def defaultJava = java.maybeCreate("default")
-        action.execute(defaultJava)
+    void java(Action<? super NamedDomainObjectContainer<Java>> action) {
+        try {
+            action.execute(java);
+        } catch (MissingPropertyException e) {
+            def defaultJava = java.maybeCreate("default");
+            action.execute(defaultJava);
+        }
     }
 
     private def parseVersion(v) {
